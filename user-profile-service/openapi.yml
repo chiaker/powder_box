@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: User Profile Service
+  version: 1.0.0
+
+paths:
+  /users/me:
+    get:
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+    put:
+      summary: Update current user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        200:
+          description: Updated
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        user_id:
+          type: string
+        nickname:
+          type: string
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        equipment_type:
+          type: string
+          enum: [ski, snowboard]
+        favorite_resorts:
+          type: array
+          items:
+            type: string
+
+    UserProfileUpdate:
+      allOf:
+        - $ref: '#/components/schemas/UserProfile'
