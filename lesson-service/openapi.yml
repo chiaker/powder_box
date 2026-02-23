@@ -9,7 +9,6 @@ servers:
     description: Локальный сервер разработки
 
 paths:
-  # Получить список всех уроков или создать новый
   /lessons:
     get:
       summary: Список уроков
@@ -23,26 +22,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Lesson'
-    post:
-      summary: Добавить новый урок
-      description: Позволяет инструкторам добавлять ссылки на свои уроки.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LessonCreate'
-      responses:
-        '201':
-          description: Урок успешно добавлен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lesson'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-
-  # Операции с конкретным уроком
+    
   /lessons/{lessonId}:
     get:
       summary: Получить детали урока
@@ -61,21 +41,10 @@ paths:
                 $ref: '#/components/schemas/Lesson'
         '404':
           $ref: '#/components/responses/NotFound'
-    delete:
-      summary: Удалить урок
-      parameters:
-        - name: lessonId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Урок удален
+  
 
 components:
   schemas:
-    # Базовая модель урока
     Lesson:
       type: object
       properties:
@@ -102,7 +71,6 @@ components:
         - title
         - lesson_url
 
-    # Модель для создания (без ID)
     LessonCreate:
       type: object
       properties:
@@ -136,3 +104,4 @@ components:
             type: object
             properties:
               error: {type: string, example: "Урок с таким ID не существует"}
+
