@@ -1,0 +1,177 @@
+openapi: 3.0.0
+info:
+  title: Пример API для получения цен на скипассы на определенном курорте
+  description: |
+    Цены на скипассы
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Локальный сервер для разработки
+
+tags:
+  - name: Cкипассы
+    description: Получение цен на скипассы по query параметрам
+
+# Основные эндпоинты
+paths:
+  /sp/{resortId}:
+    get:
+      tags:
+        - Скипассы
+          
+      summary: Получить тариф скипасса
+      description: Возвращает тариф скипасса по параметрам
+      parameters:
+        - name: resortId
+          in: path
+          required: true
+          description: Идентификатор курорта
+          schema:
+            type: integer
+            example: 1
+
+        - name: durationDays
+          in: query
+          required: true
+          description: Количество дней
+          schema:
+            type: integer
+            example: 3
+
+        - name: ageGroup
+          in: query
+          required: true
+          description: Возрастная группа
+          schema:
+            type: string
+            enum: [adult, child]
+            example: adult
+
+        - name: timeType
+          in: query
+          required: true
+          description: Тип времени катания
+          schema:
+            type: string
+            enum: [day, evening]
+            example: day
+
+        - name: fastTrack
+          in: query
+          required: true
+          description: Наличие fast track
+          schema:
+            type: boolean
+            example: true
+
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponse'
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    PriceResponse:
+      type: object
+      description: Результат расчёта цены скипасса
+      properties:
+        price:
+          type: number
+          format: float
+          example: 195.19
+        currency:
+          type: string
+          example: EUR
+      required:
+        - price
+        - currency
+    
+    
+    SkiPass:
+      type: object
+      properties:
+        resortId:
+          type: integer
+          example: 1
+        durationDays:
+          type: integer
+          example: 3
+        ageGroup:
+          type: string
+          example: adult
+        timeType:
+          type: string
+          example: day
+        fastTrack:
+          type: boolean
+          example: true
+        price:
+          type: number
+          format: float
+          example: 14.88
+        currency:
+          type: string
+          example: EUR
+      required:
+        - price
+        - currency
+
+    ErrorResponse:
+      type: object
+      description: Стандартная ошибка API
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: Некорректный параметр resortId
+        path:
+          type: string
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Тариф не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
