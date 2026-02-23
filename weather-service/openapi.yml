@@ -21,7 +21,7 @@ tags:
 # Основные эндпоинты
 paths:
   # 1. GET - Получить текущую погоду 
-  /weather/current:
+  /weather/{resortId}/current:
     get:
       tags:
         - Текущая погода
@@ -29,7 +29,7 @@ paths:
       description: Возвращает погоду на курорте в данный момент
       parameters:
         - name: resortId
-          in: query
+          in: path
           required: true
           description: Идентификатор курорта
           schema:
@@ -40,16 +40,14 @@ paths:
           description: Успешный ответ
           content:
             application/json:
-              schema:
-                type: array
-                items:
+                schema:
                   $ref: '#/components/schemas/CurrentWeather'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /weather/hourly:
+  /weather/{resortId}/hourly:
     get:
       tags:
         - Прогноз погоды
@@ -57,7 +55,7 @@ paths:
       description: Возвращает почасовой прогноз погоды этого дня на курорте
       parameters:
         - name: resortId
-          in: query
+          in: path
           required: true
           description: Идентификатор курорта
           schema:
@@ -84,7 +82,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /weather/daily:
+  /weather/{resortId}/daily:
     get:
       tags:
         - Прогноз погоды
@@ -92,7 +90,7 @@ paths:
       description: Возвращает прогноз погоды на несколько дней включая текущий день на курорте
       parameters:
         - name: resortId
-          in: query
+          in: path
           required: true
           description: Идентификатор курорта
           schema:
@@ -101,7 +99,7 @@ paths:
         - name: days
           in: query
           required: false
-          description: Количество часов для прогноза (по умолчанию 7)
+          description: Количество дней для прогноза (по умолчанию 7)
           schema:
             type: integer
             example: 7
@@ -119,7 +117,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /snow/conditions:
+  /snow/{resortId}/conditions:
     get:
       tags:
         - Состояние снега
@@ -127,7 +125,7 @@ paths:
       description: Возвращает информацию о состоянии снега на курорте
       parameters:
         - name: resortId
-          in: query
+          in: path
           required: true
           description: Идентификатор курорта
           schema:
@@ -176,7 +174,7 @@ components:
           type: string
           description: Описание погодного состояния
           example: "Идет снег"
-        time-stamp:
+        timestamp:
           type: string
           format: date-time
       required:
@@ -185,7 +183,7 @@ components:
         - windSpeed
         - humidity
         - condition
-        - time-stamp
+        - timestamp
 
     HourlyForecast:
       type: object
@@ -213,7 +211,7 @@ components:
           type: string
           description: Описание погодного состояния
           example: "Идет снег"
-        time-stamp:
+        timestamp:
           type: string
           format: date-time
       required:
@@ -222,7 +220,7 @@ components:
         - windSpeed
         - humidity
         - condition
-        - time-stamp
+        - timestamp
 
     DailyForecast:
       type: object
@@ -251,7 +249,7 @@ components:
           type: string
           description: Описание погодного состояния
           example: "Идет снег"
-        time-stamp:
+        timestamp:
           type: string
           format: date-time
       required:
@@ -260,7 +258,7 @@ components:
         - maxTemperature
         - snowfall
         - condition
-        - time-stamp
+        - timestamp
 
     SnowCondition:
       type: object
@@ -284,7 +282,7 @@ components:
           type: string
           format: date-time
           description: Время последнего снегопада
-        avalacheRisklevel:
+        avalancheRiskLevel:
            type: string
            description: Уровень лавинной опасности
            example: "Умеренный"
@@ -293,4 +291,46 @@ components:
         - baseSnowDepth
         - topSnowDepth
         - lastSnowfall
-        - avalacheRisklevel
+        - avalancheRiskLevel
+    
+    ErrorResponse:
+      type: object
+      description: Стандартная ошибка API
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: Некорректный параметр resortId
+        path:
+          type: string
+          example: /weather/current
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
