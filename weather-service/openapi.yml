@@ -1,0 +1,336 @@
+openapi: 3.0.0
+info:
+  title: Пример API для прогноза погоды
+  description: |
+    Прогноз погоды на высоте курорта
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Локальный сервер для разработки
+
+tags:
+  - name: Текущая погода
+    description: Получение текущей погоды на курорте
+  - name: Прогноз погоды
+    description: Получение прогноза погоды на курорте
+  - name: Состояние снега
+    description: Получение информации о состоянии снега на курорте
+
+
+# Основные эндпоинты
+paths:
+  # 1. GET - Получить текущую погоду 
+  /weather/{resortId}/current:
+    get:
+      tags:
+        - Текущая погода
+      summary: Получение текущей погоды
+      description: Возвращает погоду на курорте в данный момент
+      parameters:
+        - name: resortId
+          in: path
+          required: true
+          description: Идентификатор курорта
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/CurrentWeather'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /weather/{resortId}/hourly:
+    get:
+      tags:
+        - Прогноз погоды
+      summary: Почасовой прогноз текущего дня
+      description: Возвращает почасовой прогноз погоды этого дня на курорте
+      parameters:
+        - name: resortId
+          in: path
+          required: true
+          description: Идентификатор курорта
+          schema:
+            type: integer
+            example: 1
+        - name: hours
+          in: query
+          required: false
+          description: Количество часов для прогноза (по умолчанию 24)
+          schema:
+            type: integer
+            example: 24
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HourlyForecast'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /weather/{resortId}/daily:
+    get:
+      tags:
+        - Прогноз погоды
+      summary: Прогноз погоды на несколько дней
+      description: Возвращает прогноз погоды на несколько дней включая текущий день на курорте
+      parameters:
+        - name: resortId
+          in: path
+          required: true
+          description: Идентификатор курорта
+          schema:
+            type: integer
+            example: 1
+        - name: days
+          in: query
+          required: false
+          description: Количество дней для прогноза (по умолчанию 7)
+          schema:
+            type: integer
+            example: 7
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyForecast'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /snow/{resortId}/conditions:
+    get:
+      tags:
+        - Состояние снега
+      summary: Текущее состояние снега на курорте
+      description: Возвращает информацию о состоянии снега на курорте
+      parameters:
+        - name: resortId
+          in: path
+          required: true
+          description: Идентификатор курорта
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SnowCondition'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  # Модели данных
+  schemas:
+    CurrentWeather:
+      type: object
+      description: Текущая погода на курорте
+      properties:
+        resortId:
+          type: integer
+          description: ID курорта
+          example: 1
+        temperature:
+          type: number
+          format: float
+          description: Температура в градусах Цельсия
+          example: -5.5
+        windSpeed:
+          type: number
+          format: float
+          description: Скорость ветра в м/с
+          example: 3.2
+        humidity:
+          type: integer
+          description: Влажность в процентах
+          example: 80
+        condition:
+          type: string
+          description: Описание погодного состояния
+          example: "Идет снег"
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - resortId
+        - temperature
+        - windSpeed
+        - humidity
+        - condition
+        - timestamp
+
+    HourlyForecast:
+      type: object
+      description: Текущая почасовая погода на курорте
+      properties:
+        resortId:
+          type: integer
+          description: ID курорта
+          example: 1
+        temperature:
+          type: number
+          format: float
+          description: Температура в градусах Цельсия
+          example: -5.5
+        windSpeed:
+          type: number
+          format: float
+          description: Скорость ветра в м/с
+          example: 3.2
+        humidity:
+          type: integer
+          description: Влажность в процентах
+          example: 80
+        condition:
+          type: string
+          description: Описание погодного состояния
+          example: "Идет снег"
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - resortId
+        - temperature
+        - windSpeed
+        - humidity
+        - condition
+        - timestamp
+
+    DailyForecast:
+      type: object
+      description: Текущая ежедневная погода на курорте в течение недели
+      properties:
+        resortId:
+          type: integer
+          description: ID курорта
+          example: 1
+        minTemperature:
+          type: number
+          format: float
+          description: Минимальная температура в градусах Цельсия
+          example: -10
+        maxTemperature:
+          type: number
+          format: float
+          description: Максимальная температура в градусах Цельсия
+          example: 0
+        snowfall:
+          type: number
+          format: float
+          description: Количество снега в см
+          example: 5.0
+        condition:
+          type: string
+          description: Описание погодного состояния
+          example: "Идет снег"
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - resortId
+        - minTemperature
+        - maxTemperature
+        - snowfall
+        - condition
+        - timestamp
+
+    SnowCondition:
+      type: object
+      description: Состояние снега на курорте
+      properties:
+        resortId:
+          type: integer
+          description: ID курорта
+          example: 1
+        baseSnowDepth:
+          type: number
+          format: float
+          description: Глубина снега у основания в см
+          example: 50.0
+        topSnowDepth:
+          type: number
+          format: float
+          description: Глубина снега на вершине в см
+          example: 120.0
+        lastSnowfall:
+          type: string
+          format: date-time
+          description: Время последнего снегопада
+        avalancheRiskLevel:
+           type: string
+           description: Уровень лавинной опасности
+           example: "Умеренный"
+      required:
+        - resortId
+        - baseSnowDepth
+        - topSnowDepth
+        - lastSnowfall
+        - avalancheRiskLevel
+    
+    ErrorResponse:
+      type: object
+      description: Стандартная ошибка API
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: Некорректный параметр resortId
+        path:
+          type: string
+          example: /weather/current
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    

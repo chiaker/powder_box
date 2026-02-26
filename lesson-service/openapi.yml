@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  title: PowderBox Lessons API
+  description: Сервис управления уроками и обучением для горнолыжников и сноубордистов.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Локальный сервер разработки
+
+paths:
+  /lessons:
+    get:
+      summary: Список уроков
+      description: Возвращает список доступных видео-уроков и мастер-классов.
+      responses:
+        '200':
+          description: Список уроков получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lesson'
+    
+  /lessons/{lessonId}:
+    get:
+      summary: Получить детали урока
+      parameters:
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Информация об уроке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  
+
+components:
+  schemas:
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        title:
+          type: string
+          description: Название урока (например, "Карвинг для начинающих")
+          example: "Базовая стойка на сноуборде"
+        category:
+          type: string
+          enum: [snowboard, ski, freestyle, safety]
+          example: "snowboard"
+        lesson_url:
+          type: string
+          description: Ссылка на видео или материал урока
+          example: "https://tube.com/watch"
+        instructor_id:
+          type: integer
+          example: 77
+      required:
+        - id
+        - title
+        - lesson_url
+
+    LessonCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Как не бояться бугеля"
+        category:
+          type: string
+          example: "ski"
+        lesson_url:
+          type: string
+          example: "https://tube.com/123456"
+      required:
+        - title
+        - lesson_url
+
+  responses:
+    BadRequest:
+      description: Ошибка в данных
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: {type: string, example: "Некорректная ссылка"}
+    NotFound:
+      description: Урок не найден
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: {type: string, example: "Урок с таким ID не существует"}
+

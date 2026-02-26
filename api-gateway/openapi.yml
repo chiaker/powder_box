@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: PowderBox API Gateway
+  version: 1.0.0
+
+paths:
+  /auth/{path}:
+    x-proxy-to: auth-service
+    parameters:
+      - name: path
+        in: path
+        required: true
+        schema:
+          type: string
+
+  /users/{path}:
+    x-proxy-to: user-profile-service
+
+  /equipment/{path}:
+    x-proxy-to: equipment-service
+
+  /resorts/{path}:
+    x-proxy-to: resort-service
+
+  /weather/{path}:
+    x-proxy-to: weather-service
+
+  /hotels/{path}:
+    x-proxy-to: hotel-service
+
+  /skipasses/{path}:
+    x-proxy-to: skipass-service
+
+  /lessons/{path}:
+    x-proxy-to: lesson-service
+
+  /activities/{path}:
+    x-proxy-to: activity-service
+
+  /stats/{path}:
+    x-proxy-to: stats-service
