@@ -33,13 +33,6 @@ class Resort(Base):
     beginner_friendly: Mapped[bool | None] = mapped_column(Integer, nullable=True)  # 1=True, 0=False
 
 
-class ResortRating(Base):
-    __tablename__ = "resort_ratings"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    resort_id: Mapped[int] = mapped_column(Integer, ForeignKey("resorts.id"), nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    rating: Mapped[float] = mapped_column(Float, nullable=False)
 
 
 class ResortReview(Base):
