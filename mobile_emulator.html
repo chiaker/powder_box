@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PowderBox Tracker</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-top: 0; }
+        input { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        button { width: 100%; padding: 14px; margin: 8px 0; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-stop { background-color: #dc3545; }
+        .hidden { display: none; }
+        .stats { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .stat-label { color: #666; }
+        .stat-value { font-weight: bold; }
+        #status { text-align: center; color: #666; font-size: 14px; margin-bottom: 15px; }
+        .log { margin-top: 20px; font-size: 12px; color: #666; height: 100px; overflow-y: auto; background: #eee; padding: 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>PB Tracker</h1>
+    <div id="status">Требуется авторизация</div>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+        <input type="email" id="email" placeholder="Email" value="user@example.com">
+        <input type="password" id="password" placeholder="Пароль" value="password">
+        <button onclick="login()">Войти</button>
+    </div>
+
+    <!-- Tracker View -->
+    <div id="trackerView" class="hidden">
+        <button id="startBtn" onclick="startTracking()">🚀 ЗАПУСТИТЬ КАТАНИЕ</button>
+        <button id="stopBtn" class="btn-stop hidden" onclick="stopTracking()">⏹ ОСТАНОВИТЬ</button>
+
+        <div class="stats">
+            <div class="stat-row">
+                <span class="stat-label">Точек:</span>
+                <span class="stat-value" id="valPoints">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Скорость:</span>
+                <span class="stat-value"><span id="valSpeed">0</span> км/ч</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Высота:</span>
+                <span class="stat-value"><span id="valAlt">0</span> м</span>
+            </div>
+        </div>
+
+        <div class="log" id="logBox"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:8000";
+    let token = localStorage.getItem("pb_token");
+    let watchId = null;
+    let trackPoints = [];
+    let startTime = null;
+
+    if (token) {
+        showTracker();
+    }
+
+    function log(msg) {
+        const lb = document.getElementById("logBox");
+        lb.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${msg}</div>`;
+        lb.scrollTop = lb.scrollHeight;
+    }
+
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        try {
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                token = data.access_token;
+                localStorage.setItem("pb_token", token);
+                showTracker();
+                log("Успешный вход");
+            } else {
+                alert("Ошибка входа");
+            }
+        } catch (e) {
+            alert("Сетевая ошибка: " + e.message);
+        }
+    }
+
+    function showTracker() {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('trackerView').classList.remove('hidden');
+        document.getElementById('status').innerText = "Готов к запуску";
+    }
+
+    function startTracking() {
+        if (!navigator.geolocation) {
+            alert("Геолокация не поддерживается вашим браузером");
+            return;
+        }
+
+        trackPoints = [];
+        startTime = new Date().toISOString();
+        
+        document.getElementById('startBtn').classList.add('hidden');
+        document.getElementById('stopBtn').classList.remove('hidden');
+        document.getElementById('status').innerText = "Идет запись трека...";
+        document.getElementById('valPoints').innerText = "0";
+        log("Начат поиск спутников...");
+
+        watchId = navigator.geolocation.watchPosition(
+            (pos) => {
+                const speedMs = pos.coords.speed || 0; // meters per second
+                const speedKmh = Math.round(speedMs * 3.6);
+                const alt = pos.coords.altitude || 0;
+
+                trackPoints.push({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    alt: alt,
+                    speed: speedMs,
+                    timestamp: new Date(pos.timestamp).toISOString()
+                });
+
+                document.getElementById('valPoints').innerText = trackPoints.length;
+                document.getElementById('valSpeed').innerText = speedKmh;
+                document.getElementById('valAlt').innerText = Math.round(alt);
+                log(`Точка: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`);
+            },
+            (err) => {
+                log("Ошибка GPS: " + err.message);
+            },
+            { enableHighAccuracy: true, maximumAge: 0 }
+        );
+    }
+
+    async function stopTracking() {
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+
+        document.getElementById('stopBtn').classList.add('hidden');
+        document.getElementById('startBtn').classList.remove('hidden');
+        document.getElementById('status').innerText = "Синхронизация...";
+        log("Трек остановлен. Отправка на сервер...");
+
+        const endedTime = new Date().toISOString();
+
+        if (trackPoints.length === 0) {
+            log("Нет точек для отправки.");
+            document.getElementById('status').innerText = "Трек пуст";
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/stats/tracks`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    started_at: startTime,
+                    ended_at: endedTime,
+                    points: trackPoints
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                log(`Успешно! Дистанция: ${data.distance} км, Макс. скорость: ${data.max_speed} км/ч`);
+                document.getElementById('status').innerText = "Сохранено на сервере";
+            } else {
+                if (res.status === 401) {
+                    log("Ошибка: Токен устарел");
+                    localStorage.removeItem("pb_token");
+                    document.getElementById('trackerView').classList.add('hidden');
+                    document.getElementById('loginForm').classList.remove('hidden');
+                } else {
+                    log("Ошибка сервера: " + res.status);
+                }
+            }
+        } catch (e) {
+            log("Ошибка отправки: " + e.message);
+            document.getElementById('status').innerText = "Ошибка синхронизации";
+        }
+    }
+</script>
+
+</body>
+</html>

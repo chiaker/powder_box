@@ -37,6 +37,17 @@ services:
     networks:
       - powderbox
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - powderbox
+
   auth-service:
     build: ./auth-service
     ports:
@@ -60,6 +71,7 @@ services:
     environment:
       - DATABASE_URL=sqlite+aiosqlite:///./data/profiles.db
       - JWT_SECRET=${JWT_SECRET:-dev-secret-key}
+      - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672/}
     volumes:
       - ./user-profile-service/app:/app/app
       - profile_data:/app/data
@@ -161,6 +173,8 @@ services:
       - "8010:8010"
     environment:
       - DATABASE_URL=sqlite+aiosqlite:///./data/stats.db
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key}
+      - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672/}
     volumes:
       - ./stats-service/app:/app/app
       - stats_data:/app/data

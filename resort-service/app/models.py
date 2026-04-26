@@ -33,8 +33,6 @@ class Resort(Base):
     beginner_friendly: Mapped[bool | None] = mapped_column(Integer, nullable=True)  # 1=True, 0=False
 
 
-
-
 class ResortReview(Base):
     __tablename__ = "resort_reviews"
     __table_args__ = (UniqueConstraint("resort_id", "user_id", name="uq_resort_reviews_resort_user"),)

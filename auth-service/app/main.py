@@ -4,12 +4,15 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 import bcrypt
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.database import get_db, async_session
 from app.models import User, RefreshToken
@@ -79,12 +82,35 @@ async def issue_token_pair(db: AsyncSession, user: User) -> AuthTokens:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Схема БД управляется через Alembic (alembic upgrade head).
     yield
 
 
 app = FastAPI(title="Auth Service", version="1.0.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+LOG_FILE = Path(os.getenv("AUTH_POST_LOG_FILE", "/app/data/auth-post-requests.txt"))
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+class PostRequestLoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if request.method.upper() != "POST":
+            return await call_next(request)
+
+        body_bytes = await request.body()
+        body_text = body_bytes.decode("utf-8", errors="replace")
+        if len(body_text) > 2000:
+            body_text = body_text[:2000] + "...[truncated]"
+
+        response = await call_next(request)
+        status_code = getattr(response, "status_code", None)
+        safe_body = body_text.replace("\r", " ").replace("\n", " ").replace("\t", " ")
+        line = f"{datetime.now().isoformat()}Z\t{request.url.path}\t{status_code}\t{safe_body}\n"
+        with LOG_FILE.open("a", encoding="utf-8") as f:
+            f.write(line)
+        return response
+
+
+app.add_middleware(PostRequestLoggingMiddleware)
 
 
 @app.get("/health")
@@ -157,7 +183,6 @@ async def refresh(data: RefreshRequest):
             if not user:
                 raise HTTPException(status_code=401, detail="User not found")
 
-            # Ротация: текущий refresh токен отзывается и выдаётся новый.
             refresh_row.revoked_at = datetime.now(timezone.utc)
             tokens = await issue_token_pair(db, user)
             await db.commit()
@@ -190,5 +215,4 @@ async def logout(data: RefreshRequest, db: AsyncSession = Depends(get_db)):
             await db.commit()
         return LogoutResponse()
     except (JWTError, ValueError):
-        # Logout должен быть идемпотентным: очищаем клиент даже при плохом токене.
         return LogoutResponse()
