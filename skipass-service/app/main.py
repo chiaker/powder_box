@@ -114,7 +114,6 @@ async def delete_tariff(tariff_id: int, db: AsyncSession = Depends(get_db)):
     await db.commit()
 
 
-# Alternative endpoint matching openapi: /sp/{resortId} with query params
 @app.get("/skipasses/resort/{resort_id}/price", response_model=PriceResponse)
 async def get_resort_price(
     resort_id: int,

@@ -318,7 +318,6 @@ async def get_current_weather(resort_id: int, db: AsyncSession = Depends(get_db)
     if points:
         current = await fetch_open_meteo_current(points[0].latitude, points[0].longitude)
         return current_from_open_meteo(resort_id, current)
-    # fallback, если точки высот ещё не добавлены
     return CurrentWeather(
         resortId=resort_id,
         temperature=-5.5,
