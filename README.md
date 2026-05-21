@@ -118,3 +118,62 @@ curl http://localhost:8000/users/me \
 ```bash
 curl http://localhost:8000/resorts
 ```
+
+## Наблюдаемость (Observability)
+
+Каждый сервис экспортирует Prometheus-метрики на `/metrics`, пишет
+структурированные JSON-логи в stdout и поддерживает Correlation ID.
+
+| Адрес | Что это |
+|-------|---------|
+| http://localhost:9090 | Prometheus — сырое хранилище метрик и интерфейс PromQL |
+| http://localhost:3001 | Grafana — приборная панель (логин/пароль `admin` / `admin`) |
+| http://localhost:8000/metrics, …, http://localhost:8010/metrics | Сырые метрики каждого сервиса |
+
+После `docker compose up -d --build` дашборд **PowderBox → Overview**
+поднимается автоматически и показывает:
+
+- **RPS** — частота запросов по сервисам;
+- **Error rate** — доля 5xx-ответов;
+- **Latency p50 / p95 / p99** — распределение времени ответа;
+- **In-flight** — сколько запросов обрабатывается прямо сейчас;
+- **Топ endpoints** — таблица самых нагруженных маршрутов.
+
+### Correlation ID
+
+Через API Gateway каждому входящему запросу присваивается `X-Request-ID`
+(или используется значение, переданное клиентом). Этот идентификатор:
+
+1. возвращается клиенту в заголовке ответа;
+2. пробрасывается во все downstream-сервисы при проксировании;
+3. попадает во все JSON-логи как поле `correlation_id`.
+
+Так одну логическую цепочку можно отследить по всем сервисам:
+
+```bash
+docker compose logs api-gateway auth-service user-profile-service \
+  | grep '"correlation_id": "<id>"'
+```
+
+### Полезные PromQL-запросы
+
+```promql
+# RPS по сервису
+sum by (service) (rate(http_requests_total[1m]))
+
+# Error rate 5xx
+sum by (service) (rate(http_requests_total{status_code=~"5.."}[5m]))
+  / sum by (service) (rate(http_requests_total[5m]))
+
+# p95 latency
+histogram_quantile(0.95,
+  sum by (service, le) (rate(http_request_duration_seconds_bucket[5m])))
+```
+
+### Конфигурация
+
+- `observability/observability.py` — общий код (исходник, копируется в каждый сервис при правках);
+- `*/app/observability.py` — копия модуля в каждом сервисе;
+- `observability/prometheus/prometheus.yml` — список целей для скрейпинга;
+- `observability/grafana/provisioning/` — автогенерация datasource'а и провайдера дашбордов;
+- `observability/grafana/dashboards/powderbox-overview.json` — главный дашборд.

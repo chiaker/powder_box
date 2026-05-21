@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import get_current_user_id
 from app.database import get_db, Base, engine, async_session
 from app.models import Profile
+from app.observability import setup_observability
 from app.schemas import UserProfile, UserProfileUpdate
 
 RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq:5672/")
@@ -75,6 +76,7 @@ async def lifespan(app: FastAPI):
         await conn.close()
 
 app = FastAPI(title="User Profile Service", version="1.0.0", lifespan=lifespan)
+setup_observability(app, service_name="user-profile-service")
 
 @app.get("/health")
 async def health():

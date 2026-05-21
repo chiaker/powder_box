@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import Base, engine, get_db
 from app.models import ResortAltitudePoint
+from app.observability import setup_observability
 from app.schemas import (
     AltitudePointCreate,
     AltitudePointOut,
@@ -36,6 +37,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Weather Service", version="1.0.0", lifespan=lifespan)
+setup_observability(app, service_name="weather-service")
 
 
 @app.get("/health")

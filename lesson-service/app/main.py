@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db, Base, engine
 from app.models import Lesson
+from app.observability import setup_observability
 from app.schemas import LessonOut, LessonCreate, LessonUpdate
 
 
@@ -35,6 +36,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Lesson Service", version="1.0.0", lifespan=lifespan)
+setup_observability(app, service_name="lesson-service")
 
 
 @app.get("/health")

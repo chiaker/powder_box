@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db, Base, engine
 from app.models import SkipassTariff
+from app.observability import setup_observability
 from app.schemas import (
     PriceResponse,
     SkipassTariffCreate,
@@ -23,6 +24,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Skipass Service", version="1.0.0", lifespan=lifespan)
+setup_observability(app, service_name="skipass-service")
 
 
 @app.get("/health")

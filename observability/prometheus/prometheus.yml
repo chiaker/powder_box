@@ -1,0 +1,52 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'powderbox-services'
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - api-gateway:8000
+        labels:
+          service: api-gateway
+      - targets:
+          - auth-service:8001
+        labels:
+          service: auth-service
+      - targets:
+          - user-profile-service:8002
+        labels:
+          service: user-profile-service
+      - targets:
+          - equipment-service:8003
+        labels:
+          service: equipment-service
+      - targets:
+          - resort-service:8004
+        labels:
+          service: resort-service
+      - targets:
+          - weather-service:8005
+        labels:
+          service: weather-service
+      - targets:
+          - hotel-service:8006
+        labels:
+          service: hotel-service
+      - targets:
+          - skipass-service:8007
+        labels:
+          service: skipass-service
+      - targets:
+          - lesson-service:8008
+        labels:
+          service: lesson-service
+      - targets:
+          - activity-service:8009
+        labels:
+          service: activity-service
+      - targets:
+          - stats-service:8010
+        labels:
+          service: stats-service

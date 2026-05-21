@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import get_current_user_id
 from app.database import get_db, Base, engine
 from app.models import Resort, ResortCategory, ResortReview
+from app.observability import setup_observability
 from app.schemas import (
     ResortOut,
     ResortCategoryOut,
@@ -98,6 +99,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Resort Service", version="1.0.0", lifespan=lifespan)
+setup_observability(app, service_name="resort-service")
 
 # Локальные картинки: /static/resorts/1.jpg и т.д.
 if STATIC_DIR.exists():

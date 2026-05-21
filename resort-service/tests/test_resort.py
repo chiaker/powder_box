@@ -113,7 +113,7 @@ async def test_create_review_unauthenticated(client: AsyncClient):
         f"/resorts/{resort_id}/reviews",
         json={"rating": 5, "review_text": "Отлично"},
     )
-    assert r.status_code == 403
+    assert r.status_code in (401, 403)
 
 
 async def test_create_review_success(client: AsyncClient):

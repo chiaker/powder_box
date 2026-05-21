@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import get_current_user_id
 from app.database import get_db, Base, engine
 from app.models import EquipmentCategory, EquipmentItem
+from app.observability import setup_observability
 from app.schemas import (
     EquipmentCategoryOut, EquipmentCategoryCreate,
     EquipmentItemOut, EquipmentItemCreate, EquipmentItemUpdate,
@@ -44,6 +45,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Equipment Service", version="1.0.0", lifespan=lifespan)
+setup_observability(app, service_name="equipment-service")
 
 app.mount("/equipment-static", StaticFiles(directory=str(STATIC_DIR.parent)), name="equipment-static")
 

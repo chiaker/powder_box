@@ -11,6 +11,12 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse, Response
 from jose import JWTError, jwt
 
+from app.observability import (
+    CORRELATION_ID_HEADER,
+    get_correlation_id,
+    setup_observability,
+)
+
 # Service URL mapping
 SERVICE_URLS = {
     "auth": os.getenv("AUTH_SERVICE_URL", "http://auth-service:8001"),
@@ -119,6 +125,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+setup_observability(app, service_name="api-gateway")
 
 @app.get("/health")
 async def health():
@@ -153,6 +160,9 @@ async def proxy(request: Request, path: str):
 
     headers = dict(request.headers)
     headers.pop("host", None)
+    # Прокидываем correlation ID на upstream-сервисы, чтобы логи одного
+    # запроса от клиента до downstream-сервиса связывались по этому ключу.
+    headers[CORRELATION_ID_HEADER] = get_correlation_id()
     if full_path == "/equipment/upload" and request.method == "POST":
         x_token = request.headers.get("x-auth-token") or request.headers.get("X-Auth-Token")
         auth_val = headers.get("authorization") or headers.get("Authorization")

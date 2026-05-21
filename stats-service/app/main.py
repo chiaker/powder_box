@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db, Base, engine
 from app.models import Track
+from app.observability import setup_observability
 from app.schemas import TrackCreate, TrackOut, UserStats
 from app.auth import get_current_user_id
 
@@ -37,6 +38,7 @@ async def lifespan(app: FastAPI):
         await app.state.mq_conn.close()
 
 app = FastAPI(title="Stats Service", version="1.0.0", lifespan=lifespan)
+setup_observability(app, service_name="stats-service")
 
 @app.get("/health")
 async def health():

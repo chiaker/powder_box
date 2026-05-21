@@ -6,3 +6,4 @@ python-jose[cryptography]==3.3.0
 python-dotenv==1.0.1
 pydantic==2.6.1
 aio-pika==9.4.0
+prometheus-client==0.20.0

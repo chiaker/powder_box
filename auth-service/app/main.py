@@ -16,6 +16,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.database import get_db, async_session
 from app.models import User, RefreshToken
+from app.observability import setup_observability
 from app.schemas import RegisterRequest, LoginRequest, AuthTokens, RefreshRequest, LogoutResponse
 
 
@@ -87,6 +88,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Auth Service", version="1.0.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+setup_observability(app, service_name="auth-service")
 
 LOG_FILE = Path(os.getenv("AUTH_POST_LOG_FILE", "/app/data/auth-post-requests.txt"))
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
