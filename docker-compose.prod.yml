@@ -1,0 +1,109 @@
+# Production overrides.
+#
+# Запуск:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Что добавляется:
+#   - все порты слушают только 127.0.0.1 (наружу торчит nginx HestiaCP);
+#   - restart: unless-stopped — сервисы переподнимаются после краха/ребута;
+#   - команды переопределены без `--reload` (uvicorn в prod-режиме);
+#   - frontend собирается в статику (Dockerfile.prod) и раздаётся nginx'ом;
+#   - rabbitmq management UI на 127.0.0.1, наружу не торчит.
+#
+# Bind-mounts кода НЕ подмешиваются: docker-compose.override.yml для прода
+# не используется (он подгружается только автоматически при простом
+# `docker compose up`, а в проде мы явно перечисляем файлы).
+#
+# Требуется Docker Compose v2.24+ (для тега !override).
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    image: powderbox-frontend:prod
+    ports: !override
+      - "127.0.0.1:3000:80"
+    restart: unless-stopped
+
+  api-gateway:
+    ports: !override
+      - "127.0.0.1:8000:8000"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    restart: unless-stopped
+
+  rabbitmq:
+    ports: !override
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    restart: unless-stopped
+
+  auth-service:
+    ports: !override
+      - "127.0.0.1:8001:8001"
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8001"]
+    restart: unless-stopped
+
+  user-profile-service:
+    ports: !override
+      - "127.0.0.1:8002:8002"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
+    restart: unless-stopped
+
+  equipment-service:
+    ports: !override
+      - "127.0.0.1:8003:8003"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8003"]
+    restart: unless-stopped
+
+  resort-service:
+    ports: !override
+      - "127.0.0.1:8004:8004"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8004"]
+    restart: unless-stopped
+
+  weather-service:
+    ports: !override
+      - "127.0.0.1:8005:8005"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8005"]
+    restart: unless-stopped
+
+  hotel-service:
+    ports: !override
+      - "127.0.0.1:8006:8006"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8006"]
+    restart: unless-stopped
+
+  skipass-service:
+    ports: !override
+      - "127.0.0.1:8007:8007"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8007"]
+    restart: unless-stopped
+
+  lesson-service:
+    ports: !override
+      - "127.0.0.1:8008:8008"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8008"]
+    restart: unless-stopped
+
+  activity-service:
+    ports: !override
+      - "127.0.0.1:8009:8009"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8009"]
+    restart: unless-stopped
+
+  stats-service:
+    ports: !override
+      - "127.0.0.1:8010:8010"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8010"]
+    restart: unless-stopped
+
+  prometheus:
+    ports: !override
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    ports: !override
+      - "127.0.0.1:3001:3000"
+    restart: unless-stopped

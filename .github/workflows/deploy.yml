@@ -1,0 +1,60 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          command_timeout: 20m
+          script: |
+            set -euo pipefail
+
+            APP_DIR="${{ secrets.APP_DIR }}"
+            cd "$APP_DIR"
+
+            echo "==> git pull"
+            git fetch --all --prune
+            git reset --hard origin/main
+
+            echo "==> docker compose up --build"
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              up -d --build --remove-orphans
+
+            echo "==> waiting for api-gateway to become healthy"
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:8000/health >/dev/null; then
+                echo "api-gateway OK"
+                break
+              fi
+              if [ "$i" = "30" ]; then
+                echo "api-gateway did NOT come up — see logs:"
+                docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=200 api-gateway
+                exit 1
+              fi
+              sleep 2
+            done
+
+            echo "==> docker image prune"
+            docker image prune -f
+
+            echo "==> deploy complete"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml ps

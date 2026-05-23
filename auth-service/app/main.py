@@ -142,6 +142,10 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
         logging.exception("Register failed")
         raise HTTPException(status_code=500, detail="Registration failed. Please try again.")
 
+@app.get("/debug/boom")
+async def boom():
+    raise RuntimeError("intentional 500 for grafana demo")
+
 
 @app.post("/auth/login", response_model=AuthTokens)
 async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):

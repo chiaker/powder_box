@@ -1,0 +1,67 @@
+# Dev-only overrides. Docker Compose автоматически подмешивает этот файл
+# при обычном `docker compose up`. На проде он НЕ применяется, потому что
+# деплой явно использует `-f docker-compose.yml -f docker-compose.prod.yml`.
+#
+# Здесь живут bind-mounts кода для hot-reload и dev-конфиг фронта.
+
+services:
+  frontend:
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+
+  api-gateway:
+    volumes:
+      - ./api-gateway/app:/app/app
+
+  auth-service:
+    volumes:
+      - ./auth-service/app:/app/app
+      - auth_data:/app/data
+
+  user-profile-service:
+    volumes:
+      - ./user-profile-service/app:/app/app
+      - profile_data:/app/data
+
+  equipment-service:
+    volumes:
+      - ./equipment-service/app:/app/app
+      - equipment_data:/app/data
+      - equipment_static:/app/static
+
+  resort-service:
+    volumes:
+      - ./resort-service/app:/app/app
+      - ./resort-service/static:/app/static
+      - resort_data:/app/data
+
+  weather-service:
+    volumes:
+      - ./weather-service/app:/app/app
+      - weather_data:/app/data
+
+  hotel-service:
+    volumes:
+      - ./hotel-service/app:/app/app
+      - hotel_data:/app/data
+
+  skipass-service:
+    volumes:
+      - ./skipass-service/app:/app/app
+      - skipass_data:/app/data
+
+  lesson-service:
+    volumes:
+      - ./lesson-service/app:/app/app
+      - lesson_data:/app/data
+
+  activity-service:
+    volumes:
+      - ./activity-service/app:/app/app
+      - activity_data:/app/data
+
+  stats-service:
+    volumes:
+      - ./stats-service/app:/app/app
+      - stats_data:/app/data

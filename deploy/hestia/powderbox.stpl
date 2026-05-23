@@ -1,0 +1,65 @@
+# HestiaCP nginx proxy template для powderbox.wwder.ru (HTTPS, SSL).
+#
+# Положить в /usr/local/hestia/data/templates/web/nginx/powderbox.stpl на сервере.
+# Парный HTTP-шаблон — powderbox.tpl.
+
+server {
+    listen      %ip%:%proxy_ssl_port% ssl;
+    http2       on;
+    server_name %domain_idn% %alias_idn%;
+
+    ssl_certificate      %ssl_pem%;
+    ssl_certificate_key  %ssl_key%;
+    ssl_stapling         on;
+    ssl_stapling_verify  on;
+
+    access_log  /var/log/nginx/domains/%domain%.log combined;
+    access_log  /var/log/nginx/domains/%domain%.bytes bytes;
+    error_log   /var/log/nginx/domains/%domain%.error.log error;
+
+    client_max_body_size 32m;
+
+    # -----------------------------------------------------------------------
+    # API: /api/* -> api-gateway (127.0.0.1:8000), префикс /api отрезается.
+    # -----------------------------------------------------------------------
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000/;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host  $host;
+        proxy_set_header X-Request-ID      $request_id;
+        proxy_read_timeout 60s;
+        proxy_send_timeout 60s;
+    }
+
+    location /static/ {
+        proxy_pass http://127.0.0.1:8004;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_valid 200 1h;
+    }
+
+    location /equipment-static/ {
+        proxy_pass http://127.0.0.1:8003;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    include /etc/nginx/conf.d/phpmyadmin.inc*;
+}
