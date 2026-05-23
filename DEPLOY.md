@@ -26,7 +26,7 @@ Internet  →  HestiaCP nginx (80, HTTP)  →  127.0.0.1:3000  (frontend, ста
 | `frontend/Dockerfile.prod` | Multi-stage сборка SPA (Vite build → nginx alpine) |
 | `frontend/nginx.conf` | Внутренний nginx фронт-контейнера: статика + SPA fallback |
 | `deploy/hestia/powderbox.tpl` / `.stpl` | nginx-шаблоны HestiaCP. `.tpl` используется (HTTP), `.stpl` требуется для регистрации имени шаблона панелью, даже если SSL для домена выключен |
-| `.github/workflows/deploy.yml` | GitHub Actions: на push в main — SSH-деплой |
+| `.github/workflows/deploy.yml` | GitHub Actions: matrix-тесты по всем сервисам → SSH-деплой (только на push в main) |
 
 ## Один раз: настройка сервера
 
@@ -152,10 +152,13 @@ curl -fsS http://powderbox.wwder.ru/api/health   # должен вернуть {
 ## Текущий deploy-цикл
 
 ```
-push в main
+push в main (или ручной workflow_dispatch)
    │
    ▼
-GitHub Actions (deploy.yml)
+test (matrix x11 сервисов — pytest в параллель)
+   │  все зелёные?
+   ▼
+deploy
    │  ssh powderbox@SERVER_IP
    ▼
 cd $APP_DIR
@@ -164,6 +167,9 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --
 curl /health (retry до 30x)
 docker image prune -f
 ```
+
+На `pull_request → main` отрабатывает только этап `test` — деплой не идёт,
+но красные тесты сразу видно в чек-листе PR-а.
 
 Если health-check не прошёл за минуту — GA-шаг падает и тянет в лог последние
 200 строк api-gateway. Прошлые контейнеры остаются работать (если `up --build`
