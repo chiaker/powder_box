@@ -11,13 +11,6 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
-# Принудительно запускаем JavaScript-actions на Node.js 24 (вместо Node 20).
-# Иначе с июня 2026 GitHub переключит это сам и старые версии actions
-# могут поломаться. Снять можно будет, когда checkout/setup-python выпустят
-# мажорки на Node 24 (на сегодня их ещё нет).
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   test:
     name: Test ${{ matrix.service }}
@@ -40,10 +33,10 @@ jobs:
           - stats-service
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
