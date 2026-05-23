@@ -1,7 +1,11 @@
-# HestiaCP nginx proxy template для powderbox.wwder.ru (HTTPS, SSL).
+# HestiaCP nginx proxy template (HTTPS-вариант).
 #
-# Положить в /usr/local/hestia/data/templates/web/nginx/powderbox.stpl на сервере.
-# Парный HTTP-шаблон — powderbox.tpl.
+# Требуется HestiaCP, чтобы зарегистрировать имя шаблона "powderbox" —
+# панель сканирует папку и ожидает пары .tpl + .stpl, даже если SSL у
+# конкретного домена выключен. В этом случае файл просто не используется.
+#
+# Если в будущем включишь SSL для powderbox.wwder.ru, Hestia подставит
+# сюда настоящие %ssl_pem% / %ssl_key%, и блок заработает.
 
 server {
     listen      %ip%:%proxy_ssl_port% ssl;
@@ -19,9 +23,6 @@ server {
 
     client_max_body_size 32m;
 
-    # -----------------------------------------------------------------------
-    # API: /api/* -> api-gateway (127.0.0.1:8000), префикс /api отрезается.
-    # -----------------------------------------------------------------------
     location /api/ {
         proxy_pass http://127.0.0.1:8000/;
         proxy_http_version 1.1;

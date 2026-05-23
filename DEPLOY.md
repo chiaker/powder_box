@@ -1,10 +1,10 @@
 # Деплой powderbox.wwder.ru
 
-Стек: Docker Compose на сервере + HestiaCP как реверс-прокси и SSL-терминатор +
+Стек: Docker Compose на сервере + HestiaCP как реверс-прокси (HTTP only, без SSL) +
 GitHub Actions для CI/CD по SSH.
 
 ```
-Internet  →  HestiaCP nginx (443, SSL)  →  127.0.0.1:3000  (frontend, статика)
+Internet  →  HestiaCP nginx (80, HTTP)  →  127.0.0.1:3000  (frontend, статика)
                                        →  127.0.0.1:8000  (api-gateway, /api/*)
                                        →  127.0.0.1:8004  (resort-service, /static/*)
                                        →  127.0.0.1:8003  (equipment-service, /equipment-static/*)
@@ -25,7 +25,7 @@ Internet  →  HestiaCP nginx (443, SSL)  →  127.0.0.1:3000  (frontend, ста
 | `docker-compose.prod.yml` | Prod-оверрайды: 127.0.0.1, restart, `command` без `--reload`, prod-сборка фронта |
 | `frontend/Dockerfile.prod` | Multi-stage сборка SPA (Vite build → nginx alpine) |
 | `frontend/nginx.conf` | Внутренний nginx фронт-контейнера: статика + SPA fallback |
-| `deploy/hestia/powderbox.tpl` / `.stpl` | nginx-шаблоны HestiaCP для домена (HTTP / HTTPS) |
+| `deploy/hestia/powderbox.tpl` / `.stpl` | nginx-шаблоны HestiaCP. `.tpl` используется (HTTP), `.stpl` требуется для регистрации имени шаблона панелью, даже если SSL для домена выключен |
 | `.github/workflows/deploy.yml` | GitHub Actions: на push в main — SSH-деплой |
 
 ## Один раз: настройка сервера
@@ -96,30 +96,30 @@ sudo -u powderbox bash -lc '
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=200
 ```
 
-### 4. HestiaCP: домен и SSL
+### 4. HestiaCP: добавить домен (без SSL)
 
 В UI Хестии:
 
-1. **Web → Add Web Domain** → `powderbox.wwder.ru` (без алиаса `www.` пока).
-2. Включить **SSL Support** + **Use Lets Encrypt** + **Use HTTP-01 challenge**.
-   Нажать *Save*. Дождаться выпуска сертификата.
-3. (Опционально) включить **Force HTTPS Redirect**.
+1. **Web → Add Web Domain** → `powderbox.wwder.ru`.
+2. **SSL Support не включаем** (на сервере открыт только порт 80).
 
 Проверить, что Хестия слушает домен:
 
 ```bash
-curl -I http://powderbox.wwder.ru/        # должен вернуть 200/301 от nginx
+curl -I http://powderbox.wwder.ru/        # должен вернуть 200/4xx от nginx
 ```
 
 ### 5. HestiaCP: подключить наш proxy-шаблон
 
-Скопировать шаблоны:
+Скопировать **оба** файла (HestiaCP не зарегистрирует имя шаблона, если нет
+пары `.tpl + .stpl`, даже если SSL не нужен):
 
 ```bash
 sudo cp /home/powderbox/apps/powderbox/deploy/hestia/powderbox.tpl  \
         /usr/local/hestia/data/templates/web/nginx/powderbox.tpl
 sudo cp /home/powderbox/apps/powderbox/deploy/hestia/powderbox.stpl \
         /usr/local/hestia/data/templates/web/nginx/powderbox.stpl
+sudo chmod 644 /usr/local/hestia/data/templates/web/nginx/powderbox.*tpl
 ```
 
 В UI: домен → **Edit** → раздел *Advanced Options*:
@@ -131,8 +131,8 @@ sudo cp /home/powderbox/apps/powderbox/deploy/hestia/powderbox.stpl \
 Проверка:
 
 ```bash
-curl -I https://powderbox.wwder.ru/
-curl -fsS https://powderbox.wwder.ru/api/health   # должен вернуть {"status":"ok","service":"api-gateway"}
+curl -I http://powderbox.wwder.ru/
+curl -fsS http://powderbox.wwder.ru/api/health   # должен вернуть {"status":"ok","service":"api-gateway"}
 ```
 
 ### 6. GitHub Secrets
