@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, imageUrl, IMG_PLACEHOLDER, type EquipmentItem, type EquipmentCategory } from '../api/client'
 
@@ -7,8 +7,20 @@ export default function Equipment() {
   const [categories, setCategories] = useState<EquipmentCategory[]>([])
   const [categoryFilter, setCategoryFilter] = useState<number | ''>('')
   const [equipmentTypeFilter, setEquipmentTypeFilter] = useState<string>('')
+  const [search, setSearch] = useState('')
+  const [priceSort, setPriceSort] = useState<'' | 'asc' | 'desc'>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const visibleItems = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    const price = (i: EquipmentItem) => i.price_per_day ?? i.price ?? Infinity
+    const result = items.filter((i) => !q || i.name.toLowerCase().includes(q))
+    if (priceSort) {
+      result.sort((a, b) => (priceSort === 'asc' ? price(a) - price(b) : price(b) - price(a)))
+    }
+    return result
+  }, [items, search, priceSort])
 
   useEffect(() => {
     const params = new URLSearchParams()
@@ -60,18 +72,34 @@ export default function Equipment() {
               <option value="snowboard">Сноуборд</option>
             </select>
           </label>
+          <label>
+            Поиск
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Название"
+            />
+          </label>
+          <label>
+            Цена
+            <select value={priceSort} onChange={(e) => setPriceSort(e.target.value as typeof priceSort)}>
+              <option value="">Без сортировки</option>
+              <option value="asc">Сначала дешевле</option>
+              <option value="desc">Сначала дороже</option>
+            </select>
+          </label>
         </div>
         <Link to="/equipment/new" className="btn btn-primary">+ Разместить объявление</Link>
       </div>
 
       <div className="equipment-grid">
-        {items.length === 0 ? (
+        {visibleItems.length === 0 ? (
           <div className="empty-state">
-            <p>Объявлений пока нет. Будьте первым!</p>
-            {/* <Link to="/equipment/new" className="btn btn-primary">Разместить объявление</Link> */}
+            <p>{items.length === 0 ? 'Объявлений пока нет. Будьте первым!' : 'Ничего не найдено — попробуйте изменить фильтры.'}</p>
           </div>
         ) : (
-          items.map((item) => (
+          visibleItems.map((item) => (
             <Link key={item.id} to={`/equipment/${item.id}`} className="equipment-card equipment-card-link">
               <img
                 src={imageUrl(item.image_url) || IMG_PLACEHOLDER}

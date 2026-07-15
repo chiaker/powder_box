@@ -120,3 +120,35 @@ async def test_list_lessons_pagination(client: AsyncClient):
 
     r = await client.get("/lessons", params={"limit": 2, "skip": 0})
     assert len(r.json()) == 2
+
+
+# --- Level field ---
+
+async def test_create_lesson_with_level(client: AsyncClient):
+    r = await client.post("/lessons", json={**LESSON_PAYLOAD, "level": "beginner"})
+    assert r.status_code == 200
+    assert r.json()["level"] == "beginner"
+
+
+async def test_create_lesson_invalid_level(client: AsyncClient):
+    r = await client.post("/lessons", json={**LESSON_PAYLOAD, "level": "expert"})
+    assert r.status_code == 422
+
+
+async def test_list_lessons_filter_by_level(client: AsyncClient):
+    await client.post("/lessons", json={**LESSON_PAYLOAD, "title": "Про мод", "level": "advanced"})
+
+    r = await client.get("/lessons", params={"level": "advanced"})
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) == 1
+    assert data[0]["level"] == "advanced"
+
+
+async def test_update_lesson_level(client: AsyncClient):
+    created = (await client.post("/lessons", json=LESSON_PAYLOAD)).json()
+    assert created["level"] is None
+
+    r = await client.patch(f"/lessons/{created['id']}", json={"level": "intermediate"})
+    assert r.status_code == 200
+    assert r.json()["level"] == "intermediate"

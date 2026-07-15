@@ -2089,6 +2089,77 @@ textarea {
   background: #3d4d6b;
 }
 
+/* Паудер-алерт и «лучший день» */
+.powder-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.favorite-card-content .powder-badge {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.daily-item-best {
+  border: 1px solid var(--accent);
+  background: rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.best-day-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Бейджи на карточках курортов */
+.resort-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Поиск и чекбоксы в фильтрах */
+.filter-bar input[type='search'] {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  min-width: 200px;
+}
+
+.filter-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+  padding-bottom: 0.6rem;
+}
+
+/* Селекты страницы сравнения */
+.compare-selects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.compare-selects select {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  min-width: 220px;
+}
+
 /* Уважение к reduce-motion */
 @media (prefers-reduced-motion: reduce) {
   *,

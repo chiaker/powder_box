@@ -71,6 +71,7 @@ class AltitudeDailyEntry(BaseModel):
     maxTemperature: float
     windSpeed: float
     precipitation: float
+    snowfall: float = 0.0  # см за день (Open-Meteo snowfall_sum)
     condition: str
 
 

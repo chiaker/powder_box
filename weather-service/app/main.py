@@ -111,7 +111,7 @@ async def fetch_open_meteo_forecast(latitude: float, longitude: float, forecast_
         "longitude": longitude,
         "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code",
         "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,precipitation",
-        "daily": "temperature_2m_max,temperature_2m_min,wind_speed_10m_max,precipitation_sum,weather_code",
+        "daily": "temperature_2m_max,temperature_2m_min,wind_speed_10m_max,precipitation_sum,snowfall_sum,weather_code",
         "forecast_days": forecast_days,
         "timezone": "auto",
     }
@@ -281,6 +281,8 @@ def build_daily_entries(daily: dict, days: int) -> list[AltitudeDailyEntry]:
     maxs = daily.get("temperature_2m_max", [])
     winds = daily.get("wind_speed_10m_max", [])
     precs = daily.get("precipitation_sum", [])
+    # snowfall_sum (см) не участвует в limit: старые данные/моки без него не должны обнулять прогноз
+    snows = daily.get("snowfall_sum") or []
     codes = daily.get("weather_code", [])
     limit = min(len(times), len(mins), len(maxs), len(winds), len(precs), len(codes), days)
     entries: list[AltitudeDailyEntry] = []
@@ -292,6 +294,7 @@ def build_daily_entries(daily: dict, days: int) -> list[AltitudeDailyEntry]:
                 maxTemperature=float(maxs[i]),
                 windSpeed=float(winds[i]),
                 precipitation=float(precs[i]),
+                snowfall=float(snows[i]) if i < len(snows) else 0.0,
                 condition=weather_condition_from_code(codes[i]),
             )
         )

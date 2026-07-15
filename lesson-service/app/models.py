@@ -10,6 +10,7 @@ class Lesson(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     category: Mapped[str | None] = mapped_column(String(50), nullable=True)  # snowboard, ski, freestyle, safety
+    level: Mapped[str | None] = mapped_column(String(20), nullable=True)  # beginner, intermediate, advanced
     lesson_url: Mapped[str] = mapped_column(String(500), nullable=False)
     instructor_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 

@@ -10,10 +10,12 @@ import {
   type AltitudePointWeather,
   type AltitudePointHourlyForecast,
   type AltitudePointDailyForecast,
+  type AltitudeDailyEntry,
   type SkipassTariff,
   type SkipassPriceResponse,
   type Hotel,
 } from '../api/client'
+import { weatherIcon, snowSum, bestDayIndex } from '../utils/weather'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
@@ -29,6 +31,8 @@ export default function ResortDetail() {
   const [altitudeDaily, setAltitudeDaily] = useState<AltitudePointDailyForecast[]>([])
   const [weatherMode, setWeatherMode] = useState<WeatherMode>('current')
   const [weatherLoading, setWeatherLoading] = useState(false)
+  // 7-дневный прогноз самой высокой точки — для паудер-бейджа и «лучшего дня»
+  const [powderDaily, setPowderDaily] = useState<AltitudeDailyEntry[]>([])
   const [skipassTariffs, setSkipassTariffs] = useState<SkipassTariff[]>([])
   const [skipassPrice, setSkipassPrice] = useState<SkipassPriceResponse | null>(null)
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -226,6 +230,18 @@ export default function ResortDetail() {
 
   useEffect(() => {
     if (resortId == null) return
+    // Точки отсортированы по высоте — берём последнюю (самую высокую): снег наверху репрезентативнее
+    void api
+      .get<AltitudePointDailyForecast[]>(`/weather/${resortId}/altitudes/daily?days=7`)
+      .then((points) => setPowderDaily(points.length ? points[points.length - 1].days : []))
+      .catch(() => setPowderDaily([]))
+  }, [resortId])
+
+  const powderCm = useMemo(() => snowSum(powderDaily, 3), [powderDaily])
+  const bestDay = useMemo(() => bestDayIndex(powderDaily), [powderDaily])
+
+  useEffect(() => {
+    if (resortId == null) return
     setWeatherLoading(true)
     const load = async () => {
       if (weatherMode === 'current') {
@@ -272,6 +288,11 @@ export default function ResortDetail() {
           {resort.rating != null && (
             <span className="rating-badge">
               ★ {resort.rating.toFixed(1)} ({resort.review_count || 0})
+            </span>
+          )}
+          {powderCm >= 1 && (
+            <span className="powder-badge" title="Прогноз снегопадов на ближайшие 3 дня">
+              ❄ {powderCm} см за 3 дня
             </span>
           )}
           {token && (
@@ -381,7 +402,7 @@ export default function ResortDetail() {
                     <div><span className="weather-value">{point.windSpeed} м/с</span><span className="weather-label">Ветер</span></div>
                     <div><span className="weather-value">{point.humidity}%</span><span className="weather-label">Влажность</span></div>
                   </div>
-                  <p className="weather-label">{point.condition}</p>
+                  <p className="weather-label">{weatherIcon(point.condition)} {point.condition}</p>
                 </article>
               ))}
             </div>
@@ -403,7 +424,7 @@ export default function ResortDetail() {
                     {point.hours.map((h) => (
                       <div key={`${point.point_id}-${h.timestamp}`} className="hourly-item">
                         <span>{new Date(h.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
-                        <strong>{h.temperature}°C</strong>
+                        <strong>{weatherIcon(h.condition)} {h.temperature}°C</strong>
                         <span className="weather-label">Осадки: {h.precipitation} мм</span>
                       </div>
                     ))}
@@ -426,11 +447,15 @@ export default function ResortDetail() {
                     <span>{point.altitude_m} м</span>
                   </div>
                   <div className="daily-grid">
-                    {point.days.map((d) => (
-                      <div key={`${point.point_id}-${d.date}`} className="daily-item">
+                    {point.days.map((d, i) => (
+                      <div key={`${point.point_id}-${d.date}`} className={`daily-item ${i === bestDay ? 'daily-item-best' : ''}`}>
                         <span>{new Date(d.date).toLocaleDateString('ru-RU', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
-                        <strong>{d.minTemperature}° / {d.maxTemperature}°</strong>
-                        <span>Осадки: {d.precipitation} мм</span>
+                        <strong>{weatherIcon(d.condition)} {d.minTemperature}° / {d.maxTemperature}°</strong>
+                        <span className="weather-label">{d.condition}</span>
+                        {d.snowfall >= 0.5
+                          ? <span>❄ Снег: {d.snowfall} см</span>
+                          : <span>Осадки: {d.precipitation} мм</span>}
+                        {i === bestDay && <span className="best-day-label">🏂 Лучший день</span>}
                       </div>
                     ))}
                   </div>

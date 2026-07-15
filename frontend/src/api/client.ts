@@ -224,7 +224,7 @@ export type Resort = {
   freeride_rating?: number;
   beginner_friendly?: boolean;
 };
-export type Lesson = { id: number; title: string; category?: string; lesson_url: string; preview_url?: string };
+export type Lesson = { id: number; title: string; category?: string; level?: string; lesson_url: string; preview_url?: string };
 export type EquipmentCategory = { id: number; name: string };
 export type EquipmentItem = {
   id: number;
@@ -315,6 +315,7 @@ export type AltitudeDailyEntry = {
   maxTemperature: number;
   windSpeed: number;
   precipitation: number;
+  snowfall: number;
   condition: string;
 };
 

@@ -3,6 +3,7 @@ from typing import Literal
 
 
 LessonCategory = Literal["snowboard", "ski", "freestyle", "safety"]
+LessonLevel = Literal["beginner", "intermediate", "advanced"]
 
 
 class LessonOut(BaseModel):
@@ -10,6 +11,7 @@ class LessonOut(BaseModel):
     id: int
     title: str
     category: str | None
+    level: str | None = None
     lesson_url: str
     instructor_id: int | None
     preview_url: str | None = None
@@ -18,6 +20,7 @@ class LessonOut(BaseModel):
 class LessonCreate(BaseModel):
     title: str
     category: str | None = None
+    level: LessonLevel | None = None
     lesson_url: str
     instructor_id: int | None = None
 
@@ -25,5 +28,6 @@ class LessonCreate(BaseModel):
 class LessonUpdate(BaseModel):
     title: str | None = None
     category: str | None = None
+    level: LessonLevel | None = None
     lesson_url: str | None = None
     instructor_id: int | None = None

@@ -171,6 +171,43 @@ async def test_get_current_weather_with_points_mocked(client: AsyncClient):
     assert body["condition"] == "Снег"
 
 
+MOCK_DAILY = {
+    "time": ["2026-01-15", "2026-01-16"],
+    "temperature_2m_min": [-10.0, -8.0],
+    "temperature_2m_max": [-2.0, -1.0],
+    "wind_speed_10m_max": [5.0, 7.0],
+    "precipitation_sum": [3.0, 0.0],
+    "snowfall_sum": [12.5, 4.0],
+    "weather_code": [71, 1],
+}
+
+
+async def test_daily_forecast_includes_snowfall(client: AsyncClient):
+    await client.post("/weather/1/altitude-points", json=POINT_PAYLOAD)
+
+    with patch("app.main.fetch_open_meteo_forecast", return_value={"daily": MOCK_DAILY}):
+        r = await client.get("/weather/1/altitudes/daily", params={"days": 7})
+
+    assert r.status_code == 200
+    days = r.json()[0]["days"]
+    assert len(days) == 2
+    assert days[0]["snowfall"] == pytest.approx(12.5)
+    assert days[1]["snowfall"] == pytest.approx(4.0)
+
+
+async def test_daily_forecast_snowfall_defaults_to_zero(client: AsyncClient):
+    await client.post("/weather/1/altitude-points", json=POINT_PAYLOAD)
+    daily_without_snow = {k: v for k, v in MOCK_DAILY.items() if k != "snowfall_sum"}
+
+    with patch("app.main.fetch_open_meteo_forecast", return_value={"daily": daily_without_snow}):
+        r = await client.get("/weather/1/altitudes/daily", params={"days": 7})
+
+    assert r.status_code == 200
+    days = r.json()[0]["days"]
+    assert len(days) == 2  # отсутствие snowfall_sum не должно обнулять прогноз
+    assert all(d["snowfall"] == 0.0 for d in days)
+
+
 async def test_weather_condition_from_code():
     from app.main import weather_condition_from_code
     assert weather_condition_from_code(0) == "Ясно"

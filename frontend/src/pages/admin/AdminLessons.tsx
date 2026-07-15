@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, type Lesson } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
+import { LEVEL_LABELS } from '../Lessons'
 
 export default function AdminLessons() {
   const [lessons, setLessons] = useState<Lesson[]>([])
@@ -54,6 +55,7 @@ export default function AdminLessons() {
               <th>ID</th>
               <th>Название</th>
               <th>Категория</th>
+              <th>Уровень</th>
               <th>URL</th>
               <th></th>
             </tr>
@@ -64,6 +66,7 @@ export default function AdminLessons() {
                 <td>{l.id}</td>
                 <td>{l.title}</td>
                 <td>{l.category ?? '—'}</td>
+                <td>{l.level ? LEVEL_LABELS[l.level] ?? l.level : '—'}</td>
                 <td className="truncate">{l.lesson_url}</td>
                 <td>
                   <button className="btn btn-sm btn-outline" onClick={() => { setEditing(l); setCreating(false); }}>Изменить</button>
@@ -92,6 +95,7 @@ function LessonForm({
   const [form, setForm] = useState({
     title: lesson?.title ?? '',
     category: lesson?.category ?? 'ski',
+    level: lesson?.level ?? '',
     lesson_url: lesson?.lesson_url ?? '',
   })
   const [saving, setSaving] = useState(false)
@@ -100,7 +104,7 @@ function LessonForm({
     e.preventDefault()
     setSaving(true)
     try {
-      const body = { title: form.title, category: form.category, lesson_url: form.lesson_url }
+      const body = { title: form.title, category: form.category, level: form.level || null, lesson_url: form.lesson_url }
       if (lesson) {
         await api.patch(`/lessons/${lesson.id}`, body)
       } else {
@@ -126,6 +130,13 @@ function LessonForm({
           <option value="snowboard">Сноуборд</option>
           <option value="freestyle">Фристайл</option>
           <option value="safety">Безопасность</option>
+        </select>
+        <label>Уровень</label>
+        <select value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })}>
+          <option value="">Не указан</option>
+          <option value="beginner">Новичок</option>
+          <option value="intermediate">Средний</option>
+          <option value="advanced">Продвинутый</option>
         </select>
         <label>URL видео *</label>
         <input value={form.lesson_url} onChange={(e) => setForm({ ...form, lesson_url: e.target.value })} required placeholder="https://youtube.com/..." />

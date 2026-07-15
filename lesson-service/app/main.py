@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from urllib.request import urlopen
 
 from fastapi import FastAPI, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db, Base, engine
@@ -15,22 +15,30 @@ from app.observability import setup_observability
 from app.schemas import LessonOut, LessonCreate, LessonUpdate
 
 
+async def _add_column_if_missing(conn, table: str, column: str, col_type: str):
+    try:
+        await conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}"))
+    except Exception:
+        pass
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await _add_column_if_missing(conn, "lessons", "level", "VARCHAR(20)")
 
     # Seed sample lessons if empty
     from app.database import async_session
     async with async_session() as db:
         result = await db.execute(select(Lesson))
         if not result.scalars().first():
-            for title, cat, url in [
-                ("Базовая стойка на сноуборде", "snowboard", "https://youtube.com/watch?v=example1"),
-                ("Карвинг для начинающих", "ski", "https://youtube.com/watch?v=example2"),
-                ("Как не бояться бугеля", "ski", "https://youtube.com/watch?v=example3"),
+            for title, cat, level, url in [
+                ("Базовая стойка на сноуборде", "snowboard", "beginner", "https://youtube.com/watch?v=example1"),
+                ("Карвинг для начинающих", "ski", "intermediate", "https://youtube.com/watch?v=example2"),
+                ("Как не бояться бугеля", "ski", "beginner", "https://youtube.com/watch?v=example3"),
             ]:
-                db.add(Lesson(title=title, category=cat, lesson_url=url))
+                db.add(Lesson(title=title, category=cat, level=level, lesson_url=url))
             await db.commit()
     yield
 
@@ -87,11 +95,14 @@ async def list_lessons(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     category: str | None = None,
+    level: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     q = select(Lesson)
     if category:
         q = q.where(Lesson.category == category)
+    if level:
+        q = q.where(Lesson.level == level)
     q = q.offset(skip).limit(limit)
     result = await db.execute(q)
     lessons = result.scalars().all()
@@ -112,6 +123,7 @@ async def create_lesson(data: LessonCreate, db: AsyncSession = Depends(get_db)):
     lesson = Lesson(
         title=data.title,
         category=data.category,
+        level=data.level,
         lesson_url=data.lesson_url,
         instructor_id=data.instructor_id,
     )

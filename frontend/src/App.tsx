@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import Home from './pages/Home'
 import Resorts from './pages/Resorts'
 import ResortDetail from './pages/ResortDetail'
+import Compare from './pages/Compare'
 import Hotels from './pages/Hotels'
 import HotelDetail from './pages/HotelDetail'
 import Equipment from './pages/Equipment'
@@ -44,6 +45,7 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="resorts" element={<Resorts />} />
         <Route path="resorts/:id" element={<ResortDetail />} />
+        <Route path="compare" element={<Compare />} />
         <Route path="hotels" element={<Hotels />} />
         <Route path="hotels/:id" element={<HotelDetail />} />
         <Route path="equipment" element={<Equipment />} />

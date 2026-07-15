@@ -1,15 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, ApiError, imageUrl, IMG_PLACEHOLDER, type Resort } from '../api/client'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
 
+type SortKey = 'rating' | 'track_length_km' | 'elevation_drop_m'
+
 export default function Resorts() {
   const [resorts, setResorts] = useState<Resort[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<SortKey>('rating')
+  const [beginnerOnly, setBeginnerOnly] = useState(false)
   const toast = useToast()
   const { user, token, refreshProfile } = useAuth()
+
+  const visibleResorts = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    return resorts
+      .filter((r) => !q || r.name.toLowerCase().includes(q))
+      .filter((r) => !beginnerOnly || r.beginner_friendly)
+      .sort((a, b) => (b[sortKey] ?? -Infinity) - (a[sortKey] ?? -Infinity))
+  }, [resorts, search, sortKey, beginnerOnly])
 
   useEffect(() => {
     api
@@ -69,13 +82,37 @@ export default function Resorts() {
         <p>Выберите горнолыжный курорт для просмотра погоды и условий</p>
       </header>
 
+      <div className="filter-bar">
+        <label>
+          Поиск
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Название курорта"
+          />
+        </label>
+        <label>
+          Сортировка
+          <select value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)}>
+            <option value="rating">По рейтингу</option>
+            <option value="track_length_km">По длине трасс</option>
+            <option value="elevation_drop_m">По перепаду высот</option>
+          </select>
+        </label>
+        <label className="filter-check">
+          <input type="checkbox" checked={beginnerOnly} onChange={(e) => setBeginnerOnly(e.target.checked)} />
+          Для новичков
+        </label>
+      </div>
+
       <div className="resort-grid">
-        {resorts.length === 0 ? (
+        {visibleResorts.length === 0 ? (
           <div className="empty-state">
-            <p>Курортов пока нет. Добавьте данные через API.</p>
+            <p>{resorts.length === 0 ? 'Курортов пока нет. Добавьте данные через API.' : 'Ничего не найдено — попробуйте изменить фильтры.'}</p>
           </div>
         ) : (
-          resorts.map((r) => (
+          visibleResorts.map((r) => (
             <div key={r.id} className="resort-card-wrapper">
               <Link to={`/resorts/${r.id}`} className="resort-card">
                 <img
@@ -97,6 +134,14 @@ export default function Resorts() {
                       {r.elevation_drop_m != null && <span>{r.elevation_drop_m} м перепад</span>}
                     </div>
                   )}
+                  <div className="resort-badges">
+                    {r.beginner_friendly && <span className="trail">🟢 Для новичков</span>}
+                    {r.freeride_rating != null && <span className="trail">🏔 Фрирайд {r.freeride_rating}/5</span>}
+                    {r.trails_green != null && <span className="trail">🟢 {r.trails_green}</span>}
+                    {r.trails_blue != null && <span className="trail">🔵 {r.trails_blue}</span>}
+                    {r.trails_red != null && <span className="trail">🔴 {r.trails_red}</span>}
+                    {r.trails_black != null && <span className="trail">⚫ {r.trails_black}</span>}
+                  </div>
                   {r.description && <p className="resort-desc">{r.description}</p>}
                 </div>
               </Link>
