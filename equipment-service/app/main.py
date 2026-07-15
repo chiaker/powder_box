@@ -156,7 +156,7 @@ async def update_item(
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     is_admin = request.headers.get("X-Is-Admin") == "true"
-    if not is_admin and item.owner_id is not None and item.owner_id != user_id:
+    if not is_admin and item.owner_id != user_id:
         raise HTTPException(status_code=403, detail="Not your listing")
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(item, key, value)
@@ -177,7 +177,7 @@ async def delete_item(
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     is_admin = request.headers.get("X-Is-Admin") == "true"
-    if not is_admin and item.owner_id is not None and item.owner_id != user_id:
+    if not is_admin and item.owner_id != user_id:
         raise HTTPException(status_code=403, detail="Not your listing")
     await db.delete(item)
     await db.commit()

@@ -1,7 +1,8 @@
 import os
 import asyncio
+import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -21,12 +22,27 @@ from app.schemas import (
     AltitudePointDailyForecast,
     AltitudeDailyEntry,
     CurrentWeather,
-    DailyForecast,
-    HourlyForecast,
-    SnowCondition,
 )
 
 OPEN_METEO_URL = os.getenv("OPEN_METEO_URL", "https://api.open-meteo.com/v1/forecast")
+WEATHER_CACHE_TTL = int(os.getenv("WEATHER_CACHE_TTL_SECONDS", "600"))
+
+# ponytail: незакрытый in-memory кэш без вытеснения — точек высот единицы,
+# сменить на TTLCache/Redis если точек станут тысячи.
+_meteo_cache: dict[tuple, tuple[float, dict]] = {}
+
+
+async def _fetch_open_meteo(cache_key: tuple, params: dict) -> dict:
+    """GET к Open-Meteo с TTL-кэшем, чтобы не упереться в rate limit."""
+    hit = _meteo_cache.get(cache_key)
+    if hit and time.monotonic() - hit[0] < WEATHER_CACHE_TTL:
+        return hit[1]
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(OPEN_METEO_URL, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+    _meteo_cache[cache_key] = (time.monotonic(), data)
+    return data
 
 
 @asynccontextmanager
@@ -72,7 +88,7 @@ def weather_condition_from_code(code: int | None) -> str:
         96: "Гроза с градом",
         99: "Сильная гроза с градом",
     }
-    return mapping.get(code or -1, "Неизвестно")
+    return mapping.get(-1 if code is None else code, "Неизвестно")
 
 
 async def fetch_open_meteo_current(latitude: float, longitude: float) -> dict:
@@ -82,10 +98,7 @@ async def fetch_open_meteo_current(latitude: float, longitude: float) -> dict:
         "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code",
         "timezone": "auto",
     }
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(OPEN_METEO_URL, params=params)
-        resp.raise_for_status()
-        data = resp.json()
+    data = await _fetch_open_meteo(("current", latitude, longitude), params)
     current = data.get("current")
     if not current:
         raise HTTPException(status_code=502, detail="Open-Meteo returned empty current weather")
@@ -102,10 +115,7 @@ async def fetch_open_meteo_forecast(latitude: float, longitude: float, forecast_
         "forecast_days": forecast_days,
         "timezone": "auto",
     }
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(OPEN_METEO_URL, params=params)
-        resp.raise_for_status()
-        return resp.json()
+    return await _fetch_open_meteo(("forecast", latitude, longitude, forecast_days), params)
 
 
 def current_from_open_meteo(resort_id: int, current: dict) -> CurrentWeather:
@@ -320,56 +330,4 @@ async def get_current_weather(resort_id: int, db: AsyncSession = Depends(get_db)
     if points:
         current = await fetch_open_meteo_current(points[0].latitude, points[0].longitude)
         return current_from_open_meteo(resort_id, current)
-    return CurrentWeather(
-        resortId=resort_id,
-        temperature=-5.5,
-        windSpeed=3.2,
-        humidity=80,
-        condition="Добавьте точки высот для real-time погоды",
-        timestamp=datetime.utcnow(),
-    )
-
-
-@app.get("/weather/{resort_id}/hourly", response_model=list[HourlyForecast])
-async def get_hourly_forecast(resort_id: int, hours: int = Query(24, ge=1, le=48)):
-    now = datetime.utcnow()
-    return [
-        HourlyForecast(
-            resortId=resort_id,
-            temperature=-5.5 - i * 0.2,
-            windSpeed=3.2 + (i % 3) * 0.3,
-            humidity=80,
-            condition="Снежно",
-            timestamp=now + timedelta(hours=i),
-        )
-        for i in range(hours)
-    ]
-
-
-@app.get("/weather/{resort_id}/daily", response_model=list[DailyForecast])
-async def get_daily_forecast(resort_id: int, days: int = Query(7, ge=1, le=14)):
-    now = datetime.utcnow()
-    return [
-        DailyForecast(
-            resortId=resort_id,
-            minTemperature=-10.0 - i * 0.5,
-            maxTemperature=0.0 + i * 0.4,
-            snowfall=5.0,
-            condition="Переменная облачность",
-            timestamp=now + timedelta(days=i),
-        )
-        for i in range(days)
-    ]
-
-
-@app.get("/snow/{resort_id}/conditions", response_model=list[SnowCondition])
-async def get_snow_conditions(resort_id: int):
-    return [
-        SnowCondition(
-            resortId=resort_id,
-            baseSnowDepth=50.0,
-            topSnowDepth=120.0,
-            lastSnowfall=datetime.utcnow() - timedelta(hours=6),
-            avalancheRiskLevel="Умеренный",
-        )
-    ]
+    raise HTTPException(status_code=404, detail="No altitude points configured for this resort")

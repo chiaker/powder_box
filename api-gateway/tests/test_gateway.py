@@ -96,15 +96,15 @@ async def test_unknown_path_returns_404(client: AsyncClient):
 
 
 async def test_public_get_resorts_no_auth(client: AsyncClient):
-    mock_get = make_mock_downstream(200, [{"id": 1, "name": "Test Resort"}])
-    with patch("httpx.AsyncClient.get", mock_get):
+    mock_request = make_mock_downstream(200, [{"id": 1, "name": "Test Resort"}])
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.get("/resorts")
     assert r.status_code == 200
 
 
 async def test_public_get_lessons_no_auth(client: AsyncClient):
-    mock_get = make_mock_downstream(200, [])
-    with patch("httpx.AsyncClient.get", mock_get):
+    mock_request = make_mock_downstream(200, [])
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.get("/lessons")
     assert r.status_code == 200
 
@@ -115,8 +115,8 @@ async def test_protected_activities_post_requires_auth(client: AsyncClient):
 
 
 async def test_protected_activities_post_with_auth(client: AsyncClient):
-    mock_post = make_mock_downstream(200, {"id": 1, "type": "photo"})
-    with patch("httpx.AsyncClient.post", mock_post):
+    mock_request = make_mock_downstream(200, {"id": 1, "type": "photo"})
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.post(
             "/activities",
             json={"type": "photo"},
@@ -131,8 +131,8 @@ async def test_protected_users_me_requires_auth(client: AsyncClient):
 
 
 async def test_protected_users_me_with_auth(client: AsyncClient):
-    mock_get = make_mock_downstream(200, {"user_id": "1"})
-    with patch("httpx.AsyncClient.get", mock_get):
+    mock_request = make_mock_downstream(200, {"user_id": "1"})
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.get("/users/me", headers=auth_headers(user_id=1))
     assert r.status_code == 200
 
@@ -155,8 +155,8 @@ async def test_admin_write_resorts_requires_admin(client: AsyncClient):
 
 
 async def test_admin_write_resorts_with_admin_token(client: AsyncClient):
-    mock_post = make_mock_downstream(200, {"id": 1, "name": "New Resort"})
-    with patch("httpx.AsyncClient.post", mock_post):
+    mock_request = make_mock_downstream(200, {"id": 1, "name": "New Resort"})
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.post(
             "/resorts",
             json={"name": "New Resort"},
@@ -167,8 +167,8 @@ async def test_admin_write_resorts_with_admin_token(client: AsyncClient):
 
 async def test_resort_reviews_not_admin_restricted(client: AsyncClient):
     # Review creation is NOT admin-only
-    mock_post = make_mock_downstream(201, {"id": 1, "rating": 5})
-    with patch("httpx.AsyncClient.post", mock_post):
+    mock_request = make_mock_downstream(201, {"id": 1, "rating": 5})
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.post(
             "/resorts/1/reviews",
             json={"rating": 5},
@@ -178,23 +178,51 @@ async def test_resort_reviews_not_admin_restricted(client: AsyncClient):
 
 
 async def test_service_unavailable(client: AsyncClient):
-    import httpx as _httpx
-
-    mock_downstream = AsyncMock()
-    mock_downstream.__aenter__.return_value = mock_downstream
-    mock_downstream.__aexit__.return_value = None
-    mock_downstream.get.side_effect = _httpx.ConnectError("Connection refused")
-
-    with patch("app.main.httpx.AsyncClient", return_value=mock_downstream):
+    mock_client = MagicMock()
+    mock_client.request = AsyncMock(side_effect=ConnectError("Connection refused"))
+    with patch("app.main.get_http_client", return_value=mock_client):
         r = await client.get("/resorts")
     assert r.status_code == 503
 
 
+async def test_equipment_upload_requires_auth(client: AsyncClient):
+    r = await client.post("/equipment/upload")
+    assert r.status_code == 401
+
+
+async def test_client_supplied_x_is_admin_is_stripped(client: AsyncClient):
+    mock_request = make_mock_downstream(200, {"id": 1})
+    with patch("app.main.get_http_client", return_value=mock_request):
+        r = await client.post(
+            "/equipment/items",
+            json={"name": "Skis"},
+            headers={**auth_headers(user_id=1), "X-Is-Admin": "true"},
+        )
+    assert r.status_code == 200
+    sent_headers = mock_request.request.call_args.kwargs["headers"]
+    assert "x-is-admin" not in {k.lower() for k in sent_headers}
+
+
+async def test_admin_role_claim_grants_write(client: AsyncClient):
+    from tests.conftest import make_role_token
+
+    mock_request = make_mock_downstream(200, {"id": 1, "name": "New Resort"})
+    with patch("app.main.get_http_client", return_value=mock_request):
+        r = await client.post(
+            "/resorts",
+            json={"name": "New Resort"},
+            headers={"Authorization": f"Bearer {make_role_token(role='admin')}"},
+        )
+    assert r.status_code == 200
+    sent_headers = mock_request.request.call_args.kwargs["headers"]
+    assert sent_headers.get("X-Is-Admin") == "true"
+
+
 async def test_auth_register_proxied(client: AsyncClient):
-    mock_post = make_mock_downstream(
+    mock_request = make_mock_downstream(
         200, {"access_token": "tok", "refresh_token": "ref", "token_type": "bearer"}
     )
-    with patch("httpx.AsyncClient.post", mock_post):
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.post(
             "/auth/register",
             json={"email": "new@example.com", "password": "pass123"},
@@ -208,8 +236,8 @@ async def test_stats_tracks_post_requires_auth(client: AsyncClient):
 
 
 async def test_stats_tracks_with_auth_proxied(client: AsyncClient):
-    mock_post = make_mock_downstream(200, {"id": 1, "distance": 2.5})
-    with patch("httpx.AsyncClient.post", mock_post):
+    mock_request = make_mock_downstream(200, {"id": 1, "distance": 2.5})
+    with patch("app.main.get_http_client", return_value=mock_request):
         r = await client.post(
             "/stats/tracks",
             json={"started_at": "2026-01-15T10:00:00Z", "ended_at": "2026-01-15T11:00:00Z", "points": []},

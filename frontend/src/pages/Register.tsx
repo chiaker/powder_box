@@ -54,8 +54,8 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
-              placeholder="Минимум 6 символов"
+              minLength={8}
+              placeholder="Минимум 8 символов"
             />
           </div>
           {error && <div className="form-message error">{error}</div>}

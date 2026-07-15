@@ -153,15 +153,9 @@ async def test_get_altitude_weather_with_mocked_api(client: AsyncClient):
     assert data[0]["altitude_m"] == 2320
 
 
-async def test_get_current_weather_fallback_no_points(client: AsyncClient):
-    # When no altitude points exist, returns fallback mock data
+async def test_get_current_weather_no_points_404(client: AsyncClient):
     r = await client.get("/weather/1/current")
-    assert r.status_code == 200
-    body = r.json()
-    assert "temperature" in body
-    assert "windSpeed" in body
-    assert "condition" in body
-    assert body["resortId"] == 1
+    assert r.status_code == 404
 
 
 async def test_get_current_weather_with_points_mocked(client: AsyncClient):
@@ -177,38 +171,9 @@ async def test_get_current_weather_with_points_mocked(client: AsyncClient):
     assert body["condition"] == "Снег"
 
 
-async def test_get_hourly_forecast(client: AsyncClient):
-    r = await client.get("/weather/1/hourly", params={"hours": 3})
-    assert r.status_code == 200
-    data = r.json()
-    assert len(data) == 3
-    assert all("temperature" in h for h in data)
-    assert all(h["resortId"] == 1 for h in data)
-
-
-async def test_get_daily_forecast(client: AsyncClient):
-    r = await client.get("/weather/1/daily", params={"days": 5})
-    assert r.status_code == 200
-    data = r.json()
-    assert len(data) == 5
-    assert all("minTemperature" in d for d in data)
-
-
-async def test_get_snow_conditions(client: AsyncClient):
-    r = await client.get("/snow/1/conditions")
-    assert r.status_code == 200
-    data = r.json()
-    assert isinstance(data, list)
-    assert len(data) == 1
-    assert data[0]["resortId"] == 1
-    assert "baseSnowDepth" in data[0]
-    assert "avalancheRiskLevel" in data[0]
-
-
 async def test_weather_condition_from_code():
     from app.main import weather_condition_from_code
-    # code=0 is falsy, so `code or -1` gives -1 → "Неизвестно" (known quirk)
-    assert weather_condition_from_code(0) == "Неизвестно"
+    assert weather_condition_from_code(0) == "Ясно"
     assert weather_condition_from_code(1) == "Преимущественно ясно"
     assert weather_condition_from_code(71) == "Снег"
     assert weather_condition_from_code(95) == "Гроза"

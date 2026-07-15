@@ -48,13 +48,13 @@ export default function EquipmentForm() {
         setForm({
           name: i.name,
           description: i.description ?? '',
-          category_id: i.category_id ?? '',
-          price: i.price ?? '',
+          category_id: String(i.category_id ?? ''),
+          price: String(i.price ?? ''),
           image_url: i.image_url ?? '',
           imagePreview: i.image_url ? imageUrl(i.image_url) : '',
           imageFile: null,
           address: i.address ?? '',
-          price_per_day: i.price_per_day ?? '',
+          price_per_day: String(i.price_per_day ?? ''),
           condition: i.condition ?? '',
           equipment_type: i.equipment_type ?? '',
         })

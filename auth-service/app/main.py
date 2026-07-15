@@ -1,10 +1,9 @@
 import os
 import hashlib
+import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 from contextlib import asynccontextmanager
-
-from pathlib import Path
 
 import bcrypt
 from fastapi import FastAPI, Depends, HTTPException
@@ -12,7 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.database import get_db, async_session
 from app.models import User, RefreshToken
@@ -31,6 +29,17 @@ JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-key")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 REFRESH_TOKEN_EXPIRE = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+# Роль кладётся в access-токен при выпуске: единый источник — ADMIN_EMAILS
+# на auth-сервисе; gateway и фронт читают подписанный claim, а не свои списки.
+ADMIN_EMAILS = {
+    email.strip().lower()
+    for email in os.getenv("ADMIN_EMAILS", "").split(",")
+    if email.strip()
+}
+
+
+def role_for(user: User) -> str:
+    return "admin" if user.email.strip().lower() in ADMIN_EMAILS else "user"
 
 
 def create_access_token(data: dict) -> str:
@@ -75,7 +84,7 @@ async def persist_refresh_token(db: AsyncSession, user_id: int, refresh_token: s
 
 
 async def issue_token_pair(db: AsyncSession, user: User) -> AuthTokens:
-    access_token = create_access_token({"sub": str(user.id), "email": user.email})
+    access_token = create_access_token({"sub": str(user.id), "email": user.email, "role": role_for(user)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
     await persist_refresh_token(db, user.id, refresh_token)
     return AuthTokens(access_token=access_token, refresh_token=refresh_token)
@@ -89,30 +98,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Auth Service", version="1.0.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 setup_observability(app, service_name="auth-service")
-
-LOG_FILE = Path(os.getenv("AUTH_POST_LOG_FILE", "/app/data/auth-post-requests.txt"))
-LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-class PostRequestLoggingMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        if request.method.upper() != "POST":
-            return await call_next(request)
-
-        body_bytes = await request.body()
-        body_text = body_bytes.decode("utf-8", errors="replace")
-        if len(body_text) > 2000:
-            body_text = body_text[:2000] + "...[truncated]"
-
-        response = await call_next(request)
-        status_code = getattr(response, "status_code", None)
-        safe_body = body_text.replace("\r", " ").replace("\n", " ").replace("\t", " ")
-        line = f"{datetime.now().isoformat()}Z\t{request.url.path}\t{status_code}\t{safe_body}\n"
-        with LOG_FILE.open("a", encoding="utf-8") as f:
-            f.write(line)
-        return response
-
-
-app.add_middleware(PostRequestLoggingMiddleware)
 
 
 @app.get("/health")
@@ -137,14 +122,9 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
         return tokens
     except HTTPException:
         raise
-    except Exception as e:
-        import logging
+    except Exception:
         logging.exception("Register failed")
         raise HTTPException(status_code=500, detail="Registration failed. Please try again.")
-
-@app.get("/debug/boom")
-async def boom():
-    raise RuntimeError("intentional 500 for grafana demo")
 
 
 @app.post("/auth/login", response_model=AuthTokens)

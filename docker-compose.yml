@@ -11,7 +11,6 @@ services:
       - "3000:3000"
     environment:
       - VITE_PROXY_TARGET=http://api-gateway:8000
-      - VITE_ADMIN_EMAILS=${ADMIN_EMAILS:-admin@example.com}
     depends_on:
       - api-gateway
     networks:
@@ -56,6 +55,7 @@ services:
     environment:
       - DATABASE_URL=sqlite+aiosqlite:///./data/auth.db
       - JWT_SECRET=${JWT_SECRET:-dev-secret-key}
+      - ADMIN_EMAILS=${ADMIN_EMAILS:-admin@example.com}
       - JWT_ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - REFRESH_TOKEN_EXPIRE_DAYS=7

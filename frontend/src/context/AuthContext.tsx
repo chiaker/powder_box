@@ -14,23 +14,17 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const adminEmailSet = new Set(
-  (import.meta.env.VITE_ADMIN_EMAILS || '')
-    .split(',')
-    .map((email: string) => email.trim().toLowerCase())
-    .filter(Boolean)
-);
-
-function getEmailFromToken(token: string | null): string {
+// Роль берётся из подписанного access-токена (claim "role" выставляет auth-service).
+// Это только для показа/скрытия UI — реальные проверки прав делает gateway.
+function getRoleFromToken(token: string | null): string {
   if (!token) return '';
   try {
     const payload = token.split('.')[1];
     if (!payload) return '';
     const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
     const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
-    const decoded = atob(padded);
-    const parsed = JSON.parse(decoded) as { email?: string };
-    return (parsed.email || '').trim().toLowerCase();
+    const parsed = JSON.parse(atob(padded)) as { role?: string };
+    return parsed.role || '';
   } catch {
     return '';
   }
@@ -40,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('access_token'));
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const isAdmin = adminEmailSet.has(getEmailFromToken(token));
+  const isAdmin = getRoleFromToken(token) === 'admin';
 
   const refreshProfile = useCallback(async () => {
     if (!token) return;

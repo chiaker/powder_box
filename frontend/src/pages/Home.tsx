@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { api, imageUrl, type Resort, type CurrentWeather } from '../api/client'
-
-const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=400'
+import { api, imageUrl, IMG_PLACEHOLDER, type Resort, type CurrentWeather } from '../api/client'
 
 export default function Home() {
   const { user, token } = useAuth()
@@ -66,7 +64,7 @@ export default function Home() {
           <div className="favorites-grid-home">
             {favoriteResorts.map((r) => (
               <Link key={r.id} to={`/resorts/${r.id}`} className="favorite-card-home">
-                <img src={imageUrl(r.image_url) || PLACEHOLDER_IMG} alt={r.name} />
+                <img src={imageUrl(r.image_url) || IMG_PLACEHOLDER} alt={r.name} />
                 <div className="favorite-card-content">
                   <h3>{r.name}</h3>
                   {weatherByResort[r.id] && (

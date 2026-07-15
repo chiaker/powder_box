@@ -23,7 +23,7 @@ export default function Nav() {
       <div className="nav-links">
         {navLink('/', 'Главная')}
         {navLink('/resorts', 'Курорты')}
-        {token && navLink('/hotels', 'Отели')}
+        {navLink('/hotels', 'Отели')}
         {navLink('/equipment', 'Аренда')}
         {navLink('/lessons', 'Уроки')}
         {token && navLink('/stats', 'Моя статистика')}

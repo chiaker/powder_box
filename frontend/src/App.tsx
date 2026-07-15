@@ -44,14 +44,7 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="resorts" element={<Resorts />} />
         <Route path="resorts/:id" element={<ResortDetail />} />
-        <Route
-          path="hotels"
-          element={
-            <ProtectedRoute>
-              <Hotels />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="hotels" element={<Hotels />} />
         <Route path="hotels/:id" element={<HotelDetail />} />
         <Route path="equipment" element={<Equipment />} />
         <Route path="equipment/new" element={<ProtectedRoute><EquipmentForm /></ProtectedRoute>} />

@@ -21,7 +21,7 @@ async def test_register_success(client: AsyncClient):
 
 
 async def test_register_duplicate_email(client: AsyncClient):
-    payload = {"email": "dup@example.com", "password": "pass123"}
+    payload = {"email": "dup@example.com", "password": "pass1234"}
     await client.post("/auth/register", json=payload)
     r = await client.post("/auth/register", json=payload)
     assert r.status_code == 400
@@ -31,9 +31,30 @@ async def test_register_duplicate_email(client: AsyncClient):
 async def test_register_invalid_email(client: AsyncClient):
     r = await client.post(
         "/auth/register",
-        json={"email": "not-an-email", "password": "pass123"},
+        json={"email": "not-an-email", "password": "pass1234"},
     )
     assert r.status_code == 422
+
+
+async def test_register_password_too_short(client: AsyncClient):
+    r = await client.post(
+        "/auth/register",
+        json={"email": "short@example.com", "password": "short"},
+    )
+    assert r.status_code == 422
+
+
+async def test_access_token_has_role_claim(client: AsyncClient):
+    from jose import jwt
+    from app.main import JWT_SECRET, JWT_ALGORITHM
+
+    r = await client.post(
+        "/auth/register",
+        json={"email": "roleuser@example.com", "password": "password1"},
+    )
+    payload = jwt.decode(r.json()["access_token"], JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    assert payload["role"] == "user"
+    assert payload["email"] == "roleuser@example.com"
 
 
 async def test_register_password_too_long(client: AsyncClient):
@@ -63,7 +84,7 @@ async def test_login_success(client: AsyncClient):
 async def test_login_wrong_password(client: AsyncClient):
     await client.post(
         "/auth/register",
-        json={"email": "wrong@example.com", "password": "correct"},
+        json={"email": "wrong@example.com", "password": "correct1"},
     )
     r = await client.post(
         "/auth/login",
@@ -84,7 +105,7 @@ async def test_login_unknown_email(client: AsyncClient):
 async def test_refresh_success(client: AsyncClient):
     reg = await client.post(
         "/auth/register",
-        json={"email": "refresh@example.com", "password": "pass"},
+        json={"email": "refresh@example.com", "password": "password1"},
     )
     refresh_token = reg.json()["refresh_token"]
 
@@ -103,7 +124,7 @@ async def test_refresh_invalid_token(client: AsyncClient):
 async def test_refresh_revoked_token(client: AsyncClient):
     reg = await client.post(
         "/auth/register",
-        json={"email": "rev@example.com", "password": "pass"},
+        json={"email": "rev@example.com", "password": "password1"},
     )
     refresh_token = reg.json()["refresh_token"]
 
@@ -116,7 +137,7 @@ async def test_refresh_revoked_token(client: AsyncClient):
 async def test_logout_success(client: AsyncClient):
     reg = await client.post(
         "/auth/register",
-        json={"email": "logout@example.com", "password": "pass"},
+        json={"email": "logout@example.com", "password": "password1"},
     )
     refresh_token = reg.json()["refresh_token"]
 
@@ -128,7 +149,7 @@ async def test_logout_success(client: AsyncClient):
 async def test_logout_then_refresh_fails(client: AsyncClient):
     reg = await client.post(
         "/auth/register",
-        json={"email": "logoutref@example.com", "password": "pass"},
+        json={"email": "logoutref@example.com", "password": "password1"},
     )
     refresh_token = reg.json()["refresh_token"]
 

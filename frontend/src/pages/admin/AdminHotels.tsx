@@ -108,11 +108,11 @@ function HotelForm({
     image_url: hotel?.image_url ?? '',
     gallery_urls: (hotel?.gallery_urls ?? []).join('\n'),
     room_photo_urls: (hotel?.room_photo_urls ?? []).join('\n'),
-    price_from: hotel?.price_from ?? '',
+    price_from: String(hotel?.price_from ?? ''),
     currency: hotel?.currency ?? '₽',
     booking_url: hotel?.booking_url ?? '',
     resort_id: hotel?.resort_id ?? '',
-    rating: hotel?.rating ?? '',
+    rating: String(hotel?.rating ?? ''),
   })
   const [saving, setSaving] = useState(false)
 
@@ -123,11 +123,11 @@ function HotelForm({
       image_url: hotel?.image_url ?? '',
       gallery_urls: (hotel?.gallery_urls ?? []).join('\n'),
       room_photo_urls: (hotel?.room_photo_urls ?? []).join('\n'),
-      price_from: hotel?.price_from ?? '',
+      price_from: String(hotel?.price_from ?? ''),
       currency: hotel?.currency ?? '₽',
       booking_url: hotel?.booking_url ?? '',
       resort_id: hotel?.resort_id ?? '',
-      rating: hotel?.rating ?? '',
+      rating: String(hotel?.rating ?? ''),
     })
   }, [hotel])
 

@@ -42,25 +42,24 @@ docker compose up -d --build
 **API Gateway:** http://localhost:8000  
 **Swagger UI:** http://localhost:8000/docs
 
-### Ограничение доступа к админке (быстрый способ)
+### Администраторы
 
-Для операций записи (`POST/PATCH/PUT/DELETE`) в `/resorts`, `/lessons`, `/equipment`, `/hotels`, `/skipasses`
-gateway проверяет email из JWT по переменной `ADMIN_EMAILS`.
+Роль администратора зашивается в access-токен (claim `role`) при логине:
+auth-service сверяет email пользователя со списком `ADMIN_EMAILS` из `.env`.
+Gateway пускает к операциям записи (`POST/PATCH/PUT/DELETE`) в `/resorts`,
+`/lessons`, `/equipment`, `/hotels`, `/skipasses`, `/weather` только токены
+с `role=admin`; фронтенд по этому же claim показывает раздел `/admin`.
 
 Пример в `.env`:
 ```bash
 ADMIN_EMAILS=admin@example.com,owner@example.com
 ```
 
-После изменения переменной перезапустите gateway:
+После изменения переменной перезапустите auth-service и gateway (фронт пересобирать не нужно):
 ```bash
-docker compose up -d --build api-gateway
+docker compose up -d --build auth-service api-gateway
 ```
-
-Чтобы скрыть раздел `/admin` в UI для не-админов, перезапустите и frontend (он читает `VITE_ADMIN_EMAILS`):
-```bash
-docker compose up -d --build frontend api-gateway
-```
+Админам нужно перелогиниться, чтобы получить токен с новой ролью.
 
 ### Локальные картинки курортов
 

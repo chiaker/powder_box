@@ -11,32 +11,6 @@ class CurrentWeather(BaseModel):
     timestamp: datetime
 
 
-class HourlyForecast(BaseModel):
-    resortId: int
-    temperature: float
-    windSpeed: float
-    humidity: int
-    condition: str
-    timestamp: datetime
-
-
-class DailyForecast(BaseModel):
-    resortId: int
-    minTemperature: float
-    maxTemperature: float
-    snowfall: float
-    condition: str
-    timestamp: datetime
-
-
-class SnowCondition(BaseModel):
-    resortId: int
-    baseSnowDepth: float
-    topSnowDepth: float
-    lastSnowfall: datetime
-    avalancheRiskLevel: str
-
-
 class AltitudePointCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     altitude_m: int = Field(ge=0, le=10000)

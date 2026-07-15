@@ -39,6 +39,19 @@ class ApiError extends Error {
   }
 }
 
+/** FastAPI отдаёт detail строкой или массивом ошибок валидации — приводим к тексту */
+function detailToMessage(data: unknown, fallback: string): string {
+  const detail = (data as { detail?: unknown })?.detail;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((e) => (e as { msg?: string })?.msg)
+      .filter(Boolean)
+      .join('; ') || fallback;
+  }
+  return fallback;
+}
+
 let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -126,11 +139,7 @@ async function request<T>(
     } catch {
       data = { detail: text };
     }
-    throw new ApiError(
-      (data as { detail?: string })?.detail || `HTTP ${res.status}`,
-      res.status,
-      data
-    );
+    throw new ApiError(detailToMessage(data, `HTTP ${res.status}`), res.status, data);
   }
 
   const text = await res.text();
@@ -148,13 +157,11 @@ async function uploadFile(path: string, file: File, allowRetry = true): Promise<
   const headers: Record<string, string> = {}
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
-    headers['X-Auth-Token'] = token
   }
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers,
     body: fd,
-    credentials: 'same-origin',
   })
   const canRefresh =
     allowRetry &&
@@ -172,11 +179,7 @@ async function uploadFile(path: string, file: File, allowRetry = true): Promise<
     } catch {
       data = { detail: text }
     }
-    throw new ApiError(
-      (data as { detail?: string })?.detail || `HTTP ${res.status}`,
-      res.status,
-      data
-    )
+    throw new ApiError(detailToMessage(data, `HTTP ${res.status}`), res.status, data)
   }
   return res.json() as Promise<{ image_url: string }>
 }
