@@ -2202,6 +2202,24 @@ textarea {
   gap: 0.5rem;
 }
 
+/* Подсветка лучшего значения в сравнении */
+td.compare-best {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+  font-weight: 600;
+}
+
+.compare-best-mark {
+  font-size: 0.85rem;
+}
+
+.compare-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 /* Профиль: аватар и бейджи */
 .profile-avatar {
   width: 84px;
