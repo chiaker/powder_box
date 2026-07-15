@@ -268,9 +268,8 @@ export default function Compare() {
                   <tr key={row.label || 'link'}>
                     <td>{row.label}</td>
                     {chosen.map((r) => (
-                      <td key={r.id} className={r.id === best ? 'compare-best' : ''}>
+                      <td key={r.id} className={r.id === best ? 'compare-best' : ''} title={r.id === best ? 'Лучшее значение' : undefined}>
                         {row.render(r, extras[r.id] ?? {})}
-                        {r.id === best && <span className="compare-best-mark" title="Лучшее значение"> 🏆</span>}
                       </td>
                     ))}
                   </tr>
