@@ -86,14 +86,41 @@ export default function Profile() {
 
   const favoriteResortIds = new Set(form.favorite_resorts ?? [])
 
+  const avatarEmoji = user?.equipment_type === 'snowboard' ? '🏂' : user?.equipment_type === 'ski' ? '⛷️' : '🏔'
+
   return (
     <div className="page profile-page">
       <header className="page-header profile-header">
-        <h1>Мой профиль</h1>
-        <p>Настройте свой профиль горнолыжника</p>
+        <div className="profile-avatar">{avatarEmoji}</div>
+        <h1>{user?.nickname?.trim() || 'Мой профиль'}</h1>
+        <div className="profile-badges">
+          {user?.level && <span className="trail">🎿 {LEVEL_LABELS[user.level]}</span>}
+          {user?.equipment_type && <span className="trail">{EQUIPMENT_LABELS[user.equipment_type]}</span>}
+          {(user?.favorite_resorts?.length ?? 0) > 0 && (
+            <span className="trail">★ Курортов в избранном: {user!.favorite_resorts.length}</span>
+          )}
+        </div>
       </header>
 
       <div className="profile-center">
+        <section className="resort-stats profile-stats">
+          <h2>Моя статистика</h2>
+          <div className="resort-stats-grid">
+            <div className="resort-stat">
+              <span className="resort-stat-value">{(user?.total_distance ?? 0).toFixed(1)} км</span>
+              <span className="resort-stat-label">Общая дистанция</span>
+            </div>
+            <div className="resort-stat">
+              <span className="resort-stat-value">{Math.round(user?.total_descent ?? 0)} м</span>
+              <span className="resort-stat-label">Суммарный спуск</span>
+            </div>
+            <div className="resort-stat">
+              <span className="resort-stat-value"><Link to="/stats">История →</Link></span>
+              <span className="resort-stat-label">Мои заезды</span>
+            </div>
+          </div>
+        </section>
+
         {isEditing ? (
           <form className="profile-form" onSubmit={handleSubmit}>
             <div className="form-group">

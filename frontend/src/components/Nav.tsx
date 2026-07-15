@@ -23,7 +23,6 @@ export default function Nav() {
       <div className="nav-links">
         {navLink('/', 'Главная')}
         {navLink('/resorts', 'Курорты')}
-        {navLink('/compare', 'Сравнение')}
         {navLink('/hotels', 'Отели')}
         {navLink('/equipment', 'Аренда')}
         {navLink('/lessons', 'Уроки')}

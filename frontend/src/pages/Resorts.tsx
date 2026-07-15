@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api, ApiError, imageUrl, IMG_PLACEHOLDER, type Resort } from '../api/client'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
@@ -12,17 +12,28 @@ export default function Resorts() {
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('rating')
-  const [beginnerOnly, setBeginnerOnly] = useState(false)
+  const [compareIds, setCompareIds] = useState<number[]>([])
   const toast = useToast()
+  const navigate = useNavigate()
   const { user, token, refreshProfile } = useAuth()
 
   const visibleResorts = useMemo(() => {
     const q = search.trim().toLowerCase()
     return resorts
       .filter((r) => !q || r.name.toLowerCase().includes(q))
-      .filter((r) => !beginnerOnly || r.beginner_friendly)
       .sort((a, b) => (b[sortKey] ?? -Infinity) - (a[sortKey] ?? -Infinity))
-  }, [resorts, search, sortKey, beginnerOnly])
+  }, [resorts, search, sortKey])
+
+  const toggleCompare = (id: number) => {
+    setCompareIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id)
+      if (prev.length >= 3) {
+        toast.show('Можно сравнить не больше 3 курортов', 'info')
+        return prev
+      }
+      return [...prev, id]
+    })
+  }
 
   useEffect(() => {
     api
@@ -100,10 +111,6 @@ export default function Resorts() {
             <option value="elevation_drop_m">По перепаду высот</option>
           </select>
         </label>
-        <label className="filter-check">
-          <input type="checkbox" checked={beginnerOnly} onChange={(e) => setBeginnerOnly(e.target.checked)} />
-          Для новичков
-        </label>
       </div>
 
       <div className="resort-grid">
@@ -135,7 +142,6 @@ export default function Resorts() {
                     </div>
                   )}
                   <div className="resort-badges">
-                    {r.beginner_friendly && <span className="trail">🟢 Для новичков</span>}
                     {r.freeride_rating != null && <span className="trail">🏔 Фрирайд {r.freeride_rating}/5</span>}
                     {r.trails_green != null && <span className="trail">🟢 {r.trails_green}</span>}
                     {r.trails_blue != null && <span className="trail">🔵 {r.trails_blue}</span>}
@@ -155,10 +161,38 @@ export default function Resorts() {
                   ★
                 </button>
               )}
+              <button
+                type="button"
+                className={`btn btn-sm compare-btn ${compareIds.includes(r.id) ? 'btn-primary' : 'btn-ghost'}`}
+                onClick={() => toggleCompare(r.id)}
+              >
+                {compareIds.includes(r.id) ? '✓ В сравнении' : '⚖ Добавить к сравнению'}
+              </button>
             </div>
           ))
         )}
       </div>
+
+      {compareIds.length > 0 && (
+        <div className="compare-bar">
+          <span>
+            Выбрано: {compareIds.map((id) => resorts.find((r) => r.id === id)?.name).filter(Boolean).join(', ')}
+          </span>
+          <div className="compare-bar-actions">
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              disabled={compareIds.length < 2}
+              onClick={() => navigate(`/compare?ids=${compareIds.join(',')}`)}
+            >
+              Сравнить ({compareIds.length})
+            </button>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setCompareIds([])}>
+              Сбросить
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -341,12 +341,6 @@ export default function ResortDetail() {
                 <span className="resort-stat-label">Фрирайд</span>
               </div>
             )}
-            {resort.beginner_friendly != null && (
-              <div className="resort-stat">
-                <span className="resort-stat-value">{resort.beginner_friendly ? 'Да' : 'Нет'}</span>
-                <span className="resort-stat-label">Подходит для новичков</span>
-              </div>
-            )}
           </div>
         </section>
       )}
@@ -402,7 +396,10 @@ export default function ResortDetail() {
                     <div><span className="weather-value">{point.windSpeed} м/с</span><span className="weather-label">Ветер</span></div>
                     <div><span className="weather-value">{point.humidity}%</span><span className="weather-label">Влажность</span></div>
                   </div>
-                  <p className="weather-label">{weatherIcon(point.condition)} {point.condition}</p>
+                  <p className="weather-current-condition">
+                    <span className="weather-icon-lg">{weatherIcon(point.condition)}</span>
+                    <span className="weather-label">{point.condition}</span>
+                  </p>
                 </article>
               ))}
             </div>

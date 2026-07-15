@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   api,
   type Resort,
@@ -14,8 +14,17 @@ type ResortExtras = {
 }
 
 export default function Compare() {
+  const [searchParams] = useSearchParams()
   const [resorts, setResorts] = useState<Resort[]>([])
-  const [selected, setSelected] = useState<(number | '')[]>(['', '', ''])
+  // Стартовый выбор приходит со страницы курортов через ?ids=1,2,3
+  const [selected, setSelected] = useState<(number | '')[]>(() => {
+    const ids = (searchParams.get('ids') ?? '')
+      .split(',')
+      .map((s) => Number(s))
+      .filter((n) => Number.isInteger(n) && n > 0)
+      .slice(0, 3)
+    return [ids[0] ?? '', ids[1] ?? '', ids[2] ?? '']
+  })
   const [extras, setExtras] = useState<Record<number, ResortExtras>>({})
   const [loading, setLoading] = useState(true)
 
@@ -26,29 +35,40 @@ export default function Compare() {
       .finally(() => setLoading(false))
   }, [])
 
-  const pick = (slot: number, value: number | '') => {
-    setSelected((prev) => prev.map((v, i) => (i === slot ? value : v)))
-    if (value === '' || extras[value]) return
+  const loadExtras = (id: number) => {
     // Догружаем погоду и мин. цену скипасса один раз на курорт
-    api.get<AltitudePointWeather[]>(`/weather/${value}/altitudes/current`)
+    api.get<AltitudePointWeather[]>(`/weather/${id}/altitudes/current`)
       .then((points) => {
         if (points.length) {
-          setExtras((prev) => ({ ...prev, [value]: { ...prev[value], weather: points[0] } }))
+          setExtras((prev) => ({ ...prev, [id]: { ...prev[id], weather: points[0] } }))
         }
       })
       .catch(() => {})
-    api.get<SkipassTariff[]>(`/skipasses?resort_id=${value}`)
+    api.get<SkipassTariff[]>(`/skipasses?resort_id=${id}`)
       .then((tariffs) => {
         const active = tariffs.filter((t) => t.is_active)
         if (active.length) {
           const cheapest = active.reduce((a, b) => (a.price <= b.price ? a : b))
           setExtras((prev) => ({
             ...prev,
-            [value]: { ...prev[value], minSkipass: { price: cheapest.price, currency: cheapest.currency } },
+            [id]: { ...prev[id], minSkipass: { price: cheapest.price, currency: cheapest.currency } },
           }))
         }
       })
       .catch(() => {})
+  }
+
+  // Для курортов, пришедших через URL
+  useEffect(() => {
+    selected.forEach((id) => {
+      if (id !== '' && !extras[id]) loadExtras(id)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const pick = (slot: number, value: number | '') => {
+    setSelected((prev) => prev.map((v, i) => (i === slot ? value : v)))
+    if (value !== '' && !extras[value]) loadExtras(value)
   }
 
   const chosen = selected.filter((id): id is number => id !== '').map((id) => resorts.find((r) => r.id === id)).filter((r): r is Resort => r != null)
@@ -70,7 +90,6 @@ export default function Compare() {
     ['Перепад высот', (r) => (r.elevation_drop_m != null ? `${r.elevation_drop_m} м` : '—')],
     ['Трассы', trails],
     ['Фрирайд', (r) => (r.freeride_rating != null ? `${r.freeride_rating}/5` : '—')],
-    ['Для новичков', (r) => (r.beginner_friendly != null ? (r.beginner_friendly ? 'Да' : 'Нет') : '—')],
     ['Погода сейчас', (r) => {
       const w = extras[r.id]?.weather
       return w ? `${weatherIcon(w.condition)} ${w.temperature}°C, ${w.condition}` : '—'
