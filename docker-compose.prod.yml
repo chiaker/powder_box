@@ -21,6 +21,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
+      args:
+        # На сервере можно задать NPM_REGISTRY в .env, если npmjs таймаутит
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org}
     image: powderbox-frontend:prod
     ports: !override
       - "127.0.0.1:3000:80"
