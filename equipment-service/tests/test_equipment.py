@@ -256,3 +256,15 @@ async def test_upload_too_large_rejected(client: AsyncClient):
     )
     assert r.status_code == 400
     assert "too large" in r.json()["detail"]
+
+
+async def test_create_item_with_contact_and_created_at(client: AsyncClient):
+    r = await client.post(
+        "/equipment/items",
+        json={"name": "Борт Burton", "contact": "@rider_tg"},
+        headers=auth_headers(user_id=1),
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["contact"] == "@rider_tg"
+    assert body["created_at"] is not None

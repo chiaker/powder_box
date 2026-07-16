@@ -127,6 +127,7 @@ function EquipmentForm({
     price_per_day: String(item?.price_per_day ?? ''),
     condition: item?.condition ?? '',
     equipment_type: item?.equipment_type ?? '',
+    contact: item?.contact ?? '',
   })
   const [saving, setSaving] = useState(false)
 
@@ -142,6 +143,7 @@ function EquipmentForm({
         price_per_day: String(item.price_per_day ?? ''),
         condition: item.condition ?? '',
         equipment_type: item.equipment_type ?? '',
+        contact: item.contact ?? '',
       })
     }
   }, [item])
@@ -160,6 +162,7 @@ function EquipmentForm({
         price_per_day: form.price_per_day ? parseFloat(form.price_per_day) : undefined,
         condition: form.condition || undefined,
         equipment_type: form.equipment_type || undefined,
+        contact: form.contact || undefined,
       }
       if (item) {
         await api.patch(`/equipment/items/${item.id}`, body)
@@ -197,6 +200,8 @@ function EquipmentForm({
           <option value="ski">Лыжи</option>
           <option value="snowboard">Сноуборд</option>
         </select>
+        <label>Контакт для связи</label>
+        <input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="@telegram или телефон" />
         <label>Адрес (откуда забирать)</label>
         <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Город, улица, дом..." />
         <label>Цена за день (₽)</label>

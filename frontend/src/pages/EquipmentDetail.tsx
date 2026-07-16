@@ -3,6 +3,15 @@ import { useParams, Link } from 'react-router-dom'
 import { api, imageUrl, IMG_PLACEHOLDER, type EquipmentItem, type EquipmentCategory } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 
+/** Превращает контакт в ссылку: @ник → t.me, телефон → tel:, url → как есть */
+function contactHref(contact: string): string | null {
+  const c = contact.trim()
+  if (c.startsWith('@')) return `https://t.me/${c.slice(1)}`
+  if (c.startsWith('http')) return c
+  if (/^\+?[\d\s()-]{6,}$/.test(c)) return `tel:${c.replace(/[^+\d]/g, '')}`
+  return null
+}
+
 export default function EquipmentDetail() {
   const { id } = useParams<{ id: string }>()
   const [item, setItem] = useState<EquipmentItem | null>(null)
@@ -75,6 +84,25 @@ export default function EquipmentDetail() {
           )}
           {item.equipment_type && (
             <p className="equipment-meta">Тип: {item.equipment_type === 'ski' ? 'Лыжи' : 'Сноуборд'}</p>
+          )}
+          {item.created_at && (
+            <p className="equipment-meta">
+              Размещено: {new Date(item.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
+          )}
+          {item.contact && (
+            contactHref(item.contact) ? (
+              <a
+                href={contactHref(item.contact)!}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary equipment-contact-btn"
+              >
+                💬 Написать владельцу
+              </a>
+            ) : (
+              <p className="equipment-meta">Контакт: {item.contact}</p>
+            )
           )}
           {item.description && (
             <div className="equipment-description">

@@ -77,11 +77,22 @@ def _fetch_rutube_preview_sync(video_id: str) -> str | None:
         return None
 
 
+# Кэш превью: без него каждый GET /lessons делает N внешних запросов к Rutube.
+# Кэшируем только успешные ответы — неудача (сеть/лимит) перепробуется в следующий раз.
+# ponytail: in-memory без вытеснения, уроков сотни максимум; сбрасывается рестартом.
+_preview_cache: dict[str, str] = {}
+
+
 async def get_rutube_preview_url(lesson_url: str) -> str | None:
     video_id = extract_rutube_video_id(lesson_url)
     if not video_id:
         return None
-    return await asyncio.to_thread(_fetch_rutube_preview_sync, video_id)
+    if lesson_url in _preview_cache:
+        return _preview_cache[lesson_url]
+    preview = await asyncio.to_thread(_fetch_rutube_preview_sync, video_id)
+    if preview:
+        _preview_cache[lesson_url] = preview
+    return preview
 
 
 async def serialize_lesson(lesson: Lesson) -> LessonOut:

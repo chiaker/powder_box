@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -24,6 +26,8 @@ class EquipmentItemOut(BaseModel):
     price_per_day: float | None
     condition: str | None
     equipment_type: str | None
+    contact: str | None = None
+    created_at: datetime | None = None
 
 
 class EquipmentItemCreate(BaseModel):
@@ -36,6 +40,7 @@ class EquipmentItemCreate(BaseModel):
     price_per_day: float | None = None
     condition: str | None = None
     equipment_type: str | None = None
+    contact: str | None = None
 
 
 class EquipmentItemUpdate(BaseModel):
@@ -48,3 +53,4 @@ class EquipmentItemUpdate(BaseModel):
     price_per_day: float | None = None
     condition: str | None = None
     equipment_type: str | None = None
+    contact: str | None = None

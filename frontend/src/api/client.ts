@@ -238,6 +238,8 @@ export type EquipmentItem = {
   price_per_day?: number;
   condition?: string;
   equipment_type?: string;
+  contact?: string;
+  created_at?: string;
 };
 export type Hotel = {
   id: number;

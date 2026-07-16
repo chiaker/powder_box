@@ -152,3 +152,23 @@ async def test_update_lesson_level(client: AsyncClient):
     r = await client.patch(f"/lessons/{created['id']}", json={"level": "intermediate"})
     assert r.status_code == 200
     assert r.json()["level"] == "intermediate"
+
+
+# --- Rutube preview cache ---
+
+async def test_preview_fetched_once_and_cached(client: AsyncClient):
+    from unittest.mock import patch
+
+    rutube_lesson = {
+        "title": "Урок с Rutube",
+        "category": "ski",
+        "lesson_url": "https://rutube.ru/video/abc123/",
+    }
+    with patch("app.main._fetch_rutube_preview_sync", return_value="https://img.example/p.jpg") as mock_fetch:
+        created = (await client.post("/lessons", json=rutube_lesson)).json()
+        assert created["preview_url"] == "https://img.example/p.jpg"
+
+        r = await client.get(f"/lessons/{created['id']}")
+        assert r.json()["preview_url"] == "https://img.example/p.jpg"
+
+    assert mock_fetch.call_count == 1  # второй запрос взял превью из кэша

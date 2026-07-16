@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   api,
@@ -7,6 +7,7 @@ import {
   type Resort,
   type ResortReview,
   type UserProfile,
+  type AltitudePoint,
   type AltitudePointWeather,
   type AltitudePointHourlyForecast,
   type AltitudePointDailyForecast,
@@ -18,6 +19,9 @@ import {
 import { weatherIcon, snowSum, bestDayIndex } from '../utils/weather'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+
+// three.js тянется только при открытии страницы курорта с картой
+const ResortMap3D = lazy(() => import('../components/ResortMap3D'))
 
 const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800'
 type WeatherMode = 'current' | 'today_hourly' | 'tomorrow_hourly' | 'week'
@@ -33,6 +37,8 @@ export default function ResortDetail() {
   const [weatherLoading, setWeatherLoading] = useState(false)
   // 7-дневный прогноз самой высокой точки — для паудер-бейджа и «лучшего дня»
   const [powderDaily, setPowderDaily] = useState<AltitudeDailyEntry[]>([])
+  // Точки высот — центр 3D-карты
+  const [altPoints, setAltPoints] = useState<AltitudePoint[]>([])
   const [skipassTariffs, setSkipassTariffs] = useState<SkipassTariff[]>([])
   const [skipassPrice, setSkipassPrice] = useState<SkipassPriceResponse | null>(null)
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -239,6 +245,22 @@ export default function ResortDetail() {
 
   const powderCm = useMemo(() => snowSum(powderDaily, 3), [powderDaily])
   const bestDay = useMemo(() => bestDayIndex(powderDaily), [powderDaily])
+
+  useEffect(() => {
+    if (resortId == null) return
+    void api
+      .get<AltitudePoint[]>(`/weather/${resortId}/altitude-points`)
+      .then((pts) => setAltPoints(pts.filter((p) => p.is_active)))
+      .catch(() => setAltPoints([]))
+  }, [resortId])
+
+  const mapCenter = useMemo(() => {
+    if (!altPoints.length) return null
+    return {
+      lat: altPoints.reduce((s, p) => s + p.latitude, 0) / altPoints.length,
+      lng: altPoints.reduce((s, p) => s + p.longitude, 0) / altPoints.length,
+    }
+  }, [altPoints])
 
   useEffect(() => {
     if (resortId == null) return
@@ -463,6 +485,16 @@ export default function ResortDetail() {
         )}
       </section>
 
+      {mapCenter && (
+        <section className="weather-card">
+          <h2>3D-карта курорта</h2>
+          <p className="section-hint">Гора из точек по реальному рельефу; трассы и подъёмники — из OpenStreetMap</p>
+          <Suspense fallback={<div className="loading">Загрузка карты...</div>}>
+            <ResortMap3D lat={mapCenter.lat} lng={mapCenter.lng} />
+          </Suspense>
+        </section>
+      )}
+
       <section className="weather-card">
         <h2>Скипассы</h2>
         <div className="skipass-controls">
@@ -627,7 +659,14 @@ export default function ResortDetail() {
             reviews.map((review) => (
               <article key={review.id} className="review-card">
                 <div className="review-header">
-                  <strong>{reviewAuthors[review.user_id] || `Пользователь #${review.user_id}`}</strong>
+                  <span>
+                    <strong>{reviewAuthors[review.user_id] || `Пользователь #${review.user_id}`}</strong>
+                    {review.updated_at && (
+                      <span className="review-date">
+                        {new Date(review.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </span>
+                    )}
+                  </span>
                   <span className="rating-stars" aria-label={`Оценка: ${review.rating} из 5`}>
                     {[1, 2, 3, 4, 5].map((value) => (
                       <span key={value} className={value <= Math.round(review.rating) ? 'star-filled' : 'star-empty'}>

@@ -24,6 +24,7 @@ export default function EquipmentForm() {
     price_per_day: '',
     condition: '',
     equipment_type: '',
+    contact: '',
   })
 
   const itemId = id && id !== 'new' ? parseInt(id, 10) : null
@@ -57,6 +58,7 @@ export default function EquipmentForm() {
           price_per_day: String(i.price_per_day ?? ''),
           condition: i.condition ?? '',
           equipment_type: i.equipment_type ?? '',
+          contact: i.contact ?? '',
         })
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Ошибка'))
@@ -92,6 +94,7 @@ export default function EquipmentForm() {
         price_per_day: form.price_per_day ? parseFloat(form.price_per_day) : undefined,
         condition: form.condition || undefined,
         equipment_type: form.equipment_type || undefined,
+        contact: form.contact || undefined,
       }
       if (itemId) {
         await api.patch(`/equipment/items/${itemId}`, body)
@@ -167,6 +170,15 @@ export default function EquipmentForm() {
           <div className="form-field">
             <label>Адрес (откуда забирать)</label>
             <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Город, улица, дом..." />
+          </div>
+          <div className="form-field">
+            <label>Контакт для связи *</label>
+            <input
+              value={form.contact}
+              onChange={(e) => setForm({ ...form, contact: e.target.value })}
+              placeholder="@telegram или +7 900 000-00-00"
+              required
+            />
           </div>
           <div className="form-field form-field-half">
             <label>Состояние</label>

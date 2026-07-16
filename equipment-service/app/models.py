@@ -1,4 +1,6 @@
-from sqlalchemy import String, Integer, Float, ForeignKey, Text
+from datetime import datetime, timezone
+
+from sqlalchemy import String, Integer, Float, ForeignKey, Text, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -25,3 +27,12 @@ class EquipmentItem(Base):
     price_per_day: Mapped[float | None] = mapped_column(Float, nullable=True)
     condition: Mapped[str | None] = mapped_column(String(20), nullable=True)
     equipment_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    contact: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    # nullable: у строк, созданных до добавления колонки, даты нет.
+    # default на стороне Python: ALTER-колонка на старых БД не имеет DB-default.
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        server_default=func.now(),
+        nullable=True,
+    )

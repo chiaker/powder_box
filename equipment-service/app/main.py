@@ -41,6 +41,8 @@ async def lifespan(app: FastAPI):
         await _add_column(conn, "equipment_items", "price_per_day", "FLOAT")
         await _add_column(conn, "equipment_items", "condition", "VARCHAR(20)")
         await _add_column(conn, "equipment_items", "equipment_type", "VARCHAR(20)")
+        await _add_column(conn, "equipment_items", "contact", "VARCHAR(200)")
+        await _add_column(conn, "equipment_items", "created_at", "DATETIME")
     yield
 
 
@@ -136,6 +138,7 @@ async def create_item(
         price_per_day=data.price_per_day,
         condition=data.condition,
         equipment_type=data.equipment_type,
+        contact=data.contact,
     )
     db.add(item)
     await db.commit()
