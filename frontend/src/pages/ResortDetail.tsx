@@ -254,13 +254,10 @@ export default function ResortDetail() {
       .catch(() => setAltPoints([]))
   }, [resortId])
 
-  const mapCenter = useMemo(() => {
-    if (!altPoints.length) return null
-    return {
-      lat: altPoints.reduce((s, p) => s + p.latitude, 0) / altPoints.length,
-      lng: altPoints.reduce((s, p) => s + p.longitude, 0) / altPoints.length,
-    }
-  }, [altPoints])
+  const mapPoints = useMemo(
+    () => altPoints.map((p) => ({ lat: p.latitude, lng: p.longitude })),
+    [altPoints]
+  )
 
   useEffect(() => {
     if (resortId == null) return
@@ -485,12 +482,12 @@ export default function ResortDetail() {
         )}
       </section>
 
-      {mapCenter && (
+      {mapPoints.length > 0 && (
         <section className="weather-card">
           <h2>3D-карта курорта</h2>
-          <p className="section-hint">Гора из точек по реальному рельефу; трассы и подъёмники — из OpenStreetMap</p>
+          <p className="section-hint">Гора из точек по реальному рельефу; трассы и подъёмники — из OpenStreetMap. Наведите на трассу, чтобы узнать подробности.</p>
           <Suspense fallback={<div className="loading">Загрузка карты...</div>}>
-            <ResortMap3D lat={mapCenter.lat} lng={mapCenter.lng} />
+            <ResortMap3D points={mapPoints} />
           </Suspense>
         </section>
       )}
