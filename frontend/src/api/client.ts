@@ -335,6 +335,7 @@ export type AltitudePointCreate = {
   latitude: number;
   longitude: number;
   is_active?: boolean;
+  is_primary?: boolean;
 };
 
 export type AltitudePoint = {
@@ -345,6 +346,7 @@ export type AltitudePoint = {
   latitude: number;
   longitude: number;
   is_active: boolean;
+  is_primary: boolean;
 };
 
 export type ResortReview = {

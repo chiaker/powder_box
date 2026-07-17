@@ -2373,6 +2373,17 @@ td.compare-best {
   color: var(--text-muted);
 }
 
+/* Ненавязчивая подпись источников на 2D-карте */
+.map3d-canvas .leaflet-control-attribution {
+  background: rgba(12, 18, 34, 0.7);
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.map3d-canvas .leaflet-control-attribution a {
+  color: var(--text-muted);
+}
+
 .trail-map-img {
   width: 100%;
   max-height: 480px;

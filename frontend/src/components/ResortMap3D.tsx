@@ -37,7 +37,8 @@ const PISTE_STYLE: Record<string, { color: string; label: string; halo?: boolean
   intermediate: { color: '#ef4444', label: 'красная' },
   advanced: { color: '#111827', label: 'чёрная', halo: true },
   expert: { color: '#111827', label: 'чёрная (эксперт)', halo: true },
-  freeride: { color: '#a78bfa', label: 'фрирайд' },
+  // Отдельной категории «фрирайд» на схемах курортов нет — маркируется чёрной
+  freeride: { color: '#111827', label: 'чёрная (фрирайд)', halo: true },
 }
 const DEFAULT_PISTE = { color: '#94a3b8', label: 'без категории', halo: false }
 const LIFT_COLOR = '#fbbf24'
@@ -56,6 +57,7 @@ const LIFT_LABELS: Record<string, string> = {
 type Bbox = { s: number; w: number; n: number; e: number }
 
 type OsmWay = {
+  id: number
   tags?: Record<string, string>
   geometry?: { lat: number; lon: number }[]
 }
@@ -310,11 +312,11 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
           return best
         }
 
-        for (const way of ways) {
-          if (!way.geometry) continue
-          // Трасса принадлежит ближайшему курорту — чужие не показываем.
-          // Если сектор курорта не покрыт точками высот, его трассы могут отойти
-          // соседу: лечится добавлением точки высот сектора через админку.
+        // Трасса принадлежит ближайшему курорту — чужие не показываем.
+        // Если сектор курорта не покрыт точками высот, его трассы могут отойти
+        // соседу: лечится добавлением (вспомогательной) точки высот через админку.
+        const kept = ways.filter((way) => {
+          if (!way.geometry) return false
           let bestResort = -1
           let bestDist = Infinity
           for (const r of allResorts) {
@@ -324,30 +326,46 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
               bestResort = r.id
             }
           }
-          if (bestResort !== resortId || bestDist > MAX_ASSIGN_M) continue
+          return bestResort === resortId && bestDist <= MAX_ASSIGN_M
+        })
 
-          const isLift = !!way.tags?.aerialway
+        // В OSM одна трасса часто разбита на несколько way — группируем по
+        // имени и категории, чтобы подсветка и длина были по всей трассе.
+        const groups = new Map<string, OsmWay[]>()
+        for (const way of kept) {
+          const t = way.tags ?? {}
+          const nameKey = t.name || t.ref || `#${way.id}`
+          const key = t.aerialway ? `L|${t.aerialway}|${nameKey}` : `P|${t['piste:difficulty'] ?? ''}|${nameKey}`
+          const arr = groups.get(key)
+          if (arr) arr.push(way)
+          else groups.set(key, [way])
+        }
+
+        for (const members of groups.values()) {
+          const first = members[0]
+          const isLift = !!first.tags?.aerialway
           const style = isLift
             ? { color: LIFT_COLOR, label: '', halo: false }
-            : PISTE_STYLE[way.tags?.['piste:difficulty'] ?? ''] ?? DEFAULT_PISTE
+            : PISTE_STYLE[first.tags?.['piste:difficulty'] ?? ''] ?? DEFAULT_PISTE
 
-          // Клиппинг: рвём линию на куски внутри области, чтобы не вылезала за модель
-          const runs: { lat: number; lon: number }[][] = []
-          let run: { lat: number; lon: number }[] = []
-          for (const g of way.geometry) {
-            const inside = g.lat >= bbox.s && g.lat <= bbox.n && g.lon >= bbox.w && g.lon <= bbox.e
-            if (inside) {
-              run.push(g)
-            } else if (run.length) {
-              runs.push(run)
-              run = []
+          // Клиппинг: рвём линии на куски внутри области, чтобы не вылезали за модель
+          const usable: { lat: number; lon: number }[][] = []
+          for (const way of members) {
+            let run: { lat: number; lon: number }[] = []
+            for (const g of way.geometry!) {
+              const inside = g.lat >= bbox.s && g.lat <= bbox.n && g.lon >= bbox.w && g.lon <= bbox.e
+              if (inside) {
+                run.push(g)
+              } else if (run.length) {
+                if (run.length >= 2) usable.push(run)
+                run = []
+              }
             }
+            if (run.length >= 2) usable.push(run)
           }
-          if (run.length) runs.push(run)
-          const usable = runs.filter((r) => r.length >= 2)
           if (!usable.length) continue
 
-          // Инфо для тултипа: высоты и длина по видимой части
+          // Инфо для тултипа: высоты и длина по всем сегментам трассы
           let topM = -Infinity
           let botM = Infinity
           let lenM = 0
@@ -360,12 +378,12 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
             }
           }
 
-          const tagName = way.tags?.name
-          const tagRef = way.tags?.ref
+          const tagName = first.tags?.name
+          const tagRef = first.tags?.ref
           const name = tagName && tagRef ? `${tagName} (${tagRef})` : tagName || tagRef || ''
           const title = name || (isLift ? 'Подъёмник' : 'Трасса')
           const subtitle = isLift
-            ? LIFT_LABELS[way.tags?.aerialway ?? ''] ?? 'Подъёмник'
+            ? LIFT_LABELS[first.tags?.aerialway ?? ''] ?? 'Подъёмник'
             : `Трасса · ${style.label}`
 
           const recIndex = records.length
@@ -531,7 +549,6 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
             <span><i style={{ background: '#3b82f6' }} /> Синяя</span>
             <span><i style={{ background: '#ef4444' }} /> Красная</span>
             <span><i style={{ background: '#111827', outline: '1px solid #e2e8f0' }} /> Чёрная</span>
-            <span><i style={{ background: '#a78bfa' }} /> Фрирайд</span>
             <span><i style={{ background: '#fbbf24' }} /> Подъёмник</span>
           </div>
           <p className="map3d-hint">

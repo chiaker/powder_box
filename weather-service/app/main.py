@@ -6,7 +6,7 @@ from datetime import datetime
 
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import Base, engine, get_db
@@ -49,6 +49,11 @@ async def _fetch_open_meteo(cache_key: tuple, params: dict) -> dict:
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        try:
+            # Существующие точки становятся основными (DEFAULT 1 бэкфиллит строки)
+            await conn.execute(text("ALTER TABLE resort_altitude_points ADD COLUMN is_primary BOOLEAN NOT NULL DEFAULT 1"))
+        except Exception:
+            pass
     yield
 
 
@@ -130,9 +135,14 @@ def current_from_open_meteo(resort_id: int, current: dict) -> CurrentWeather:
 
 
 async def get_active_points(db: AsyncSession, resort_id: int) -> list[ResortAltitudePoint]:
+    """Точки для погодных эндпоинтов: только основные (вспомогательные — для карты)."""
     result = await db.execute(
         select(ResortAltitudePoint)
-        .where(ResortAltitudePoint.resort_id == resort_id, ResortAltitudePoint.is_active.is_(True))
+        .where(
+            ResortAltitudePoint.resort_id == resort_id,
+            ResortAltitudePoint.is_active.is_(True),
+            ResortAltitudePoint.is_primary.is_(True),
+        )
         .order_by(ResortAltitudePoint.altitude_m.asc())
     )
     return result.scalars().all()
@@ -157,6 +167,7 @@ async def create_altitude_point(resort_id: int, data: AltitudePointCreate, db: A
         latitude=data.latitude,
         longitude=data.longitude,
         is_active=data.is_active,
+        is_primary=data.is_primary,
     )
     db.add(point)
     await db.commit()

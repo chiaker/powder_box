@@ -216,3 +216,22 @@ async def test_weather_condition_from_code():
     assert weather_condition_from_code(95) == "Гроза"
     assert weather_condition_from_code(999) == "Неизвестно"
     assert weather_condition_from_code(None) == "Неизвестно"
+
+
+async def test_auxiliary_point_excluded_from_weather(client: AsyncClient):
+    await client.post("/weather/1/altitude-points", json=POINT_PAYLOAD)
+    await client.post(
+        "/weather/1/altitude-points",
+        json={**POINT_PAYLOAD, "name": "Вспомогательная", "is_primary": False},
+    )
+
+    # В списке точек — обе (карта использует все)
+    pts = (await client.get("/weather/1/altitude-points")).json()
+    assert len(pts) == 2
+    assert {p["is_primary"] for p in pts} == {True, False}
+
+    # В погоде — только основная
+    with patch("app.main.fetch_open_meteo_current", return_value=MOCK_CURRENT_DATA):
+        r = await client.get("/weather/1/altitudes/current")
+    assert len(r.json()) == 1
+    assert r.json()[0]["point_name"] == "Вершина"

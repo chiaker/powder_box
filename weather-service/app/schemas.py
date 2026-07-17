@@ -17,6 +17,7 @@ class AltitudePointCreate(BaseModel):
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
     is_active: bool = True
+    is_primary: bool = True
 
 
 class AltitudePointUpdate(BaseModel):
@@ -25,6 +26,7 @@ class AltitudePointUpdate(BaseModel):
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
     is_active: bool | None = None
+    is_primary: bool | None = None
 
 
 class AltitudePointOut(BaseModel):
@@ -36,6 +38,7 @@ class AltitudePointOut(BaseModel):
     latitude: float
     longitude: float
     is_active: bool
+    is_primary: bool = True
 
 
 class AltitudePointWeather(BaseModel):

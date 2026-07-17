@@ -8,6 +8,7 @@ type PointFormState = {
   latitude: string
   longitude: string
   is_active: boolean
+  is_primary: boolean
 }
 
 function toForm(point?: AltitudePoint): PointFormState {
@@ -17,6 +18,7 @@ function toForm(point?: AltitudePoint): PointFormState {
     latitude: point ? String(point.latitude) : '',
     longitude: point ? String(point.longitude) : '',
     is_active: point?.is_active ?? true,
+    is_primary: point?.is_primary ?? true,
   }
 }
 
@@ -79,8 +81,9 @@ export default function AdminWeatherPoints() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedResortId) return
-    if (points.length >= 4 && !editing) {
-      toast.show('Для курорта можно добавить максимум 4 точки', 'info')
+    const primaryCount = points.filter((p) => p.is_primary).length
+    if (form.is_primary && !editing?.is_primary && primaryCount >= 4) {
+      toast.show('Основных точек может быть максимум 4 — добавьте вспомогательную', 'info')
       return
     }
     setSaving(true)
@@ -91,6 +94,7 @@ export default function AdminWeatherPoints() {
         latitude: Number(form.latitude),
         longitude: Number(form.longitude),
         is_active: form.is_active,
+        is_primary: form.is_primary,
       }
       if (!body.name || Number.isNaN(body.altitude_m) || Number.isNaN(body.latitude) || Number.isNaN(body.longitude)) {
         throw new Error('Заполните все поля точки корректно')
@@ -195,9 +199,18 @@ export default function AdminWeatherPoints() {
             checked={form.is_active}
             onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
           />
+
+          <label>Основная</label>
+          <input
+            type="checkbox"
+            checked={form.is_primary}
+            onChange={(e) => setForm({ ...form, is_primary: e.target.checked })}
+          />
         </div>
         <p className="form-hint">
-          Для каждого курорта можно держать до 4 активных точек высоты.
+          Основные точки (до 4) показываются в погоде курорта. Вспомогательных — сколько угодно:
+          они не видны в погоде и нужны только для привязки трасс на карте (ставьте их в секторах
+          катания, чтобы трассы не «уходили» соседним курортам).
         </p>
         <div className="form-actions">
           {editing && (
@@ -221,13 +234,14 @@ export default function AdminWeatherPoints() {
               <th>Высота</th>
               <th>Координаты</th>
               <th>Активна</th>
+              <th>Тип</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {points.length === 0 ? (
               <tr>
-                <td colSpan={7}>Для курорта пока нет высотных точек</td>
+                <td colSpan={8}>Для курорта пока нет высотных точек</td>
               </tr>
             ) : (
               points.map((point) => (
@@ -238,6 +252,7 @@ export default function AdminWeatherPoints() {
                   <td>{point.altitude_m} м</td>
                   <td>{point.latitude}, {point.longitude}</td>
                   <td>{point.is_active ? 'Да' : 'Нет'}</td>
+                  <td>{point.is_primary ? 'Основная' : 'Вспомогательная'}</td>
                   <td>
                     <button className="btn btn-sm btn-outline" onClick={() => onEdit(point)}>Изменить</button>
                     <button className="btn btn-sm btn-danger" onClick={() => onDelete(point)}>Удалить</button>

@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer } from 'react-leaflet'
+import { useEffect } from 'react'
+import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
 /**
@@ -7,6 +8,15 @@ import 'leaflet/dist/leaflet.css'
  */
 
 type LatLng = { lat: number; lng: number }
+
+/** Убирает префикс «Leaflet» из подписи; © источников данных остаётся (условие лицензии OSM) */
+function AttributionPrefix() {
+  const map = useMap()
+  useEffect(() => {
+    map.attributionControl?.setPrefix(false)
+  }, [map])
+  return null
+}
 
 export default function ResortMap2D({ points }: { points: LatLng[] }) {
   const lats = points.map((p) => p.lat)
@@ -19,6 +29,7 @@ export default function ResortMap2D({ points }: { points: LatLng[] }) {
 
   return (
     <MapContainer bounds={bounds} className="map3d-canvas" scrollWheelZoom>
+      <AttributionPrefix />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
