@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -24,23 +24,25 @@ export default function Profile() {
     nickname: '',
     level: undefined,
     equipment_type: undefined,
-    favorite_resorts: [],
   })
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [resorts, setResorts] = useState<{ id: number; name: string; image_url?: string }[]>([])
   const [isEditing, setIsEditing] = useState(true)
 
+  // Инициализируем форму один раз, чтобы refreshProfile после тапа по звёздочке
+  // не затирал несохранённые правки
+  const formInitialized = useRef(false)
   useEffect(() => {
-    if (user) {
+    if (user && !formInitialized.current) {
+      formInitialized.current = true
       setForm({
         nickname: user.nickname ?? '',
         level: user.level,
         equipment_type: user.equipment_type,
-        favorite_resorts: user.favorite_resorts ?? [],
       })
       const hasProfileData = !!(user.nickname?.trim() || user.level || user.equipment_type)
-      setIsEditing((prev) => (prev === false ? false : !hasProfileData))
+      setIsEditing(!hasProfileData)
     }
   }, [user])
 
@@ -56,7 +58,7 @@ export default function Profile() {
         nickname: form.nickname || null,
         level: form.level || null,
         equipment_type: form.equipment_type || null,
-        favorite_resorts: form.favorite_resorts ?? [],
+        favorite_resorts: user?.favorite_resorts ?? [],
       })
       await refreshProfile()
       setMessage('Профиль обновлён')
@@ -76,15 +78,26 @@ export default function Profile() {
     void doSave()
   }
 
-  const toggleFavorite = (resortId: string) => {
-    const favs = form.favorite_resorts ?? []
+  const toggleFavorite = async (resortId: string) => {
+    const favs = user?.favorite_resorts ?? []
     const next = favs.includes(resortId)
       ? favs.filter((id) => id !== resortId)
       : [...favs, resortId]
-    setForm((f) => ({ ...f, favorite_resorts: next }))
+    try {
+      await api.put('/users/me', {
+        nickname: user?.nickname || null,
+        level: user?.level || null,
+        equipment_type: user?.equipment_type || null,
+        favorite_resorts: next,
+      })
+      await refreshProfile()
+      toast.show(favs.includes(resortId) ? 'Удалено из избранного' : 'Добавлено в избранное', 'success')
+    } catch {
+      toast.show('Ошибка обновления избранного', 'error')
+    }
   }
 
-  const favoriteResortIds = new Set(form.favorite_resorts ?? [])
+  const favoriteResortIds = new Set(user?.favorite_resorts ?? [])
 
   const avatarEmoji = user?.equipment_type === 'snowboard' ? '🏂' : user?.equipment_type === 'ski' ? '⛷️' : '🏔'
 
@@ -193,7 +206,7 @@ export default function Profile() {
                   <button
                     type="button"
                     className={`btn btn-sm ${favoriteResortIds.has(String(r.id)) ? 'btn-primary' : 'btn-outline'}`}
-                    onClick={() => toggleFavorite(String(r.id))}
+                    onClick={() => void toggleFavorite(String(r.id))}
                   >
                     {favoriteResortIds.has(String(r.id)) ? '★ В избранном' : '+ В избранное'}
                   </button>
@@ -201,16 +214,6 @@ export default function Profile() {
               </div>
             ))}
           </div>
-          {isEditing ? (
-            <p className="form-hint">Нажмите «Сохранить» выше, чтобы применить изменения</p>
-          ) : (
-            <div className="profile-favorites-save">
-              <button type="button" className="btn btn-primary" onClick={() => void doSave()} disabled={saving}>
-                {saving ? 'Сохранение...' : 'Сохранить избранное'}
-              </button>
-              <p className="form-hint">Нажмите «Сохранить избранное», чтобы применить изменения в избранных курортах</p>
-            </div>
-          )}
         </section>
       </div>
     </div>

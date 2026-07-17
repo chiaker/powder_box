@@ -17,12 +17,16 @@ export default function Resorts() {
   const navigate = useNavigate()
   const { user, token, refreshProfile } = useAuth()
 
+  const favoriteIds = useMemo(() => new Set(user?.favorite_resorts ?? []), [user])
+
   const visibleResorts = useMemo(() => {
     const q = search.trim().toLowerCase()
     return resorts
       .filter((r) => !q || r.name.toLowerCase().includes(q))
-      .sort((a, b) => (b[sortKey] ?? -Infinity) - (a[sortKey] ?? -Infinity))
-  }, [resorts, search, sortKey])
+      .sort((a, b) =>
+        Number(favoriteIds.has(String(b.id))) - Number(favoriteIds.has(String(a.id))) ||
+        (b[sortKey] ?? -Infinity) - (a[sortKey] ?? -Infinity))
+  }, [resorts, search, sortKey, favoriteIds])
 
   const toggleCompare = (id: number) => {
     setCompareIds((prev) => {
@@ -71,8 +75,6 @@ export default function Resorts() {
       toast.show('Ошибка обновления избранного', 'error')
     }
   }
-
-  const favoriteIds = new Set(user?.favorite_resorts ?? [])
 
   if (loading) return <div className="page"><div className="loading">Загрузка курортов...</div></div>
   if (error) return (
