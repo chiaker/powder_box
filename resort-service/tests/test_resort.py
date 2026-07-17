@@ -270,3 +270,15 @@ async def test_delete_review_other_user_forbidden(client: AsyncClient):
         headers=auth_headers(user_id=51),
     )
     assert r.status_code == 403
+
+
+async def test_trail_map_url_roundtrip(client: AsyncClient):
+    resorts = (await client.get("/resorts")).json()
+    rid = resorts[0]["id"]
+
+    r = await client.patch(f"/resorts/{rid}", json={"trail_map_url": "/static/resorts/map1.jpg"})
+    assert r.status_code == 200
+    assert r.json()["trail_map_url"] == "/static/resorts/map1.jpg"
+
+    r = await client.get(f"/resorts/{rid}")
+    assert r.json()["trail_map_url"] == "/static/resorts/map1.jpg"

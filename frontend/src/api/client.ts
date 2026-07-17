@@ -213,6 +213,7 @@ export type Resort = {
   name: string;
   description?: string;
   image_url?: string;
+  trail_map_url?: string;
   rating?: number;
   review_count?: number;
   track_length_km?: number;

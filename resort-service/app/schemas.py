@@ -15,6 +15,7 @@ class ResortOut(BaseModel):
     name: str
     description: str | None
     image_url: str | None
+    trail_map_url: str | None = None
     category_id: int | None
     rating: float | None
     track_length_km: float | None = None
@@ -32,6 +33,7 @@ class ResortCreate(BaseModel):
     name: str
     description: str | None = None
     image_url: str | None = None
+    trail_map_url: str | None = None
     rating: float | None = None
     track_length_km: float | None = None
     elevation_drop_m: int | None = None
@@ -47,6 +49,7 @@ class ResortUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
     image_url: str | None = None
+    trail_map_url: str | None = None
     rating: float | None = None
     track_length_km: float | None = None
     elevation_drop_m: int | None = None

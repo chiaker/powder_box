@@ -29,6 +29,7 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
         for col, sql in [
             ("image_url", "ALTER TABLE resorts ADD COLUMN image_url VARCHAR(500)"),
+            ("trail_map_url", "ALTER TABLE resorts ADD COLUMN trail_map_url VARCHAR(500)"),
             ("track_length_km", "ALTER TABLE resorts ADD COLUMN track_length_km FLOAT"),
             ("elevation_drop_m", "ALTER TABLE resorts ADD COLUMN elevation_drop_m INTEGER"),
             ("trails_green", "ALTER TABLE resorts ADD COLUMN trails_green INTEGER"),
@@ -187,6 +188,7 @@ async def create_resort(data: ResortCreate, db: AsyncSession = Depends(get_db)):
         name=data.name,
         description=data.description,
         image_url=data.image_url,
+        trail_map_url=data.trail_map_url,
         rating=data.rating,
         track_length_km=data.track_length_km,
         elevation_drop_m=data.elevation_drop_m,

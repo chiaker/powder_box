@@ -2373,6 +2373,16 @@ td.compare-best {
   color: var(--text-muted);
 }
 
+.trail-map-img {
+  width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-dark);
+  cursor: zoom-in;
+}
+
 .map3d-tooltip {
   display: none;
   position: absolute;

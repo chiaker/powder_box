@@ -20,8 +20,11 @@ import { weatherIcon, snowSum, bestDayIndex } from '../utils/weather'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
-// three.js тянется только при открытии страницы курорта с картой
+// three.js/leaflet тянутся только при открытии страницы курорта с картой
 const ResortMap3D = lazy(() => import('../components/ResortMap3D'))
+const ResortMap2D = lazy(() => import('../components/ResortMap2D'))
+
+type MapMode = 'points' | 'solid' | 'flat' | 'original'
 
 const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800'
 type WeatherMode = 'current' | 'today_hourly' | 'tomorrow_hourly' | 'week'
@@ -39,6 +42,8 @@ export default function ResortDetail() {
   const [powderDaily, setPowderDaily] = useState<AltitudeDailyEntry[]>([])
   // Точки высот — центр 3D-карты
   const [altPoints, setAltPoints] = useState<AltitudePoint[]>([])
+  const [mapMode, setMapMode] = useState<MapMode>('points')
+  const [mapLightbox, setMapLightbox] = useState(false)
   const [skipassTariffs, setSkipassTariffs] = useState<SkipassTariff[]>([])
   const [skipassPrice, setSkipassPrice] = useState<SkipassPriceResponse | null>(null)
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -482,13 +487,38 @@ export default function ResortDetail() {
         )}
       </section>
 
-      {mapPoints.length > 0 && (
+      {mapPoints.length > 0 && resortId != null && (
         <section className="weather-card">
-          <h2>3D-карта курорта</h2>
-          <p className="section-hint">Гора из точек по реальному рельефу; трассы и подъёмники — из OpenStreetMap. Наведите на трассу, чтобы узнать подробности.</p>
+          <h2>Карта курорта</h2>
+          <div className="weather-mode-switch">
+            <button type="button" className={`btn btn-sm ${mapMode === 'points' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('points')}>Точечная</button>
+            <button type="button" className={`btn btn-sm ${mapMode === 'solid' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('solid')}>3D</button>
+            <button type="button" className={`btn btn-sm ${mapMode === 'flat' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('flat')}>2D</button>
+            {resort.trail_map_url && (
+              <button type="button" className={`btn btn-sm ${mapMode === 'original' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('original')}>Схема курорта</button>
+            )}
+          </div>
           <Suspense fallback={<div className="loading">Загрузка карты...</div>}>
-            <ResortMap3D points={mapPoints} />
+            {(mapMode === 'points' || mapMode === 'solid') && (
+              <ResortMap3D resortId={resortId} points={mapPoints} variant={mapMode} />
+            )}
+            {mapMode === 'flat' && <ResortMap2D points={mapPoints} />}
+            {mapMode === 'original' && resort.trail_map_url && (
+              <img
+                src={imageUrl(resort.trail_map_url)}
+                alt={`Схема трасс: ${resort.name}`}
+                className="trail-map-img"
+                onClick={() => setMapLightbox(true)}
+                title="Нажмите для увеличения"
+              />
+            )}
           </Suspense>
+          {mapLightbox && resort.trail_map_url && (
+            <div className="hotel-lightbox-overlay" onClick={() => setMapLightbox(false)}>
+              <img src={imageUrl(resort.trail_map_url)} alt={`Схема трасс: ${resort.name}`} className="hotel-lightbox-img" />
+              <button type="button" className="hotel-lightbox-close" onClick={() => setMapLightbox(false)}>✕</button>
+            </div>
+          )}
         </section>
       )}
 

@@ -20,6 +20,7 @@ class Resort(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    trail_map_url: Mapped[str | None] = mapped_column(String(500), nullable=True)  # оригинальная схема трасс
     category_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("resort_categories.id"), nullable=True)
     rating: Mapped[float | None] = mapped_column(Float, nullable=True)
     # Детальная информация

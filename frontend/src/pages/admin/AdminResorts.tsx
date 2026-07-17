@@ -95,6 +95,7 @@ function ResortForm({
     name: resort?.name ?? '',
     description: resort?.description ?? '',
     image_url: resort?.image_url ?? '',
+    trail_map_url: resort?.trail_map_url ?? '',
     rating: String(resort?.rating ?? ''),
     track_length_km: String(resort?.track_length_km ?? ''),
     elevation_drop_m: String(resort?.elevation_drop_m ?? ''),
@@ -115,6 +116,7 @@ function ResortForm({
         name: form.name,
         description: form.description || undefined,
         image_url: form.image_url || undefined,
+        trail_map_url: form.trail_map_url || undefined,
         rating: form.rating ? parseFloat(form.rating) : undefined,
         track_length_km: form.track_length_km ? parseFloat(form.track_length_km) : undefined,
         elevation_drop_m: form.elevation_drop_m ? parseInt(form.elevation_drop_m, 10) : undefined,
@@ -146,6 +148,8 @@ function ResortForm({
         <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
         <label>Описание</label>
         <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} />
+        <label>Схема трасс (URL картинки)</label>
+        <input value={form.trail_map_url} onChange={(e) => setForm({ ...form, trail_map_url: e.target.value })} placeholder="/static/resorts/map1.jpg или https://..." />
         <label>Картинка (путь)</label>
         <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="/static/resorts/1.jpg" />
         <label>Рейтинг</label>

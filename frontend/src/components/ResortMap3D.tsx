@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Line2 } from 'three/examples/jsm/lines/Line2.js'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
+import { api, type Resort, type AltitudePoint } from '../api/client'
 
 /**
  * Точечная 3D-модель горы: рельеф — облако точек из открытых DEM-тайлов
@@ -15,15 +16,19 @@ import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 
 type LatLng = { lat: number; lng: number }
 type Props = {
-  /** Точки высот курорта — задают область карты и «свои» трассы */
+  /** Текущий курорт — трассы назначаются ближайшему из всех курортов */
+  resortId: number
+  /** Точки высот курорта — задают область карты */
   points: LatLng[]
+  /** points — облако точек, solid — сплошной рельеф */
+  variant?: 'points' | 'solid'
 }
 
 const GRID = 150
 const Z_EXAGGERATION = 1.35
-const PAD_DEG = 0.02 // запас области вокруг точек курорта (~2 км)
-const MIN_HALF_DEG = 0.03 // минимальный полуразмер области
-const NEAR_POINT_M = 2200 // трасса «своя», если проходит ближе к точке курорта
+const PAD_DEG = 0.025 // запас области вокруг точек курорта (~2.5 км)
+const MIN_HALF_DEG = 0.035 // минимальный полуразмер области
+const MAX_ASSIGN_M = 4000 // дальше этого от точек курорта трасса не считается ничьей
 
 // Европейская схема сложности, как на схемах курортов
 const PISTE_STYLE: Record<string, { color: string; label: string; halo?: boolean }> = {
@@ -38,7 +43,7 @@ const DEFAULT_PISTE = { color: '#94a3b8', label: 'без категории', ha
 const LIFT_COLOR = '#fbbf24'
 const LIFT_LABELS: Record<string, string> = {
   cable_car: 'Канатная дорога',
-  gondola: 'Гондола',
+  gondola: 'Кабинка (Гондола)',
   mixed_lift: 'Комби-подъёмник',
   chair_lift: 'Кресельный подъёмник',
   drag_lift: 'Бугельный подъёмник',
@@ -63,6 +68,22 @@ function computeBbox(points: LatLng[]): Bbox {
   const halfLat = Math.max(MIN_HALF_DEG, (Math.max(...lats) - Math.min(...lats)) / 2 + PAD_DEG)
   const halfLng = Math.max(MIN_HALF_DEG, (Math.max(...lngs) - Math.min(...lngs)) / 2 + PAD_DEG)
   return { s: cLat - halfLat, w: cLng - halfLng, n: cLat + halfLat, e: cLng + halfLng }
+}
+
+/** Точки высот всех курортов — для назначения трасс ближайшему курорту */
+async function fetchAllResortPoints(): Promise<{ id: number; pts: LatLng[] }[]> {
+  const resorts = await api.get<Resort[]>('/resorts')
+  const result = await Promise.all(
+    resorts.map(async (r) => {
+      try {
+        const pts = await api.get<AltitudePoint[]>(`/weather/${r.id}/altitude-points`)
+        return { id: r.id, pts: pts.filter((p) => p.is_active).map((p) => ({ lat: p.latitude, lng: p.longitude })) }
+      } catch {
+        return { id: r.id, pts: [] }
+      }
+    })
+  )
+  return result.filter((r) => r.pts.length > 0)
 }
 
 /** Трассы и подъёмники из OSM с кэшем в localStorage (Overpass бывает медленным) */
@@ -147,7 +168,7 @@ function formatLen(m: number): string {
   return m < 1000 ? `${Math.round(m)} м` : `${(m / 1000).toFixed(1)} км`
 }
 
-export default function ResortMap3D({ points }: Props) {
+export default function ResortMap3D({ resortId, points, variant = 'points' }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -222,7 +243,32 @@ export default function ResortMap3D({ points }: Props) {
       const extentX = (bbox.e - bbox.w) * 111320 * Math.cos((cLat * Math.PI) / 180)
       const extentZ = (bbox.n - bbox.s) * 110540
       const extent = Math.max(extentX, extentZ)
-      scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ size: (extent / GRID) * 1.1, vertexColors: true })))
+      if (variant === 'solid') {
+        // Сплошной рельеф: те же вершины, но с триангуляцией и освещением
+        const indices: number[] = []
+        for (let j = 0; j < GRID - 1; j++) {
+          for (let i = 0; i < GRID - 1; i++) {
+            const a = j * GRID + i
+            const b = a + 1
+            const c = a + GRID
+            const d = c + 1
+            indices.push(a, c, b, b, c, d)
+          }
+        }
+        geo.setIndex(indices)
+        geo.computeVertexNormals()
+        scene.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+          vertexColors: true,
+          flatShading: true,
+          side: THREE.DoubleSide,
+        })))
+        scene.add(new THREE.AmbientLight('#ffffff', 0.55))
+        const sun = new THREE.DirectionalLight('#ffffff', 1.1)
+        sun.position.set(-extent, extent * 0.8, -extent * 0.5)
+        scene.add(sun)
+      } else {
+        scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ size: (extent / GRID) * 1.1, vertexColors: true })))
+      }
 
       // --- Трассы и подъёмники ---
       const lineMaterials: LineMaterial[] = []
@@ -249,12 +295,36 @@ export default function ResortMap3D({ points }: Props) {
       }
 
       try {
-        const ways = await fetchOsmWays(bbox)
+        const [ways, allResorts] = await Promise.all([fetchOsmWays(bbox), fetchAllResortPoints()])
         if (disposed) return
+
+        // Расстояние от трассы до курорта = мин. расстояние вершин до его точек высот
+        const wayDistToResort = (way: OsmWay, pts: LatLng[]) => {
+          let best = Infinity
+          for (const g of way.geometry!) {
+            for (const p of pts) {
+              const d = distM(p, g)
+              if (d < best) best = d
+            }
+          }
+          return best
+        }
+
         for (const way of ways) {
           if (!way.geometry) continue
-          // Чужие трассы: должна проходить рядом хотя бы с одной точкой курорта
-          if (!way.geometry.some((g) => points.some((p) => distM(p, g) < NEAR_POINT_M))) continue
+          // Трасса принадлежит ближайшему курорту — чужие не показываем.
+          // Если сектор курорта не покрыт точками высот, его трассы могут отойти
+          // соседу: лечится добавлением точки высот сектора через админку.
+          let bestResort = -1
+          let bestDist = Infinity
+          for (const r of allResorts) {
+            const d = wayDistToResort(way, r.pts)
+            if (d < bestDist) {
+              bestDist = d
+              bestResort = r.id
+            }
+          }
+          if (bestResort !== resortId || bestDist > MAX_ASSIGN_M) continue
 
           const isLift = !!way.tags?.aerialway
           const style = isLift
@@ -290,7 +360,9 @@ export default function ResortMap3D({ points }: Props) {
             }
           }
 
-          const name = way.tags?.name || way.tags?.ref || ''
+          const tagName = way.tags?.name
+          const tagRef = way.tags?.ref
+          const name = tagName && tagRef ? `${tagName} (${tagRef})` : tagName || tagRef || ''
           const title = name || (isLift ? 'Подъёмник' : 'Трасса')
           const subtitle = isLift
             ? LIFT_LABELS[way.tags?.aerialway ?? ''] ?? 'Подъёмник'
@@ -441,7 +513,7 @@ export default function ResortMap3D({ points }: Props) {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pointsKey])
+  }, [pointsKey, resortId, variant])
 
   if (status === 'error') {
     return <div className="empty-state"><p>Не удалось загрузить данные рельефа. Попробуйте позже.</p></div>
