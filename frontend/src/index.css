@@ -2373,6 +2373,20 @@ td.compare-best {
   color: var(--text-muted);
 }
 
+.map3d-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* На тач-устройствах подсказка про мышь не имеет смысла */
+@media (max-width: 820px) {
+  .map3d-hint {
+    display: none;
+  }
+}
+
 /* Ненавязчивая подпись источников на 2D-карте */
 .map3d-canvas .leaflet-control-attribution {
   background: rgba(12, 18, 34, 0.7);

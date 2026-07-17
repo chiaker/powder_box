@@ -157,6 +157,9 @@ async function buildElevationSampler(bbox: Bbox) {
 
 type WayRecord = {
   materials: LineMaterial[]
+  haloMaterials: LineMaterial[]
+  kind: FilterKind
+  dimmed: boolean
   baseColor: THREE.Color
   baseWidth: number
   title: string
@@ -164,6 +167,36 @@ type WayRecord = {
   topM: number
   botM: number
   lenM: number
+}
+
+type FilterKind = 'lift' | 'green' | 'blue' | 'red' | 'black' | 'other'
+
+const DIFFICULTY_KIND: Record<string, FilterKind> = {
+  novice: 'green',
+  easy: 'blue',
+  intermediate: 'red',
+  advanced: 'black',
+  expert: 'black',
+  freeride: 'black',
+}
+
+const FILTER_CHIPS: { kind: FilterKind; label: string }[] = [
+  { kind: 'lift', label: 'Подъёмники' },
+  { kind: 'green', label: '🟢 Зелёные' },
+  { kind: 'blue', label: '🔵 Синие' },
+  { kind: 'red', label: '🔴 Красные' },
+  { kind: 'black', label: '⚫ Чёрные' },
+]
+
+/** Приглушает всё, что не подходит под активные фильтры */
+function applyFilters(records: WayRecord[], filters: Set<FilterKind>) {
+  for (const rec of records) {
+    rec.dimmed = filters.size > 0 && !filters.has(rec.kind)
+    for (const m of [...rec.materials, ...rec.haloMaterials]) {
+      m.transparent = true
+      m.opacity = rec.dimmed ? 0.12 : 1
+    }
+  }
 }
 
 function formatLen(m: number): string {
@@ -175,6 +208,23 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
   const tooltipRef = useRef<HTMLDivElement>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [trailsLoaded, setTrailsLoaded] = useState(true)
+  const [filters, setFilters] = useState<Set<FilterKind>>(new Set())
+  const recordsRef = useRef<WayRecord[]>([])
+  const filtersRef = useRef(filters)
+  filtersRef.current = filters
+
+  useEffect(() => {
+    applyFilters(recordsRef.current, filters)
+  }, [filters])
+
+  const toggleFilter = (kind: FilterKind) => {
+    setFilters((prev) => {
+      const next = new Set(prev)
+      if (next.has(kind)) next.delete(kind)
+      else next.add(kind)
+      return next
+    })
+  }
 
   const pointsKey = points.map((p) => `${p.lat},${p.lng}`).join(';')
 
@@ -288,6 +338,7 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
         line.userData.recIndex = recIndex
         if (isHalo) {
           line.renderOrder = 1
+          records[recIndex].haloMaterials.push(mat)
         } else {
           line.renderOrder = 2
           hoverables.push(line)
@@ -389,6 +440,9 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
           const recIndex = records.length
           records.push({
             materials: [],
+            haloMaterials: [],
+            kind: isLift ? 'lift' : DIFFICULTY_KIND[first.tags?.['piste:difficulty'] ?? ''] ?? 'other',
+            dimmed: false,
             baseColor: new THREE.Color(style.color),
             baseWidth: isLift ? 3 : 3.5,
             title,
@@ -413,6 +467,8 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
         setTrailsLoaded(false) // рельеф показываем и без трасс
       }
       if (disposed) return
+      recordsRef.current = records
+      applyFilters(records, filtersRef.current)
 
       // --- Камера, рендер, управление ---
       const camera = new THREE.PerspectiveCamera(55, mount.clientWidth / mount.clientHeight, 10, extent * 10)
@@ -462,7 +518,10 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1
         raycaster.setFromCamera(mouse, camera)
         raycaster.camera = camera
-        const hit = raycaster.intersectObjects(hoverables, false)[0]
+        // Приглушённые фильтром линии не реагируют на наведение
+        const hit = raycaster
+          .intersectObjects(hoverables, false)
+          .find((h) => !records[(h.object as Line2).userData.recIndex as number]?.dimmed)
         const rec = hit ? records[(hit.object as Line2).userData.recIndex as number] : null
         setHighlight(rec)
 
@@ -551,9 +610,29 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
             <span><i style={{ background: '#111827', outline: '1px solid #e2e8f0' }} /> Чёрная</span>
             <span><i style={{ background: '#fbbf24' }} /> Подъёмник</span>
           </div>
+          {trailsLoaded && (
+            <div className="map3d-filters">
+              {FILTER_CHIPS.map((c) => (
+                <button
+                  key={c.kind}
+                  type="button"
+                  className={`btn btn-sm ${filters.has(c.kind) ? 'btn-primary' : 'btn-outline'}`}
+                  onClick={() => toggleFilter(c.kind)}
+                >
+                  {c.label}
+                </button>
+              ))}
+              {filters.size > 0 && (
+                <button type="button" className="btn btn-sm btn-ghost" onClick={() => setFilters(new Set())}>
+                  Сбросить
+                </button>
+              )}
+            </div>
+          )}
           <p className="map3d-hint">
-            Вращайте мышью, зум — колесом, наведите на трассу для подробностей
-            {!trailsLoaded && ' · трассы не загрузились, показан только рельеф'}
+            Управление: вращение — левая кнопка мыши, перемещение — правая, зум — колесо.
+            Наведите на трассу или подъёмник для подробностей.
+            {!trailsLoaded && ' Трассы не загрузились, показан только рельеф.'}
           </p>
         </>
       )}

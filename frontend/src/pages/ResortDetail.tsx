@@ -42,8 +42,17 @@ export default function ResortDetail() {
   const [powderDaily, setPowderDaily] = useState<AltitudeDailyEntry[]>([])
   // Точки высот — центр 3D-карты
   const [altPoints, setAltPoints] = useState<AltitudePoint[]>([])
-  const [mapMode, setMapMode] = useState<MapMode>('points')
+  // Режим карты запоминается между страницами и заходами
+  const [mapMode, setMapMode] = useState<MapMode>(() => {
+    const saved = localStorage.getItem('map-mode') as MapMode | null
+    return saved && ['points', 'solid', 'flat', 'original'].includes(saved) ? saved : 'points'
+  })
   const [mapLightbox, setMapLightbox] = useState(false)
+
+  const changeMapMode = (mode: MapMode) => {
+    setMapMode(mode)
+    localStorage.setItem('map-mode', mode)
+  }
   const [skipassTariffs, setSkipassTariffs] = useState<SkipassTariff[]>([])
   const [skipassPrice, setSkipassPrice] = useState<SkipassPriceResponse | null>(null)
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -487,23 +496,26 @@ export default function ResortDetail() {
         )}
       </section>
 
-      {mapPoints.length > 0 && resortId != null && (
+      {mapPoints.length > 0 && resortId != null && (() => {
+        // Сохранённый режим «Схема» недоступен у курорта без схемы — откат на точки
+        const effMode: MapMode = mapMode === 'original' && !resort.trail_map_url ? 'points' : mapMode
+        return (
         <section className="weather-card">
           <h2>Карта курорта</h2>
           <div className="weather-mode-switch">
-            <button type="button" className={`btn btn-sm ${mapMode === 'points' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('points')}>Точечная</button>
-            <button type="button" className={`btn btn-sm ${mapMode === 'solid' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('solid')}>3D</button>
-            <button type="button" className={`btn btn-sm ${mapMode === 'flat' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('flat')}>2D</button>
+            <button type="button" className={`btn btn-sm ${effMode === 'points' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('points')}>Точечная</button>
+            <button type="button" className={`btn btn-sm ${effMode === 'solid' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('solid')}>3D</button>
+            <button type="button" className={`btn btn-sm ${effMode === 'flat' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('flat')}>2D</button>
             {resort.trail_map_url && (
-              <button type="button" className={`btn btn-sm ${mapMode === 'original' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setMapMode('original')}>Схема курорта</button>
+              <button type="button" className={`btn btn-sm ${effMode === 'original' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('original')}>Схема курорта</button>
             )}
           </div>
           <Suspense fallback={<div className="loading">Загрузка карты...</div>}>
-            {(mapMode === 'points' || mapMode === 'solid') && (
-              <ResortMap3D resortId={resortId} points={mapPoints} variant={mapMode} />
+            {(effMode === 'points' || effMode === 'solid') && (
+              <ResortMap3D resortId={resortId} points={mapPoints} variant={effMode} />
             )}
-            {mapMode === 'flat' && <ResortMap2D points={mapPoints} />}
-            {mapMode === 'original' && resort.trail_map_url && (
+            {effMode === 'flat' && <ResortMap2D points={mapPoints} />}
+            {effMode === 'original' && resort.trail_map_url && (
               <img
                 src={imageUrl(resort.trail_map_url)}
                 alt={`Схема трасс: ${resort.name}`}
@@ -520,7 +532,8 @@ export default function ResortDetail() {
             </div>
           )}
         </section>
-      )}
+        )
+      })()}
 
       <section className="weather-card">
         <h2>Скипассы</h2>
