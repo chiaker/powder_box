@@ -194,7 +194,7 @@ function applyFilters(records: WayRecord[], filters: Set<FilterKind>) {
     rec.dimmed = filters.size > 0 && !filters.has(rec.kind)
     for (const m of [...rec.materials, ...rec.haloMaterials]) {
       m.transparent = true
-      m.opacity = rec.dimmed ? 0.12 : 1
+      m.opacity = rec.dimmed ? 0.3 : 1
     }
   }
 }

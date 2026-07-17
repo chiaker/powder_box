@@ -53,6 +53,10 @@ export default function ResortDetail() {
     setMapMode(mode)
     localStorage.setItem('map-mode', mode)
   }
+
+  // Карта рендерится только после раскрытия секции: three.js в скрытом
+  // блоке создал бы канвас нулевого размера
+  const [mapOpen, setMapOpen] = useState(false)
   const [skipassTariffs, setSkipassTariffs] = useState<SkipassTariff[]>([])
   const [skipassPrice, setSkipassPrice] = useState<SkipassPriceResponse | null>(null)
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -377,33 +381,8 @@ export default function ResortDetail() {
           </div>
         </section>
       )}
-      {/* 
-      {weather && (
-        <section className="weather-card">
-          <h2>Погода сейчас</h2>
-          <div className="weather-grid">
-            <div className="weather-item">
-              <span className="weather-value">{weather.temperature}°C</span>
-              <span className="weather-label">Температура</span>
-            </div>
-            <div className="weather-item">
-              <span className="weather-value">{weather.windSpeed} м/с</span>
-              <span className="weather-label">Ветер</span>
-            </div>
-            <div className="weather-item">
-              <span className="weather-value">{weather.humidity}%</span>
-              <span className="weather-label">Влажность</span>
-            </div>
-            <div className="weather-item">
-              <span className="weather-value">{weather.condition}</span>
-              <span className="weather-label">Условия</span>
-            </div>
-          </div>
-        </section>
-      )} */}
-
-      <section className="weather-card">
-        <h2>Погода по высотам</h2>
+      <details className="weather-card">
+        <summary><h2>Погода по высотам</h2></summary>
         <div className="weather-mode-switch">
           <button type="button" className={`btn btn-sm ${weatherMode === 'current' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setWeatherMode('current')}>Сейчас</button>
           <button type="button" className={`btn btn-sm ${weatherMode === 'today_hourly' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setWeatherMode('today_hourly')}>Сегодня по часам</button>
@@ -494,14 +473,15 @@ export default function ResortDetail() {
             </div>
           )
         )}
-      </section>
+      </details>
 
       {mapPoints.length > 0 && resortId != null && (() => {
         // Сохранённый режим «Схема» недоступен у курорта без схемы — откат на точки
         const effMode: MapMode = mapMode === 'original' && !resort.trail_map_url ? 'points' : mapMode
         return (
-        <section className="weather-card">
-          <h2>Карта курорта</h2>
+        <details className="weather-card" onToggle={(e) => setMapOpen((e.target as HTMLDetailsElement).open)}>
+          <summary><h2>Карта курорта</h2></summary>
+          {mapOpen && (<>
           <div className="weather-mode-switch">
             <button type="button" className={`btn btn-sm ${effMode === 'points' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('points')}>Точечная</button>
             <button type="button" className={`btn btn-sm ${effMode === 'solid' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('solid')}>3D</button>
@@ -531,12 +511,13 @@ export default function ResortDetail() {
               <button type="button" className="hotel-lightbox-close" onClick={() => setMapLightbox(false)}>✕</button>
             </div>
           )}
-        </section>
+          </>)}
+        </details>
         )
       })()}
 
-      <section className="weather-card">
-        <h2>Скипассы</h2>
+      <details className="weather-card">
+        <summary><h2>Скипассы</h2></summary>
         <div className="skipass-controls">
           <label>
             Дата катания
@@ -610,11 +591,11 @@ export default function ResortDetail() {
             </table>
           </div>
         )}
-      </section>
+      </details>
 
       {hotels.length > 0 && (
-        <section className="weather-card">
-          <h2>Отели рядом</h2>
+        <details className="weather-card">
+          <summary><h2>Отели рядом</h2></summary>
           <div className="hotel-grid">
             {hotels.map((h) => (
               <Link key={h.id} to={`/hotels/${h.id}`} className="hotel-card hotel-card-link">
@@ -634,7 +615,7 @@ export default function ResortDetail() {
               </Link>
             ))}
           </div>
-        </section>
+        </details>
       )}
 
       <section className="resort-reviews">

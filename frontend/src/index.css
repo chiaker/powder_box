@@ -165,9 +165,10 @@ textarea {
     padding: 0.75rem 1rem;
   }
 
-  /* Пока меню открыто, граница шапки скрывается — стекло сливается в одно полотно */
+  /* Пока меню открыто, граница шапки убирается совсем (transparent оставлял
+     1px зазор, сквозь который просвечивал неразмытый контент) */
   .nav:has(.nav-menu.open) {
-    border-bottom-color: transparent;
+    border-bottom: none;
   }
 
   .nav-burger {
@@ -194,7 +195,8 @@ textarea {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+    /* Тень только вниз: разлёт вверх затемнял низ шапки тёмной полосой на стыке */
+    box-shadow: 0 24px 32px -12px rgba(0, 0, 0, 0.45);
     animation: menu-in 0.2s ease;
   }
 
@@ -2316,6 +2318,40 @@ td.compare-best {
   margin-left: 0.75rem;
   color: var(--text-muted);
   font-size: 0.85rem;
+}
+
+/* Сворачиваемые секции страницы курорта (нативный details/summary) */
+details.weather-card > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+details.weather-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.weather-card > summary::after {
+  content: '▸';
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+details.weather-card[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+details.weather-card > summary h2 {
+  margin-bottom: 0;
+  font-size: 1.25rem;
+}
+
+details.weather-card[open] > summary {
+  margin-bottom: 1.5rem;
 }
 
 /* 3D-карта курорта */
