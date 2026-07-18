@@ -166,9 +166,24 @@ async def test_preview_fetched_once_and_cached(client: AsyncClient):
     }
     with patch("app.main._fetch_rutube_preview_sync", return_value="https://img.example/p.jpg") as mock_fetch:
         created = (await client.post("/lessons", json=rutube_lesson)).json()
-        assert created["preview_url"] == "https://img.example/p.jpg"
+        # Отдаём проксирующий путь, а не прямую ссылку на CDN (её режут адблокеры)
+        assert created["preview_url"] == f"/lessons/{created['id']}/preview"
 
         r = await client.get(f"/lessons/{created['id']}")
-        assert r.json()["preview_url"] == "https://img.example/p.jpg"
+        assert r.json()["preview_url"] == f"/lessons/{created['id']}/preview"
 
     assert mock_fetch.call_count == 1  # второй запрос взял превью из кэша
+
+    # Эндпоинт превью проксирует байты картинки
+    with patch("app.main._fetch_rutube_preview_sync", return_value="https://img.example/p.jpg"), \
+         patch("app.main._fetch_image_sync", return_value=b"\xff\xd8fake-jpg"):
+        r = await client.get(f"/lessons/{created['id']}/preview")
+        assert r.status_code == 200
+        assert r.headers["content-type"] == "image/jpeg"
+        assert r.content == b"\xff\xd8fake-jpg"
+
+
+async def test_preview_endpoint_404_for_non_rutube(client: AsyncClient):
+    created = (await client.post("/lessons", json=LESSON_PAYLOAD)).json()
+    r = await client.get(f"/lessons/{created['id']}/preview")
+    assert r.status_code == 404

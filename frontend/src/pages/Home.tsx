@@ -177,7 +177,7 @@ export default function Home() {
               <div className="favorites-grid-home">
                 {lessons.map((l) => (
                   <a key={l.id} href={l.lesson_url} target="_blank" rel="noreferrer" className="favorite-card-home">
-                    {l.preview_url && <img src={l.preview_url} alt={l.title} />}
+                    {l.preview_url && <img src={imageUrl(l.preview_url)} alt={l.title} />}
                     <div className="favorite-card-content">
                       <h3>{l.title}</h3>
                     </div>

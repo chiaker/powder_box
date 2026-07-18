@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api, type Lesson } from '../api/client'
+import { api, imageUrl, type Lesson } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 
 const CATEGORIES = [
@@ -29,7 +29,7 @@ function LessonCard({ lesson }: { lesson: Lesson }) {
     <div className="lesson-card">
       {lesson.preview_url && (
         <img
-          src={lesson.preview_url}
+          src={imageUrl(lesson.preview_url)}
           alt={`Превью урока: ${lesson.title}`}
           className="lesson-preview"
           loading="lazy"

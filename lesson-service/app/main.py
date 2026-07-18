@@ -3,9 +3,13 @@ import asyncio
 import json
 import re
 from urllib.parse import urlparse
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
+
+# Rutube отдаёт 403 на дефолтный Python-urllib User-Agent
+_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"}
 
 from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi.responses import Response
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -70,7 +74,7 @@ def extract_rutube_video_id(lesson_url: str) -> str | None:
 
 def _fetch_rutube_preview_sync(video_id: str) -> str | None:
     try:
-        with urlopen(f"https://rutube.ru/api/video/{video_id}/?format=json", timeout=8) as resp:
+        with urlopen(Request(f"https://rutube.ru/api/video/{video_id}/?format=json", headers=_UA), timeout=8) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         return data.get("thumbnail_url") or data.get("preview_url") or data.get("rutube_poster")
     except Exception:
@@ -95,10 +99,36 @@ async def get_rutube_preview_url(lesson_url: str) -> str | None:
     return preview
 
 
+def _fetch_image_sync(url: str) -> bytes | None:
+    try:
+        with urlopen(Request(url, headers=_UA), timeout=8) as resp:
+            return resp.read()
+    except Exception:
+        return None
+
+
 async def serialize_lesson(lesson: Lesson) -> LessonOut:
     out = LessonOut.model_validate(lesson)
-    out.preview_url = await get_rutube_preview_url(lesson.lesson_url)
+    # Отдаём свой путь вместо прямой ссылки: pic.rtbcdn.ru режут адблокеры
+    # (rtb-домен матчится рекламными фильтрами), картинка проксируется эндпоинтом ниже.
+    if await get_rutube_preview_url(lesson.lesson_url):
+        out.preview_url = f"/lessons/{lesson.id}/preview"
     return out
+
+
+@app.get("/lessons/{lesson_id}/preview")
+async def lesson_preview(lesson_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Lesson).where(Lesson.id == lesson_id))
+    lesson = result.scalar_one_or_none()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    url = await get_rutube_preview_url(lesson.lesson_url)
+    if not url:
+        raise HTTPException(status_code=404, detail="No preview")
+    data = await asyncio.to_thread(_fetch_image_sync, url)
+    if data is None:
+        raise HTTPException(status_code=502, detail="Preview fetch failed")
+    return Response(content=data, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})
 
 
 @app.get("/lessons", response_model=list[LessonOut])
