@@ -156,6 +156,16 @@ export default function Profile() {
 
   const favoriteResortIds = new Set(user?.favorite_resorts ?? [])
 
+  // Поиск + избранные сверху, чтобы список не превращался в стену при 10+ курортах
+  const [resortQuery, setResortQuery] = useState('')
+  const visibleResorts = resorts
+    .filter((r) => r.name.toLowerCase().includes(resortQuery.trim().toLowerCase()))
+    .sort((a, b) => {
+      const fa = favoriteResortIds.has(String(a.id)) ? 0 : 1
+      const fb = favoriteResortIds.has(String(b.id)) ? 0 : 1
+      return fa - fb || a.name.localeCompare(b.name, 'ru')
+    })
+
   const avatarEmoji = user?.equipment_type === 'snowboard' ? '🏂' : user?.equipment_type === 'ski' ? '⛷️' : '🏔'
 
   return (
@@ -342,8 +352,17 @@ export default function Profile() {
         <section className="profile-favorites">
           <h2>Избранные курорты</h2>
           <p className="favorites-hint">Погода и рекомендации будут привязаны к избранным курортам</p>
+          {resorts.length > 8 && (
+            <input
+              type="search"
+              className="resort-search"
+              placeholder="Поиск курорта..."
+              value={resortQuery}
+              onChange={(e) => setResortQuery(e.target.value)}
+            />
+          )}
           <div className="favorites-grid">
-            {resorts.map((r) => (
+            {visibleResorts.map((r) => (
               <div key={r.id} className="favorite-resort-card">
                 <img src={imageUrl(r.image_url) || PLACEHOLDER_IMG} alt={r.name} />
                 <div className="favorite-resort-info">

@@ -24,6 +24,7 @@ export default function Register() {
   const [step, setStep] = useState<1 | 2>(1)
   const [resorts, setResorts] = useState<ResortCard[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [resortQuery, setResortQuery] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,8 +82,19 @@ export default function Register() {
           <p className="auth-subtitle">
             Погода, сравнение и снежные алерты будут привязаны к вашим курортам. Это можно изменить в профиле.
           </p>
+          {resorts.length > 8 && (
+            <input
+              type="search"
+              className="resort-search"
+              placeholder="Поиск курорта..."
+              value={resortQuery}
+              onChange={(e) => setResortQuery(e.target.value)}
+            />
+          )}
           <div className="favorites-grid">
-            {resorts.map((r) => (
+            {resorts
+              .filter((r) => r.name.toLowerCase().includes(resortQuery.trim().toLowerCase()))
+              .map((r) => (
               <button
                 key={r.id}
                 type="button"

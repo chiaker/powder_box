@@ -185,6 +185,18 @@ export default function ResortDetail() {
 
   const isFavorite = user?.favorite_resorts?.includes(String(resort?.id))
 
+  // Обновление после действий с отзывом: без setLoading, чтобы страница
+  // не размонтировалась и скролл не улетал наверх
+  const refreshReviews = async () => {
+    if (resortId == null) return
+    const [r, rv] = await Promise.all([
+      api.get<Resort>(`/resorts/${resortId}`), // обновлённый рейтинг курорта
+      api.get<ResortReview[]>(`/resorts/${resortId}/reviews`).catch(() => []),
+    ])
+    setResort(r)
+    setReviews(rv)
+  }
+
   const handleReviewSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!token) {
@@ -198,7 +210,7 @@ export default function ResortDetail() {
         rating: reviewRating,
         review_text: reviewText.trim() || undefined,
       })
-      await loadResortData()
+      await refreshReviews()
       toast.show(userReview ? 'Отзыв обновлен' : 'Отзыв добавлен', 'success')
     } catch (e) {
       toast.show(e instanceof Error ? e.message : 'Не удалось сохранить отзыв', 'error')
@@ -213,7 +225,7 @@ export default function ResortDetail() {
       await api.delete<void>(`/resorts/${resortId}/reviews/${userReview.id}`)
       setReviewRating(5)
       setReviewText('')
-      await loadResortData()
+      await refreshReviews()
       toast.show('Отзыв удален', 'success')
     } catch (e) {
       toast.show(e instanceof Error ? e.message : 'Не удалось удалить отзыв', 'error')

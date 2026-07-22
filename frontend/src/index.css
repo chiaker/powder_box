@@ -1656,6 +1656,22 @@ a.btn-primary:hover {
   gap: 1rem;
 }
 
+.resort-search {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.25rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.resort-search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 .favorite-resort-card {
   background: var(--bg-dark);
   border-radius: 10px;
