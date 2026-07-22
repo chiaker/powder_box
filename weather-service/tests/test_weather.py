@@ -235,3 +235,103 @@ async def test_auxiliary_point_excluded_from_weather(client: AsyncClient):
         r = await client.get("/weather/1/altitudes/current")
     assert len(r.json()) == 1
     assert r.json()[0]["point_name"] == "Вершина"
+
+
+# --- Snow alerts ---
+
+class FakeExchange:
+    def __init__(self):
+        self.published = []
+
+    async def publish(self, message, routing_key):
+        self.published.append((routing_key, message.body))
+
+
+def _daily_forecast(snows):
+    return {
+        "daily": {
+            "time": ["2026-07-23", "2026-07-24", "2026-07-25"],
+            "snowfall_sum": snows,
+        }
+    }
+
+
+async def _setup_snow_alert(client, monkeypatch, *, snows, confirmed=True, threshold=10):
+    """Готовит точку, моки internal-вызовов и фейковый exchange; возвращает его."""
+    from app.main import app
+    from app import snow_alerts
+
+    await client.post("/weather/1/altitude-points", json=POINT_PAYLOAD)
+
+    async def fake_subs(http):
+        return [{"user_id": 42, "threshold_cm": threshold, "resort_ids": ["1"]}]
+
+    async def fake_emails(http, ids):
+        return {"42": {"email": "rider@example.com", "confirmed": confirmed}}
+
+    async def fake_names(http):
+        return {"1": "Шерегеш"}
+
+    async def fake_meteo(cache_key, params):
+        return _daily_forecast(snows)
+
+    monkeypatch.setattr(snow_alerts, "_get_subscriptions", fake_subs)
+    monkeypatch.setattr(snow_alerts, "_get_emails", fake_emails)
+    monkeypatch.setattr(snow_alerts, "_get_resort_names", fake_names)
+    monkeypatch.setattr("app.main._fetch_open_meteo", fake_meteo)
+
+    fake = FakeExchange()
+    app.state.mq_exchange = fake
+    return fake
+
+
+async def test_snow_alert_sends_email_and_dedupes(client: AsyncClient, monkeypatch):
+    import json as jsonlib
+
+    from app.main import app
+    from app.snow_alerts import run_snow_alert_check
+
+    fake = await _setup_snow_alert(client, monkeypatch, snows=[12.0, 0.0, 5.0])
+
+    sent = await run_snow_alert_check(app)
+    assert sent == 1
+    assert len(fake.published) == 1
+    routing_key, body = fake.published[0]
+    assert routing_key == "email.send"
+    payload = jsonlib.loads(body.decode())
+    assert payload["to"] == "rider@example.com"
+    assert "Шерегеш" in payload["subject"]
+    assert "2026-07-23" in payload["text"]
+
+    # Второй прогон — та же дата уже заалерчена
+    sent = await run_snow_alert_check(app)
+    assert sent == 0
+    assert len(fake.published) == 1
+
+
+async def test_snow_alert_skips_unconfirmed_email(client: AsyncClient, monkeypatch):
+    from app.main import app
+    from app.snow_alerts import run_snow_alert_check
+
+    fake = await _setup_snow_alert(client, monkeypatch, snows=[12.0, 0.0, 5.0], confirmed=False)
+    sent = await run_snow_alert_check(app)
+    assert sent == 0
+    assert fake.published == []
+
+
+async def test_snow_alert_below_threshold(client: AsyncClient, monkeypatch):
+    from app.main import app
+    from app.snow_alerts import run_snow_alert_check
+
+    fake = await _setup_snow_alert(client, monkeypatch, snows=[3.0, 0.0, 5.0])
+    sent = await run_snow_alert_check(app)
+    assert sent == 0
+    assert fake.published == []
+
+
+async def test_snow_alert_no_exchange_noop(client: AsyncClient):
+    from app.main import app
+    from app.snow_alerts import run_snow_alert_check
+
+    app.state.mq_exchange = None
+    assert await run_snow_alert_check(app) == 0

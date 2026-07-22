@@ -24,6 +24,7 @@
 | lesson-service | 8008 | Уроки и инструкторы |
 | activity-service | 8009 | Лента активностей |
 | stats-service | 8010 | Статистика (заготовка) |
+| notification-service | 8011 | Отправка email (consumer RabbitMQ `email.send`) |
 
 ## Запуск
 
@@ -41,6 +42,7 @@ docker compose up -d --build
 **Фронтенд:** http://localhost:3000  
 **API Gateway:** http://localhost:8000  
 **Swagger UI:** http://localhost:8000/docs
+**Mailpit (dev-почта):** http://localhost:8025 — сюда падают все письма (подтверждение email, снежные алерты)
 
 ### Администраторы
 

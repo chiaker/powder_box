@@ -23,3 +23,20 @@ class RefreshRequest(BaseModel):
 
 class LogoutResponse(BaseModel):
     success: bool = True
+
+
+class ConfirmRequest(BaseModel):
+    token: str
+
+
+class AuthMe(BaseModel):
+    email: EmailStr
+    email_confirmed: bool
+
+
+class SuccessResponse(BaseModel):
+    success: bool = True
+
+
+class InternalEmailsRequest(BaseModel):
+    ids: list[int]

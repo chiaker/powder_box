@@ -65,3 +65,16 @@ services:
     volumes:
       - ./stats-service/app:/app/app
       - stats_data:/app/data
+
+  notification-service:
+    volumes:
+      - ./notification-service/app:/app/app
+
+  # Dev-only SMTP: письма видны в веб-интерфейсе http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - powderbox

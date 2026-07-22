@@ -19,7 +19,7 @@ export default function Register() {
     setLoading(true)
     try {
       await register(email, password)
-      toast.show('Регистрация успешна!', 'success')
+      toast.show('Регистрация успешна! Мы отправили письмо для подтверждения email.', 'success')
       navigate('/profile')
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : (err as Error).message

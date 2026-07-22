@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, ForeignKey, JSON
+from sqlalchemy import String, Integer, ForeignKey, JSON, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -16,3 +16,5 @@ class Profile(Base):
     favorite_resorts: Mapped[list] = mapped_column(JSON, default=list, nullable=False)  # list of resort_id strings
     total_distance: Mapped[float] = mapped_column(default=0.0, nullable=False)
     total_descent: Mapped[float] = mapped_column(default=0.0, nullable=False)
+    snow_alerts_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
+    snow_alert_threshold_cm: Mapped[int] = mapped_column(Integer, default=10, nullable=False, server_default="10")

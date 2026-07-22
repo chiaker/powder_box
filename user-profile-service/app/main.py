@@ -29,6 +29,8 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
         await _add_column(conn, "profiles", "total_distance", "FLOAT DEFAULT 0.0")
         await _add_column(conn, "profiles", "total_descent", "FLOAT DEFAULT 0.0")
+        await _add_column(conn, "profiles", "snow_alerts_enabled", "BOOLEAN NOT NULL DEFAULT 0")
+        await _add_column(conn, "profiles", "snow_alert_threshold_cm", "INTEGER NOT NULL DEFAULT 10")
         
     try:
         conn = await aio_pika.connect_robust(RABBITMQ_URL)
@@ -82,6 +84,19 @@ setup_observability(app, service_name="user-profile-service")
 async def health():
     return {"status": "ok", "service": "user-profile-service"}
 
+def profile_out(profile: Profile) -> UserProfile:
+    return UserProfile(
+        user_id=str(profile.user_id),
+        nickname=profile.nickname,
+        level=profile.level,
+        equipment_type=profile.equipment_type,
+        favorite_resorts=profile.favorite_resorts or [],
+        total_distance=profile.total_distance,
+        total_descent=profile.total_descent,
+        snow_alerts_enabled=profile.snow_alerts_enabled,
+        snow_alert_threshold_cm=profile.snow_alert_threshold_cm,
+    )
+
 @app.get("/users/me", response_model=UserProfile)
 async def get_me(
     user_id: int = Depends(get_current_user_id),
@@ -91,15 +106,7 @@ async def get_me(
     profile = result.scalar_one_or_none()
     if not profile:
         return UserProfile(user_id=str(user_id))
-    return UserProfile(
-        user_id=str(profile.user_id),
-        nickname=profile.nickname,
-        level=profile.level,
-        equipment_type=profile.equipment_type,
-        favorite_resorts=profile.favorite_resorts or [],
-        total_distance=profile.total_distance,
-        total_descent=profile.total_descent,
-    )
+    return profile_out(profile)
 
 @app.put("/users/me", response_model=UserProfile)
 async def update_me(
@@ -122,18 +129,14 @@ async def update_me(
         profile.equipment_type = data.equipment_type
     if data.favorite_resorts is not None:
         profile.favorite_resorts = data.favorite_resorts
+    if data.snow_alerts_enabled is not None:
+        profile.snow_alerts_enabled = data.snow_alerts_enabled
+    if data.snow_alert_threshold_cm is not None:
+        profile.snow_alert_threshold_cm = data.snow_alert_threshold_cm
 
     await db.commit()
     await db.refresh(profile)
-    return UserProfile(
-        user_id=str(profile.user_id),
-        nickname=profile.nickname,
-        level=profile.level,
-        equipment_type=profile.equipment_type,
-        favorite_resorts=profile.favorite_resorts or [],
-        total_distance=profile.total_distance,
-        total_descent=profile.total_descent,
-    )
+    return profile_out(profile)
 
 @app.get("/users/{user_id}", response_model=UserProfile)
 async def get_user(
@@ -149,12 +152,20 @@ async def get_user(
     profile = result.scalar_one_or_none()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
-    return UserProfile(
-        user_id=str(profile.user_id),
-        nickname=profile.nickname,
-        level=profile.level,
-        equipment_type=profile.equipment_type,
-        favorite_resorts=profile.favorite_resorts or [],
-        total_distance=profile.total_distance,
-        total_descent=profile.total_descent,
-    )
+    return profile_out(profile)
+
+
+# Внутренний эндпоинт для джоба снежных алертов (weather-service).
+# Через gateway недостижим: /internal нет в PATH_TO_SERVICE.
+@app.get("/internal/snow-alert-subscriptions")
+async def snow_alert_subscriptions(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Profile).where(Profile.snow_alerts_enabled.is_(True)))
+    return [
+        {
+            "user_id": p.user_id,
+            "threshold_cm": p.snow_alert_threshold_cm,
+            "resort_ids": p.favorite_resorts or [],
+        }
+        for p in result.scalars().all()
+        if p.favorite_resorts
+    ]

@@ -162,3 +162,130 @@ async def test_logout_invalid_token(client: AsyncClient):
     r = await client.post("/auth/logout", json={"refresh_token": "garbage"})
     assert r.status_code == 200
     assert r.json()["success"] is True
+
+
+# --- Email confirmation ---
+
+async def _get_user(email: str):
+    from sqlalchemy import select
+    from app.database import async_session
+    from app.models import User
+
+    async with async_session() as db:
+        result = await db.execute(select(User).where(User.email == email))
+        return result.scalar_one()
+
+
+async def test_register_creates_unconfirmed_user_with_token(client: AsyncClient):
+    r = await client.post("/auth/register", json={"email": "conf@example.com", "password": "password1"})
+    assert r.status_code == 200
+    user = await _get_user("conf@example.com")
+    assert user.email_confirmed is False
+    assert user.confirm_token_hash
+    assert user.confirm_token_expires_at is not None
+
+
+async def test_confirm_email_success_and_reuse_fails(client: AsyncClient):
+    from sqlalchemy import select
+    from app.database import async_session
+    from app.main import issue_confirm_token
+    from app.models import User
+
+    await client.post("/auth/register", json={"email": "conf2@example.com", "password": "password1"})
+    async with async_session() as db:
+        result = await db.execute(select(User).where(User.email == "conf2@example.com"))
+        user = result.scalar_one()
+        token = issue_confirm_token(user)
+        await db.commit()
+
+    r = await client.post("/auth/confirm", json={"token": token})
+    assert r.status_code == 200
+    user = await _get_user("conf2@example.com")
+    assert user.email_confirmed is True
+    assert user.confirm_token_hash is None
+
+    # Повторный клик по той же ссылке
+    r = await client.post("/auth/confirm", json={"token": token})
+    assert r.status_code == 400
+
+
+async def test_confirm_email_expired_token(client: AsyncClient):
+    from datetime import datetime, timedelta, timezone
+
+    from sqlalchemy import select
+    from app.database import async_session
+    from app.main import issue_confirm_token
+    from app.models import User
+
+    await client.post("/auth/register", json={"email": "conf3@example.com", "password": "password1"})
+    async with async_session() as db:
+        result = await db.execute(select(User).where(User.email == "conf3@example.com"))
+        user = result.scalar_one()
+        token = issue_confirm_token(user)
+        user.confirm_token_expires_at = datetime.now(timezone.utc) - timedelta(hours=1)
+        await db.commit()
+
+    r = await client.post("/auth/confirm", json={"token": token})
+    assert r.status_code == 400
+
+
+async def test_confirm_email_garbage_token(client: AsyncClient):
+    r = await client.post("/auth/confirm", json={"token": "garbage"})
+    assert r.status_code == 400
+
+
+async def test_auth_me(client: AsyncClient):
+    reg = await client.post("/auth/register", json={"email": "me@example.com", "password": "password1"})
+    access = reg.json()["access_token"]
+
+    r = await client.get("/auth/me", headers={"Authorization": f"Bearer {access}"})
+    assert r.status_code == 200
+    assert r.json() == {"email": "me@example.com", "email_confirmed": False}
+
+
+async def test_auth_me_unauthorized(client: AsyncClient):
+    r = await client.get("/auth/me")
+    assert r.status_code == 403  # HTTPBearer без заголовка
+
+
+async def test_resend_confirmation(client: AsyncClient):
+    reg = await client.post("/auth/register", json={"email": "resend@example.com", "password": "password1"})
+    access = reg.json()["access_token"]
+
+    old_user = await _get_user("resend@example.com")
+    old_hash = old_user.confirm_token_hash
+
+    r = await client.post("/auth/resend-confirmation", headers={"Authorization": f"Bearer {access}"})
+    assert r.status_code == 200
+    user = await _get_user("resend@example.com")
+    assert user.confirm_token_hash != old_hash
+
+
+async def test_resend_confirmation_already_confirmed(client: AsyncClient):
+    from sqlalchemy import select
+    from app.database import async_session
+    from app.models import User
+
+    reg = await client.post("/auth/register", json={"email": "done@example.com", "password": "password1"})
+    access = reg.json()["access_token"]
+    async with async_session() as db:
+        result = await db.execute(select(User).where(User.email == "done@example.com"))
+        result.scalar_one().email_confirmed = True
+        await db.commit()
+
+    r = await client.post("/auth/resend-confirmation", headers={"Authorization": f"Bearer {access}"})
+    assert r.status_code == 400
+
+
+async def test_internal_users_emails(client: AsyncClient):
+    await client.post("/auth/register", json={"email": "int1@example.com", "password": "password1"})
+    await client.post("/auth/register", json={"email": "int2@example.com", "password": "password1"})
+    u1 = await _get_user("int1@example.com")
+    u2 = await _get_user("int2@example.com")
+
+    r = await client.post("/internal/users/emails", json={"ids": [u1.id, u2.id, 9999]})
+    assert r.status_code == 200
+    data = r.json()
+    assert data[str(u1.id)] == {"email": "int1@example.com", "confirmed": False}
+    assert str(u2.id) in data
+    assert "9999" not in data

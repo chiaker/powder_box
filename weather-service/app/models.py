@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, Integer, String, func
+from sqlalchemy import Boolean, DateTime, Float, Integer, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -23,3 +23,16 @@ class ResortAltitudePoint(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+
+class SentSnowAlert(Base):
+    """Дедуп снежных алертов: одно письмо на (user, resort, дата прогноза)."""
+
+    __tablename__ = "sent_snow_alerts"
+    __table_args__ = (UniqueConstraint("user_id", "resort_id", "forecast_date"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    resort_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    forecast_date: Mapped[str] = mapped_column(String(10), nullable=False)  # YYYY-MM-DD
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

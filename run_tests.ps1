@@ -15,6 +15,7 @@ $all_services = @(
     "stats-service",
     "user-profile-service",
     "weather-service",
+    "notification-service",
     "api-gateway"
 )
 

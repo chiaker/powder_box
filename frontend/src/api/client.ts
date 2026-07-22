@@ -207,7 +207,10 @@ export type UserProfile = {
   favorite_resorts: string[];
   total_distance?: number;
   total_descent?: number;
+  snow_alerts_enabled?: boolean;
+  snow_alert_threshold_cm?: number;
 };
+export type AuthMe = { email: string; email_confirmed: boolean };
 export type Resort = {
   id: number;
   name: string;

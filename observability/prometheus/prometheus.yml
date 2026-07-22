@@ -50,3 +50,7 @@ scrape_configs:
           - stats-service:8010
         labels:
           service: stats-service
+      - targets:
+          - notification-service:8011
+        labels:
+          service: notification-service

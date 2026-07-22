@@ -14,6 +14,7 @@ import Profile from './pages/Profile'
 import Stats from './pages/Stats'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ConfirmEmail from './pages/ConfirmEmail'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminResorts from './pages/admin/AdminResorts'
 import AdminLessons from './pages/admin/AdminLessons'
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="lessons" element={<Lessons />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="confirm-email" element={<ConfirmEmail />} />
         <Route
           path="profile"
           element={

@@ -76,7 +76,21 @@ ADMIN_EMAILS=твой_админский_email@example.com
 GF_ADMIN_USER=admin
 GF_ADMIN_PASSWORD=<свой пароль для Grafana>
 RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+
+# Почта (notification-service). Без реального SMTP письма никуда не уйдут:
+# dev-дефолты указывают на mailpit, которого в проде нет.
+PUBLIC_BASE_URL=http://powderbox.wwder.ru
+SMTP_HOST=<smtp-хост>
+SMTP_PORT=587
+SMTP_USER=<логин>
+SMTP_PASSWORD=<пароль>
+SMTP_FROM=noreply@powderbox.wwder.ru
+SMTP_TLS=starttls
 ```
+
+Миграции auth-service (alembic upgrade head) выполняются автоматически при
+старте контейнера. Новый контейнер notification-service поднимается вместе со
+всеми через тот же compose.
 
 ### 3. Прогнать первый билд вручную (sanity check)
 

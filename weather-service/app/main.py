@@ -1,9 +1,11 @@
 import os
 import asyncio
+import logging
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 
+import aio_pika
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy import select, text
@@ -26,6 +28,8 @@ from app.schemas import (
 
 OPEN_METEO_URL = os.getenv("OPEN_METEO_URL", "https://api.open-meteo.com/v1/forecast")
 WEATHER_CACHE_TTL = int(os.getenv("WEATHER_CACHE_TTL_SECONDS", "600"))
+RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq:5672/")
+EVENTS_EXCHANGE = os.getenv("EVENTS_EXCHANGE", "powderbox.events")
 
 # ponytail: незакрытый in-memory кэш без вытеснения — точек высот единицы,
 # сменить на TTLCache/Redis если точек станут тысячи.
@@ -54,7 +58,29 @@ async def lifespan(app: FastAPI):
             await conn.execute(text("ALTER TABLE resort_altitude_points ADD COLUMN is_primary BOOLEAN NOT NULL DEFAULT 1"))
         except Exception:
             pass
+
+    from app.snow_alerts import SNOW_ALERT_CHECK_INTERVAL, snow_alert_loop
+
+    try:
+        mq_conn = await aio_pika.connect_robust(RABBITMQ_URL)
+        ch = await mq_conn.channel()
+        app.state.mq_conn = mq_conn
+        app.state.mq_exchange = await ch.declare_exchange(EVENTS_EXCHANGE, aio_pika.ExchangeType.TOPIC, durable=True)
+    except Exception as e:
+        logging.warning("RabbitMQ connection failed: %s", e)
+        app.state.mq_conn = None
+        app.state.mq_exchange = None
+
+    alert_task = None
+    if SNOW_ALERT_CHECK_INTERVAL > 0:
+        alert_task = asyncio.create_task(snow_alert_loop(app))
+
     yield
+
+    if alert_task:
+        alert_task.cancel()
+    if getattr(app.state, "mq_conn", None):
+        await app.state.mq_conn.close()
 
 
 app = FastAPI(title="Weather Service", version="1.0.0", lifespan=lifespan)

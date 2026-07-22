@@ -101,6 +101,12 @@ services:
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8010"]
     restart: unless-stopped
 
+  notification-service:
+    ports: !override
+      - "127.0.0.1:8011:8011"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8011"]
+    restart: unless-stopped
+
   prometheus:
     ports: !override
       - "127.0.0.1:9090:9090"

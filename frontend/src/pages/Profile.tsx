@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { api, imageUrl, type UserProfile } from '../api/client'
+import { api, imageUrl, type UserProfile, type AuthMe } from '../api/client'
 
 const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=400'
 
@@ -24,11 +24,15 @@ export default function Profile() {
     nickname: '',
     level: undefined,
     equipment_type: undefined,
+    snow_alerts_enabled: false,
+    snow_alert_threshold_cm: 10,
   })
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [resorts, setResorts] = useState<{ id: number; name: string; image_url?: string }[]>([])
   const [isEditing, setIsEditing] = useState(true)
+  const [authMe, setAuthMe] = useState<AuthMe | null>(null)
+  const [resending, setResending] = useState(false)
 
   // Инициализируем форму один раз, чтобы refreshProfile после тапа по звёздочке
   // не затирал несохранённые правки
@@ -40,6 +44,8 @@ export default function Profile() {
         nickname: user.nickname ?? '',
         level: user.level,
         equipment_type: user.equipment_type,
+        snow_alerts_enabled: user.snow_alerts_enabled ?? false,
+        snow_alert_threshold_cm: user.snow_alert_threshold_cm ?? 10,
       })
       const hasProfileData = !!(user.nickname?.trim() || user.level || user.equipment_type)
       setIsEditing(!hasProfileData)
@@ -48,7 +54,20 @@ export default function Profile() {
 
   useEffect(() => {
     api.get<{ id: number; name: string; image_url?: string }[]>('/resorts').then(setResorts).catch(() => {})
+    api.get<AuthMe>('/auth/me').then(setAuthMe).catch(() => {})
   }, [])
+
+  const resendConfirmation = async () => {
+    setResending(true)
+    try {
+      await api.post('/auth/resend-confirmation')
+      toast.show('Письмо отправлено, проверьте почту', 'success')
+    } catch (err) {
+      toast.show((err as Error).message, 'error')
+    } finally {
+      setResending(false)
+    }
+  }
 
   const doSave = async () => {
     setSaving(true)
@@ -59,6 +78,8 @@ export default function Profile() {
         level: form.level || null,
         equipment_type: form.equipment_type || null,
         favorite_resorts: user?.favorite_resorts ?? [],
+        snow_alerts_enabled: form.snow_alerts_enabled ?? false,
+        snow_alert_threshold_cm: form.snow_alert_threshold_cm || 10,
       })
       await refreshProfile()
       setMessage('Профиль обновлён')
@@ -116,6 +137,15 @@ export default function Profile() {
       </header>
 
       <div className="profile-center">
+        {authMe && !authMe.email_confirmed && (
+          <div className="form-message error" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <span>✉️ Email не подтверждён — уведомления не будут приходить. Проверьте почту.</span>
+            <button type="button" className="btn btn-sm btn-outline" onClick={() => void resendConfirmation()} disabled={resending}>
+              {resending ? 'Отправка...' : 'Отправить письмо ещё раз'}
+            </button>
+          </div>
+        )}
+
         <section className="resort-stats profile-stats">
           <h2>Моя статистика</h2>
           <div className="resort-stats-grid">
@@ -169,6 +199,33 @@ export default function Profile() {
               </select>
               <span className="form-hint">Уроки и рекомендации будут подобраны под ваш тип снаряжения</span>
             </div>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  checked={form.snow_alerts_enabled ?? false}
+                  onChange={(e) => setForm((f) => ({ ...f, snow_alerts_enabled: e.target.checked }))}
+                />
+                ❄️ Снежные алерты на избранных курортах
+              </label>
+              {form.snow_alerts_enabled && (
+                <>
+                  <label>Порог снегопада, см/день</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={form.snow_alert_threshold_cm ?? 10}
+                    onChange={(e) => setForm((f) => ({ ...f, snow_alert_threshold_cm: Number(e.target.value) || 10 }))}
+                  />
+                </>
+              )}
+              <span className="form-hint">
+                {authMe && !authMe.email_confirmed
+                  ? 'Для получения алертов нужно подтвердить email'
+                  : 'Пришлём письмо, когда прогноз обещает снегопад не меньше порога'}
+              </span>
+            </div>
             {message && <div className={`form-message ${message.startsWith('Ошибка') ? 'error' : 'success'}`}>{message}</div>}
             <button type="submit" className="btn btn-primary" disabled={saving}>
               {saving ? 'Сохранение...' : 'Сохранить'}
@@ -187,6 +244,12 @@ export default function Profile() {
             <div className="profile-view-row">
               <span className="profile-view-label">Тип снаряжения</span>
               <span className="profile-view-value">{form.equipment_type ? EQUIPMENT_LABELS[form.equipment_type] : '—'}</span>
+            </div>
+            <div className="profile-view-row">
+              <span className="profile-view-label">Снежные алерты</span>
+              <span className="profile-view-value">
+                {form.snow_alerts_enabled ? `❄️ От ${form.snow_alert_threshold_cm ?? 10} см/день` : 'Выключены'}
+              </span>
             </div>
             <button type="button" className="btn btn-outline" onClick={() => setIsEditing(true)}>
               Редактировать

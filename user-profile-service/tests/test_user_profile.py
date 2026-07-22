@@ -119,3 +119,66 @@ async def test_stats_default_zero(client: AsyncClient):
     body = r.json()
     assert body["total_distance"] == 0.0
     assert body["total_descent"] == 0.0
+
+
+# --- Snow alerts ---
+
+async def test_snow_alert_fields_default(client: AsyncClient):
+    r = await client.get("/users/me", headers=auth_headers(50))
+    assert r.status_code == 200
+    assert r.json()["snow_alerts_enabled"] is False
+    assert r.json()["snow_alert_threshold_cm"] == 10
+
+
+async def test_enable_snow_alerts(client: AsyncClient):
+    r = await client.put(
+        "/users/me",
+        json={"snow_alerts_enabled": True, "snow_alert_threshold_cm": 5},
+        headers=auth_headers(51),
+    )
+    assert r.status_code == 200
+    assert r.json()["snow_alerts_enabled"] is True
+    assert r.json()["snow_alert_threshold_cm"] == 5
+
+
+async def test_old_style_put_does_not_reset_snow_alerts(client: AsyncClient):
+    # Включаем алерты
+    await client.put(
+        "/users/me",
+        json={"snow_alerts_enabled": True, "snow_alert_threshold_cm": 7},
+        headers=auth_headers(52),
+    )
+    # Старый фронтовый PUT без новых полей (toggleFavorite и т.п.)
+    r = await client.put(
+        "/users/me",
+        json={"nickname": "rider", "level": None, "equipment_type": None, "favorite_resorts": ["3"]},
+        headers=auth_headers(52),
+    )
+    assert r.status_code == 200
+    assert r.json()["snow_alerts_enabled"] is True
+    assert r.json()["snow_alert_threshold_cm"] == 7
+
+
+async def test_snow_alert_threshold_validation(client: AsyncClient):
+    r = await client.put("/users/me", json={"snow_alert_threshold_cm": 0}, headers=auth_headers(53))
+    assert r.status_code == 422
+    r = await client.put("/users/me", json={"snow_alert_threshold_cm": 101}, headers=auth_headers(53))
+    assert r.status_code == 422
+
+
+async def test_internal_snow_alert_subscriptions(client: AsyncClient):
+    # Подписан с избранным — попадает
+    await client.put(
+        "/users/me",
+        json={"snow_alerts_enabled": True, "snow_alert_threshold_cm": 15, "favorite_resorts": ["1", "2"]},
+        headers=auth_headers(60),
+    )
+    # Подписан, но без избранного — не попадает
+    await client.put("/users/me", json={"snow_alerts_enabled": True}, headers=auth_headers(61))
+    # Не подписан — не попадает
+    await client.put("/users/me", json={"favorite_resorts": ["1"]}, headers=auth_headers(62))
+
+    r = await client.get("/internal/snow-alert-subscriptions")
+    assert r.status_code == 200
+    subs = r.json()
+    assert subs == [{"user_id": 60, "threshold_cm": 15, "resort_ids": ["1", "2"]}]

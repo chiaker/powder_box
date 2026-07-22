@@ -31,6 +31,7 @@ jobs:
           - lesson-service
           - activity-service
           - stats-service
+          - notification-service
 
     steps:
       - uses: actions/checkout@v6
