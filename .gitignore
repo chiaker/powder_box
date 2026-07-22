@@ -211,3 +211,6 @@ __marimo__/
 
 
 /volume-dumps/
+
+# graphify generated knowledge graph
+graphify-out/
