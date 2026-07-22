@@ -381,7 +381,7 @@ export default function ResortDetail() {
           </div>
         </section>
       )}
-      <details className="weather-card">
+      <details className="weather-card" open>
         <summary><h2>Погода по высотам</h2></summary>
         <div className="weather-mode-switch">
           <button type="button" className={`btn btn-sm ${weatherMode === 'current' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setWeatherMode('current')}>Сейчас</button>
@@ -516,7 +516,7 @@ export default function ResortDetail() {
         )
       })()}
 
-      <details className="weather-card">
+      <details className="weather-card" open>
         <summary><h2>Скипассы</h2></summary>
         <div className="skipass-controls">
           <label>
@@ -594,7 +594,7 @@ export default function ResortDetail() {
       </details>
 
       {hotels.length > 0 && (
-        <details className="weather-card">
+        <details className="weather-card" open>
           <summary><h2>Отели рядом</h2></summary>
           <div className="hotel-grid">
             {hotels.map((h) => (
