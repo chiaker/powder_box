@@ -40,3 +40,8 @@ class SuccessResponse(BaseModel):
 
 class InternalEmailsRequest(BaseModel):
     ids: list[int]
+
+
+class ChangeEmailRequest(BaseModel):
+    new_email: EmailStr
+    password: str

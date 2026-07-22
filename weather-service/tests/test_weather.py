@@ -335,3 +335,20 @@ async def test_snow_alert_no_exchange_noop(client: AsyncClient):
 
     app.state.mq_exchange = None
     assert await run_snow_alert_check(app) == 0
+
+
+async def test_snow_alert_force_run_ignores_threshold_and_dedupe(client: AsyncClient, monkeypatch):
+    # Летний прогноз: снега нет вообще
+    await _setup_snow_alert(client, monkeypatch, snows=[0.0, 0.0, 0.0])
+
+    r = await client.post("/internal/snow-alerts/run?force=true")
+    assert r.status_code == 200
+    assert r.json()["sent"] == 1
+
+    # force игнорирует дедуп — второй прогон тоже шлёт
+    r = await client.post("/internal/snow-alerts/run?force=true")
+    assert r.json()["sent"] == 1
+
+    # обычный прогон — без снега ничего не шлёт
+    r = await client.post("/internal/snow-alerts/run")
+    assert r.json()["sent"] == 0

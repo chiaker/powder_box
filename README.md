@@ -44,6 +44,9 @@ docker compose up -d --build
 **Swagger UI:** http://localhost:8000/docs
 **Mailpit (dev-почта):** http://localhost:8025 — сюда падают все письма (подтверждение email, снежные алерты)
 
+Тестовый прогон снежных алертов (игнорирует порог и дедуп, шлёт по всем подпискам — удобно летом):
+`curl -X POST "http://127.0.0.1:8005/internal/snow-alerts/run?force=true"`; боевой прогон — без `?force`.
+
 ### Администраторы
 
 Роль администратора зашивается в access-токен (claim `role`) при логине:

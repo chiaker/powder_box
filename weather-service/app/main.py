@@ -92,6 +92,17 @@ async def health():
     return {"status": "ok", "service": "weather-service"}
 
 
+# Ручной прогон снежных алертов (через gateway недостижим).
+# force=true — тест: игнорирует порог/дедуп, шлёт по всем подпискам.
+# Пример: curl -X POST "127.0.0.1:8005/internal/snow-alerts/run?force=true"
+@app.post("/internal/snow-alerts/run")
+async def run_snow_alerts_now(force: bool = False):
+    from app.snow_alerts import run_snow_alert_check
+
+    sent = await run_snow_alert_check(app, force=force)
+    return {"sent": sent}
+
+
 def weather_condition_from_code(code: int | None) -> str:
     mapping = {
         0: "Ясно",

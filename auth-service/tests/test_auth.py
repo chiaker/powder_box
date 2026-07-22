@@ -289,3 +289,45 @@ async def test_internal_users_emails(client: AsyncClient):
     assert data[str(u1.id)] == {"email": "int1@example.com", "confirmed": False}
     assert str(u2.id) in data
     assert "9999" not in data
+
+
+# --- Change email ---
+
+async def test_change_email_success(client: AsyncClient):
+    reg = await client.post("/auth/register", json={"email": "old@example.com", "password": "password1"})
+    access = reg.json()["access_token"]
+
+    r = await client.post(
+        "/auth/change-email",
+        json={"new_email": "new@example.com", "password": "password1"},
+        headers={"Authorization": f"Bearer {access}"},
+    )
+    assert r.status_code == 200
+    user = await _get_user("new@example.com")
+    assert user.email_confirmed is False
+    assert user.confirm_token_hash
+
+
+async def test_change_email_wrong_password(client: AsyncClient):
+    reg = await client.post("/auth/register", json={"email": "ce2@example.com", "password": "password1"})
+    access = reg.json()["access_token"]
+
+    r = await client.post(
+        "/auth/change-email",
+        json={"new_email": "other@example.com", "password": "wrongpass"},
+        headers={"Authorization": f"Bearer {access}"},
+    )
+    assert r.status_code == 401
+
+
+async def test_change_email_taken(client: AsyncClient):
+    await client.post("/auth/register", json={"email": "taken@example.com", "password": "password1"})
+    reg = await client.post("/auth/register", json={"email": "ce3@example.com", "password": "password1"})
+    access = reg.json()["access_token"]
+
+    r = await client.post(
+        "/auth/change-email",
+        json={"new_email": "taken@example.com", "password": "password1"},
+        headers={"Authorization": f"Bearer {access}"},
+    )
+    assert r.status_code == 400

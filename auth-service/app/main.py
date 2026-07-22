@@ -28,6 +28,7 @@ from app.schemas import (
     AuthMe,
     SuccessResponse,
     InternalEmailsRequest,
+    ChangeEmailRequest,
 )
 
 
@@ -309,6 +310,27 @@ async def confirm_email(data: ConfirmRequest, db: AsyncSession = Depends(get_db)
     user.confirm_token_hash = None
     user.confirm_token_expires_at = None
     await db.commit()
+    return SuccessResponse()
+
+
+@app.post("/auth/change-email", response_model=SuccessResponse)
+async def change_email(
+    data: ChangeEmailRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verify_password(data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Неверный пароль")
+    if data.new_email == user.email:
+        raise HTTPException(status_code=400, detail="Это уже ваш текущий email")
+    result = await db.execute(select(User).where(User.email == data.new_email))
+    if result.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Email уже занят")
+    user.email = data.new_email
+    user.email_confirmed = False
+    token = issue_confirm_token(user)
+    await db.commit()
+    await send_confirmation_email(user, token)
     return SuccessResponse()
 
 

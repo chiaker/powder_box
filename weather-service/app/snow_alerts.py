@@ -78,8 +78,13 @@ async def _publish_email(app, to: str, subject: str, text: str) -> None:
     )
 
 
-async def run_snow_alert_check(app) -> int:
-    """Один прогон проверки. Возвращает число отправленных писем."""
+async def run_snow_alert_check(app, force: bool = False) -> int:
+    """Один прогон проверки. Возвращает число отправленных писем.
+
+    force=True — тестовый режим: игнорирует порог и дедуп, шлёт письмо по
+    каждому избранному курорту подписчиков с фактическим прогнозом
+    (даже если снега 0 см). Нужен, чтобы проверить цепочку летом.
+    """
     if not getattr(app.state, "mq_exchange", None):
         logger.warning("snow alert check skipped: no RabbitMQ exchange")
         return 0
@@ -106,28 +111,33 @@ async def run_snow_alert_check(app) -> int:
         if not info or not info.get("confirmed"):
             continue
         for rid in map(str, sub["resort_ids"]):
-            hits = [(d, cm) for d, cm in forecasts.get(rid, []) if cm >= sub["threshold_cm"]]
-            if not hits:
-                continue
-            # Дедуп: вставляем по строке, конфликт => уже алертили
-            new_hits: list[tuple[str, float]] = []
-            async with async_session() as db:
-                for d, cm in hits:
-                    db.add(SentSnowAlert(user_id=sub["user_id"], resort_id=int(rid), forecast_date=d))
-                    try:
-                        await db.commit()
-                        new_hits.append((d, cm))
-                    except IntegrityError:
-                        await db.rollback()
-            if not new_hits:
-                continue
+            if force:
+                # Тест: без порога и дедупа, показываем прогноз как есть
+                new_hits = forecasts.get(rid) or [("нет прогноза", 0.0)]
+            else:
+                hits = [(d, cm) for d, cm in forecasts.get(rid, []) if cm >= sub["threshold_cm"]]
+                if not hits:
+                    continue
+                # Дедуп: вставляем по строке, конфликт => уже алертили
+                new_hits = []
+                async with async_session() as db:
+                    for d, cm in hits:
+                        db.add(SentSnowAlert(user_id=sub["user_id"], resort_id=int(rid), forecast_date=d))
+                        try:
+                            await db.commit()
+                            new_hits.append((d, cm))
+                        except IntegrityError:
+                            await db.rollback()
+                if not new_hits:
+                    continue
             name = resort_names.get(rid, f"курорт {rid}")
+            subject = f"Снегопад на {name} — PowderBox" if not force else f"[ТЕСТ] Снежный алерт: {name} — PowderBox"
             lines = "\n".join(f"  {d}: {cm:g} см" for d, cm in new_hits)
             try:
                 await _publish_email(
                     app,
                     info["email"],
-                    f"Снегопад на {name} — PowderBox",
+                    subject,
                     f"Паудер-алерт! На курорте {name} ожидается снег:\n{lines}\n\n"
                     "Отключить уведомления можно в профиле на PowderBox.",
                 )

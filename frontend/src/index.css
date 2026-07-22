@@ -1488,11 +1488,139 @@ a.btn-primary:hover {
 
 .profile-center {
   width: 100%;
-  max-width: 720px;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+}
+
+.profile-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .profile-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-main,
+.profile-side {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profile-columns .profile-form,
+.profile-columns .profile-view {
+  max-width: none;
+}
+
+.profile-email {
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.email-status {
+  font-size: 0.85rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+}
+
+.email-status.confirmed {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--success);
+}
+
+.email-status.unconfirmed {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--error);
+}
+
+.account-card,
+.snow-alerts-card {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+}
+
+.account-card h2,
+.snow-alerts-card h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.account-warning {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.email-change-form {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+}
+
+.email-change-form .btn {
+  margin-top: 0.75rem;
+}
+
+.switch-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.switch-row input {
+  margin-top: 0.2rem;
+  accent-color: var(--accent);
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.threshold-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.threshold-row label {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.threshold-row input {
+  width: 90px;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.snow-alerts-card .form-hint {
+  display: block;
+  margin-top: 1rem;
 }
 
 .profile-favorites {
@@ -1673,6 +1801,41 @@ a.btn-primary:hover {
   text-align: center;
   margin-bottom: 0.5rem;
   font-size: 1.75rem;
+}
+
+.auth-card-wide {
+  max-width: 760px;
+}
+
+.label-optional {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.favorite-resort-pick {
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.favorite-resort-pick.picked {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.favorite-resort-pick .favorite-resort-info span {
+  font-weight: 600;
+}
+
+.onboarding-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
 }
 
 .auth-subtitle {

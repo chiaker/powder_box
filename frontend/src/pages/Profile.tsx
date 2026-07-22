@@ -24,8 +24,6 @@ export default function Profile() {
     nickname: '',
     level: undefined,
     equipment_type: undefined,
-    snow_alerts_enabled: false,
-    snow_alert_threshold_cm: 10,
   })
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -33,6 +31,16 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(true)
   const [authMe, setAuthMe] = useState<AuthMe | null>(null)
   const [resending, setResending] = useState(false)
+
+  // Снежные алерты — сохраняются сразу, отдельно от формы профиля
+  const [alertsEnabled, setAlertsEnabled] = useState(false)
+  const [threshold, setThreshold] = useState(10)
+
+  // Смена почты
+  const [showEmailForm, setShowEmailForm] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [emailPassword, setEmailPassword] = useState('')
+  const [changingEmail, setChangingEmail] = useState(false)
 
   // Инициализируем форму один раз, чтобы refreshProfile после тапа по звёздочке
   // не затирал несохранённые правки
@@ -44,9 +52,9 @@ export default function Profile() {
         nickname: user.nickname ?? '',
         level: user.level,
         equipment_type: user.equipment_type,
-        snow_alerts_enabled: user.snow_alerts_enabled ?? false,
-        snow_alert_threshold_cm: user.snow_alert_threshold_cm ?? 10,
       })
+      setAlertsEnabled(user.snow_alerts_enabled ?? false)
+      setThreshold(user.snow_alert_threshold_cm ?? 10)
       const hasProfileData = !!(user.nickname?.trim() || user.level || user.equipment_type)
       setIsEditing(!hasProfileData)
     }
@@ -69,6 +77,36 @@ export default function Profile() {
     }
   }
 
+  const changeEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setChangingEmail(true)
+    try {
+      await api.post('/auth/change-email', { new_email: newEmail, password: emailPassword })
+      setAuthMe({ email: newEmail, email_confirmed: false })
+      setShowEmailForm(false)
+      setNewEmail('')
+      setEmailPassword('')
+      toast.show('Почта изменена. Мы отправили письмо для подтверждения.', 'success')
+    } catch (err) {
+      toast.show((err as Error).message, 'error')
+    } finally {
+      setChangingEmail(false)
+    }
+  }
+
+  const saveAlerts = async (enabled: boolean, thresholdCm: number) => {
+    try {
+      await api.put('/users/me', {
+        snow_alerts_enabled: enabled,
+        snow_alert_threshold_cm: Math.min(100, Math.max(1, thresholdCm)),
+      })
+      await refreshProfile()
+      toast.show(enabled ? 'Снежные алерты включены' : 'Снежные алерты выключены', 'success')
+    } catch {
+      toast.show('Не удалось сохранить настройки алертов', 'error')
+    }
+  }
+
   const doSave = async () => {
     setSaving(true)
     setMessage(null)
@@ -78,8 +116,6 @@ export default function Profile() {
         level: form.level || null,
         equipment_type: form.equipment_type || null,
         favorite_resorts: user?.favorite_resorts ?? [],
-        snow_alerts_enabled: form.snow_alerts_enabled ?? false,
-        snow_alert_threshold_cm: form.snow_alert_threshold_cm || 10,
       })
       await refreshProfile()
       setMessage('Профиль обновлён')
@@ -127,6 +163,16 @@ export default function Profile() {
       <header className="page-header profile-header">
         <div className="profile-avatar">{avatarEmoji}</div>
         <h1>{user?.nickname?.trim() || 'Мой профиль'}</h1>
+        {authMe && (
+          <p className="profile-email">
+            {authMe.email}{' '}
+            {authMe.email_confirmed ? (
+              <span className="email-status confirmed">✓ подтверждён</span>
+            ) : (
+              <span className="email-status unconfirmed">не подтверждён</span>
+            )}
+          </p>
+        )}
         <div className="profile-badges">
           {user?.level && <span className="trail">🎿 {LEVEL_LABELS[user.level]}</span>}
           {user?.equipment_type && <span className="trail">{EQUIPMENT_LABELS[user.equipment_type]}</span>}
@@ -137,125 +183,161 @@ export default function Profile() {
       </header>
 
       <div className="profile-center">
-        {authMe && !authMe.email_confirmed && (
-          <div className="form-message error" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <span>✉️ Email не подтверждён — уведомления не будут приходить. Проверьте почту.</span>
-            <button type="button" className="btn btn-sm btn-outline" onClick={() => void resendConfirmation()} disabled={resending}>
-              {resending ? 'Отправка...' : 'Отправить письмо ещё раз'}
-            </button>
-          </div>
-        )}
+        <div className="profile-columns">
+          <div className="profile-main">
+            {isEditing ? (
+              <form className="profile-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Никнейм</label>
+                  <input
+                    type="text"
+                    value={form.nickname ?? ''}
+                    onChange={(e) => setForm((f) => ({ ...f, nickname: e.target.value }))}
+                    placeholder="Ваш ник"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Уровень катания</label>
+                  <select
+                    value={form.level ?? ''}
+                    onChange={(e) => setForm((f) => ({ ...f, level: (e.target.value || undefined) as UserProfile['level'] }))}
+                  >
+                    <option value="">— Выберите —</option>
+                    <option value="beginner">Начинающий</option>
+                    <option value="intermediate">Средний</option>
+                    <option value="advanced">Продвинутый</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Тип снаряжения</label>
+                  <select
+                    value={form.equipment_type ?? ''}
+                    onChange={(e) => setForm((f) => ({ ...f, equipment_type: (e.target.value || undefined) as UserProfile['equipment_type'] }))}
+                  >
+                    <option value="">— Выберите —</option>
+                    <option value="ski">Лыжи</option>
+                    <option value="snowboard">Сноуборд</option>
+                  </select>
+                  <span className="form-hint">Уроки и рекомендации будут подобраны под ваш тип снаряжения</span>
+                </div>
+                {message && <div className={`form-message ${message.startsWith('Ошибка') ? 'error' : 'success'}`}>{message}</div>}
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? 'Сохранение...' : 'Сохранить'}
+                </button>
+              </form>
+            ) : (
+              <div className="profile-view">
+                <div className="profile-view-row">
+                  <span className="profile-view-label">Никнейм</span>
+                  <span className="profile-view-value">{form.nickname || '—'}</span>
+                </div>
+                <div className="profile-view-row">
+                  <span className="profile-view-label">Уровень катания</span>
+                  <span className="profile-view-value">{form.level ? LEVEL_LABELS[form.level] : '—'}</span>
+                </div>
+                <div className="profile-view-row">
+                  <span className="profile-view-label">Тип снаряжения</span>
+                  <span className="profile-view-value">{form.equipment_type ? EQUIPMENT_LABELS[form.equipment_type] : '—'}</span>
+                </div>
+                <button type="button" className="btn btn-outline" onClick={() => setIsEditing(true)}>
+                  Редактировать
+                </button>
+              </div>
+            )}
 
-        <section className="resort-stats profile-stats">
-          <h2>Моя статистика</h2>
-          <div className="resort-stats-grid">
-            <div className="resort-stat">
-              <span className="resort-stat-value">{(user?.total_distance ?? 0).toFixed(1)} км</span>
-              <span className="resort-stat-label">Общая дистанция</span>
-            </div>
-            <div className="resort-stat">
-              <span className="resort-stat-value">{Math.round(user?.total_descent ?? 0)} м</span>
-              <span className="resort-stat-label">Суммарный спуск</span>
-            </div>
-            <div className="resort-stat">
-              <span className="resort-stat-value"><Link to="/stats">История →</Link></span>
-              <span className="resort-stat-label">Мои заезды</span>
-            </div>
+            <section className="account-card">
+              <h2>Аккаунт</h2>
+              <div className="profile-view-row">
+                <span className="profile-view-label">Почта</span>
+                <span className="profile-view-value">{authMe?.email ?? '...'}</span>
+              </div>
+              {authMe && !authMe.email_confirmed && (
+                <div className="form-message error account-warning">
+                  ✉️ Почта не подтверждена — письма (алерты, уведомления) приходить не будут.
+                </div>
+              )}
+              <div className="account-actions">
+                {authMe && !authMe.email_confirmed && (
+                  <button type="button" className="btn btn-sm btn-outline" onClick={() => void resendConfirmation()} disabled={resending}>
+                    {resending ? 'Отправка...' : 'Отправить письмо ещё раз'}
+                  </button>
+                )}
+                <button type="button" className="btn btn-sm btn-outline" onClick={() => setShowEmailForm((v) => !v)}>
+                  {showEmailForm ? 'Отмена' : 'Изменить почту'}
+                </button>
+              </div>
+              {showEmailForm && (
+                <form className="email-change-form" onSubmit={changeEmail}>
+                  <div className="form-group">
+                    <label>Новая почта</label>
+                    <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required placeholder="new@example.com" />
+                  </div>
+                  <div className="form-group">
+                    <label>Текущий пароль</label>
+                    <input type="password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} required placeholder="Для подтверждения" />
+                  </div>
+                  <span className="form-hint">На новую почту придёт письмо для подтверждения</span>
+                  <button type="submit" className="btn btn-primary btn-sm" disabled={changingEmail}>
+                    {changingEmail ? 'Сохранение...' : 'Сменить почту'}
+                  </button>
+                </form>
+              )}
+            </section>
           </div>
-        </section>
 
-        {isEditing ? (
-          <form className="profile-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Никнейм</label>
-              <input
-                type="text"
-                value={form.nickname ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, nickname: e.target.value }))}
-                placeholder="Ваш ник"
-              />
-            </div>
-            <div className="form-group">
-              <label>Уровень катания</label>
-              <select
-                value={form.level ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, level: (e.target.value || undefined) as UserProfile['level'] }))}
-              >
-                <option value="">— Выберите —</option>
-                <option value="beginner">Начинающий</option>
-                <option value="intermediate">Средний</option>
-                <option value="advanced">Продвинутый</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Тип снаряжения</label>
-              <select
-                value={form.equipment_type ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, equipment_type: (e.target.value || undefined) as UserProfile['equipment_type'] }))}
-              >
-                <option value="">— Выберите —</option>
-                <option value="ski">Лыжи</option>
-                <option value="snowboard">Сноуборд</option>
-              </select>
-              <span className="form-hint">Уроки и рекомендации будут подобраны под ваш тип снаряжения</span>
-            </div>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="profile-side">
+            <section className="resort-stats profile-stats">
+              <h2>Моя статистика</h2>
+              <div className="resort-stats-grid">
+                <div className="resort-stat">
+                  <span className="resort-stat-value">{(user?.total_distance ?? 0).toFixed(1)} км</span>
+                  <span className="resort-stat-label">Общая дистанция</span>
+                </div>
+                <div className="resort-stat">
+                  <span className="resort-stat-value">{Math.round(user?.total_descent ?? 0)} м</span>
+                  <span className="resort-stat-label">Суммарный спуск</span>
+                </div>
+                <div className="resort-stat">
+                  <span className="resort-stat-value"><Link to="/stats">История →</Link></span>
+                  <span className="resort-stat-label">Мои заезды</span>
+                </div>
+              </div>
+            </section>
+
+            <section className="snow-alerts-card">
+              <h2>❄️ Снежные алерты</h2>
+              <label className="switch-row">
                 <input
                   type="checkbox"
-                  checked={form.snow_alerts_enabled ?? false}
-                  onChange={(e) => setForm((f) => ({ ...f, snow_alerts_enabled: e.target.checked }))}
+                  checked={alertsEnabled}
+                  onChange={(e) => {
+                    setAlertsEnabled(e.target.checked)
+                    void saveAlerts(e.target.checked, threshold)
+                  }}
                 />
-                ❄️ Снежные алерты на избранных курортах
+                <span>Письмо, когда на избранных курортах ожидается снегопад</span>
               </label>
-              {form.snow_alerts_enabled && (
-                <>
-                  <label>Порог снегопада, см/день</label>
+              {alertsEnabled && (
+                <div className="threshold-row">
+                  <label>Порог, см/день</label>
                   <input
                     type="number"
                     min={1}
                     max={100}
-                    value={form.snow_alert_threshold_cm ?? 10}
-                    onChange={(e) => setForm((f) => ({ ...f, snow_alert_threshold_cm: Number(e.target.value) || 10 }))}
+                    value={threshold}
+                    onChange={(e) => setThreshold(Number(e.target.value))}
+                    onBlur={() => void saveAlerts(alertsEnabled, threshold || 10)}
                   />
-                </>
+                </div>
               )}
               <span className="form-hint">
                 {authMe && !authMe.email_confirmed
-                  ? 'Для получения алертов нужно подтвердить email'
-                  : 'Пришлём письмо, когда прогноз обещает снегопад не меньше порога'}
+                  ? 'Для получения алертов подтвердите почту'
+                  : 'Настройки сохраняются автоматически'}
               </span>
-            </div>
-            {message && <div className={`form-message ${message.startsWith('Ошибка') ? 'error' : 'success'}`}>{message}</div>}
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Сохранение...' : 'Сохранить'}
-            </button>
-          </form>
-        ) : (
-          <div className="profile-view">
-            <div className="profile-view-row">
-              <span className="profile-view-label">Никнейм</span>
-              <span className="profile-view-value">{form.nickname || '—'}</span>
-            </div>
-            <div className="profile-view-row">
-              <span className="profile-view-label">Уровень катания</span>
-              <span className="profile-view-value">{form.level ? LEVEL_LABELS[form.level] : '—'}</span>
-            </div>
-            <div className="profile-view-row">
-              <span className="profile-view-label">Тип снаряжения</span>
-              <span className="profile-view-value">{form.equipment_type ? EQUIPMENT_LABELS[form.equipment_type] : '—'}</span>
-            </div>
-            <div className="profile-view-row">
-              <span className="profile-view-label">Снежные алерты</span>
-              <span className="profile-view-value">
-                {form.snow_alerts_enabled ? `❄️ От ${form.snow_alert_threshold_cm ?? 10} см/день` : 'Выключены'}
-              </span>
-            </div>
-            <button type="button" className="btn btn-outline" onClick={() => setIsEditing(true)}>
-              Редактировать
-            </button>
+            </section>
           </div>
-        )}
+        </div>
 
         <section className="profile-favorites">
           <h2>Избранные курорты</h2>
