@@ -24,23 +24,38 @@ export function snowSum(days: AltitudeDailyEntry[], n = 3): number {
 }
 
 /**
- * Индекс лучшего дня для катания в прогнозе (-1 если прогноза нет).
+ * Оценка каждого дня 0..10 («индекс катания»).
  * ponytail: наивная эвристика, веса на глаз — уточнить по фидбеку:
  * свежий снег накануне и в день — хорошо, дождь (осадки в плюс) — плохо,
- * ветер свыше 10 м/с — штраф.
+ * ветер свыше 10 м/с — штраф. Нормировка сырого балла линейная (5 + raw/8).
  */
+export function dayScores(days: AltitudeDailyEntry[]): number[] {
+  return days.map((d, i) => {
+    const freshSnow = (i > 0 ? days[i - 1].snowfall || 0 : 0) + (d.snowfall || 0)
+    const rain = d.maxTemperature > 0 ? d.precipitation || 0 : 0
+    const raw = 2 * Math.min(freshSnow, 20) - 2 * rain - Math.max(0, d.windSpeed - 10)
+    return Math.round(Math.min(10, Math.max(0, 5 + raw / 8)) * 10) / 10
+  })
+}
+
+/** Индекс лучшего дня для катания в прогнозе (-1 если прогноза нет) */
 export function bestDayIndex(days: AltitudeDailyEntry[]): number {
-  if (!days.length) return -1
-  let best = 0
-  let bestScore = -Infinity
-  for (let i = 0; i < days.length; i++) {
-    const freshSnow = (i > 0 ? days[i - 1].snowfall || 0 : 0) + (days[i].snowfall || 0)
-    const rain = days[i].maxTemperature > 0 ? days[i].precipitation || 0 : 0
-    const score = 2 * Math.min(freshSnow, 20) - 2 * rain - Math.max(0, days[i].windSpeed - 10)
-    if (score > bestScore) {
-      bestScore = score
-      best = i
-    }
-  }
-  return best
+  const scores = dayScores(days)
+  if (!scores.length) return -1
+  return scores.indexOf(Math.max(...scores))
+}
+
+const DAY_SHORT = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ']
+const DAY_FULL = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
+
+/** Короткая метка дня недели: ПН…ВС */
+export function dayShort(dateStr: string): string {
+  return DAY_SHORT[new Date(dateStr).getDay()] ?? ''
+}
+
+/** Имя дня недели, «Сегодня» для текущей даты */
+export function dayName(dateStr: string): string {
+  const d = new Date(dateStr)
+  if (d.toDateString() === new Date().toDateString()) return 'Сегодня'
+  return DAY_FULL[d.getDay()] ?? ''
 }

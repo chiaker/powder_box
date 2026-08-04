@@ -5,39 +5,46 @@ import {
   type Resort,
   type Hotel,
   type AltitudePointWeather,
+  type AltitudePointDailyForecast,
+  type AltitudeDailyEntry,
   type SkipassTariff,
 } from '../api/client'
-import { weatherIcon } from '../utils/weather'
+import { snowSum, dayScores, bestDayIndex, dayName } from '../utils/weather'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import PageHead from '../components/PageHead'
+import TrailPills from '../components/TrailPills'
+import SnowMail from '../components/SnowMail'
+
+const MAX_COMPARE = 6
 
 type ResortExtras = {
-  weather?: AltitudePointWeather
+  top?: AltitudePointWeather
+  bottom?: AltitudePointWeather
   maxAltitude?: number
+  days?: AltitudeDailyEntry[]
   minSkipass?: { price: number; currency: string }
   hotels?: { from: number | null; count: number }
 }
 
-type Row = {
-  label: string
-  render: (r: Resort, x: ResortExtras) => React.ReactNode
-  /** Числовое значение для подсветки лучшего; null — не участвует */
-  value?: (r: Resort, x: ResortExtras) => number | null
-  dir?: 'max' | 'min'
+const totalTrails = (r: Resort) => {
+  const parts = [r.trails_green, r.trails_blue, r.trails_red, r.trails_black].filter(
+    (n): n is number => n != null,
+  )
+  return parts.length ? parts.reduce((a, b) => a + b, 0) : null
 }
 
 export default function Compare() {
   const [searchParams] = useSearchParams()
   const [resorts, setResorts] = useState<Resort[]>([])
-  // Стартовый выбор приходит со страницы курортов через ?ids=1,2,3
-  const [selected, setSelected] = useState<(number | '')[]>(() => {
-    const ids = (searchParams.get('ids') ?? '')
+  // Стартовый выбор приходит через ?ids=1,2,3
+  const [selected, setSelected] = useState<number[]>(() =>
+    (searchParams.get('ids') ?? '')
       .split(',')
       .map((s) => Number(s))
       .filter((n) => Number.isInteger(n) && n > 0)
-      .slice(0, 3)
-    return [ids[0] ?? '', ids[1] ?? '', ids[2] ?? '']
-  })
+      .slice(0, MAX_COMPARE),
+  )
   const [extras, setExtras] = useState<Record<number, ResortExtras>>({})
   const [loading, setLoading] = useState(true)
   const { user, token, refreshProfile } = useAuth()
@@ -59,8 +66,17 @@ export default function Compare() {
       .then((points) => {
         if (points.length) {
           // Точки отсортированы по высоте: первая — низ, последняя — верхняя точка
-          merge(id, { weather: points[0], maxAltitude: points[points.length - 1].altitude_m })
+          merge(id, {
+            bottom: points[0],
+            top: points[points.length - 1],
+            maxAltitude: points[points.length - 1].altitude_m,
+          })
         }
+      })
+      .catch(() => {})
+    api.get<AltitudePointDailyForecast[]>(`/weather/${id}/altitudes/daily?days=7`)
+      .then((points) => {
+        if (points.length) merge(id, { days: points[points.length - 1].days })
       })
       .catch(() => {})
     api.get<SkipassTariff[]>(`/skipasses?resort_id=${id}`)
@@ -83,15 +99,18 @@ export default function Compare() {
   // Для курортов, пришедших через URL
   useEffect(() => {
     selected.forEach((id) => {
-      if (id !== '' && !extras[id]) loadExtras(id)
+      if (!extras[id]) loadExtras(id)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const pick = (slot: number, value: number | '') => {
-    setSelected((prev) => prev.map((v, i) => (i === slot ? value : v)))
-    if (value !== '' && !extras[value]) loadExtras(value)
+  const addResort = (id: number) => {
+    if (!id || selected.includes(id) || selected.length >= MAX_COMPARE) return
+    setSelected((prev) => [...prev, id])
+    if (!extras[id]) loadExtras(id)
   }
+
+  const removeResort = (id: number) => setSelected((prev) => prev.filter((x) => x !== id))
 
   const favIds = new Set(user?.favorite_resorts ?? [])
 
@@ -118,167 +137,280 @@ export default function Compare() {
   }
 
   const chosen = selected
-    .filter((id): id is number => id !== '')
     .map((id) => resorts.find((r) => r.id === id))
     .filter((r): r is Resort => r != null)
 
-  if (loading) return <div className="page"><div className="loading">Загрузка...</div></div>
+  // «Домашний» курорт — первый избранный среди выбранных, его колонка подсвечена
+  const homeId = chosen.find((r) => favIds.has(String(r.id)))?.id
 
-  const trails = (r: Resort) => (
-    <div className="trails-list">
-      {r.trails_green != null && <span className="trail">🟢 {r.trails_green}</span>}
-      {r.trails_blue != null && <span className="trail">🔵 {r.trails_blue}</span>}
-      {r.trails_red != null && <span className="trail">🔴 {r.trails_red}</span>}
-      {r.trails_black != null && <span className="trail">⚫ {r.trails_black}</span>}
-    </div>
-  )
+  const gridStyle = { gridTemplateColumns: `170px repeat(${Math.max(chosen.length, 1)}, 1fr)` }
+  const cellCls = (r: Resort, extra = '') =>
+    `pb-cmp-cell ${r.id === homeId ? 'home' : ''} ${extra}`.trim()
 
-  const totalTrails = (r: Resort) => {
-    const parts = [r.trails_green, r.trails_blue, r.trails_red, r.trails_black].filter((n): n is number => n != null)
-    return parts.length ? parts.reduce((a, b) => a + b, 0) : null
+  const snow48 = (r: Resort) => {
+    const days = extras[r.id]?.days
+    return days?.length ? snowSum(days, 2) : null
   }
+  const maxSnow = Math.max(...chosen.map((r) => snow48(r) ?? 0), 0)
 
-  const rows: Row[] = [
-    {
-      label: 'Рейтинг',
-      render: (r) => (r.rating != null ? `★ ${r.rating.toFixed(1)} (${r.review_count || 0})` : '—'),
-      value: (r) => r.rating ?? null,
-      dir: 'max',
-    },
-    {
-      label: 'Протяжённость трасс',
-      render: (r) => (r.track_length_km != null ? `${r.track_length_km} км` : '—'),
-      value: (r) => r.track_length_km ?? null,
-      dir: 'max',
-    },
-    {
-      label: 'Перепад высот',
-      render: (r) => (r.elevation_drop_m != null ? `${r.elevation_drop_m} м` : '—'),
-      value: (r) => r.elevation_drop_m ?? null,
-      dir: 'max',
-    },
-    {
-      label: 'Верхняя точка',
-      render: (_, x) => (x.maxAltitude != null ? `${x.maxAltitude} м` : '—'),
-      value: (_, x) => x.maxAltitude ?? null,
-      dir: 'max',
-    },
-    {
-      label: 'Всего трасс',
-      render: (r) => totalTrails(r) ?? '—',
-      value: (r) => totalTrails(r),
-      dir: 'max',
-    },
-    { label: 'Трассы', render: trails },
-    {
-      label: 'Фрирайд',
-      render: (r) => (r.freeride_rating != null ? `${r.freeride_rating}/5` : '—'),
-      value: (r) => r.freeride_rating ?? null,
-      dir: 'max',
-    },
-    {
-      label: 'Погода сейчас',
-      render: (_, x) => (x.weather ? `${weatherIcon(x.weather.condition)} ${x.weather.temperature}°C, ${x.weather.condition}` : '—'),
-    },
-    {
-      label: 'Скипасс от',
-      render: (_, x) => (x.minSkipass ? `${x.minSkipass.price} ${x.minSkipass.currency}` : '—'),
-      value: (_, x) => x.minSkipass?.price ?? null,
-      dir: 'min',
-    },
-    {
-      label: 'Отели',
-      render: (_, x) =>
-        x.hotels && x.hotels.count > 0
-          ? x.hotels.from != null ? `${x.hotels.count} шт., от ${x.hotels.from} ₽/ночь` : `${x.hotels.count} шт.`
-          : '—',
-      value: (_, x) => x.hotels?.from ?? null,
-      dir: 'min',
-    },
-    { label: '', render: (r) => <Link to={`/resorts/${r.id}`}>Подробнее →</Link> },
-  ]
-
-  // Лучшее значение в строке: только если заполнено минимум у двух и значения различаются
-  const bestId = (row: Row): number | null => {
-    if (!row.value || !row.dir) return null
-    const vals = chosen
-      .map((r) => ({ id: r.id, v: row.value!(r, extras[r.id] ?? {}) }))
-      .filter((e): e is { id: number; v: number } => e.v != null)
-    if (vals.length < 2) return null
-    const best = vals.reduce((a, b) => (row.dir === 'max' ? (b.v > a.v ? b : a) : (b.v < a.v ? b : a)))
-    if (vals.every((e) => e.v === best.v)) return null
-    return best.id
+  const bestOf = (r: Resort) => {
+    const days = extras[r.id]?.days ?? []
+    const b = bestDayIndex(days)
+    if (b < 0) return null
+    return { day: dayName(days[b].date), score: dayScores(days)[b] }
   }
+  const maxScore = Math.max(...chosen.map((r) => bestOf(r)?.score ?? 0), 0)
 
   return (
-    <div className="page">
-      <Link to="/resorts" className="back-link">← Назад к курортам</Link>
-
-      <header className="page-header">
-        <h1>Сравнение курортов</h1>
-        <p>Выберите 2-3 курорта, чтобы сравнить условия катания. Лучшее значение подсвечено.</p>
-      </header>
-
-      <div className="compare-selects">
-        {selected.map((value, slot) => (
-          <select
-            key={slot}
-            value={value}
-            onChange={(e) => pick(slot, e.target.value ? Number(e.target.value) : '')}
-          >
-            <option value="">{slot === 2 ? 'Курорт (необязательно)' : `Курорт ${slot + 1}`}</option>
-            {resorts
-              .filter((r) => r.id === value || !selected.includes(r.id))
-              .map((r) => (
-                <option key={r.id} value={r.id}>{r.name}</option>
-              ))}
-          </select>
-        ))}
-      </div>
-
-      {chosen.length < 2 ? (
-        <div className="empty-state"><p>Выберите минимум два курорта для сравнения.</p></div>
-      ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th></th>
-                {chosen.map((r) => (
-                  <th key={r.id}>
-                    <div className="compare-head">
+    <div className="pb-compare">
+      <PageHead
+        title="Сравнение курортов"
+        right={
+          <>
+            <span className="pb-cmp-counter">
+              {chosen.length} ИЗ {MAX_COMPARE}
+            </span>
+            {chosen.length < MAX_COMPARE && (
+              <select
+                className="pb-cmp-add"
+                value=""
+                onChange={(e) => addResort(Number(e.target.value))}
+              >
+                <option value="">+ Добавить курорт</option>
+                {resorts
+                  .filter((r) => !selected.includes(r.id))
+                  .map((r) => (
+                    <option key={r.id} value={r.id}>
                       {r.name}
-                      <button
-                        type="button"
-                        className={`btn btn-sm ${favIds.has(String(r.id)) ? 'btn-primary' : 'btn-outline'}`}
-                        onClick={() => toggleFavorite(r.id)}
-                        title={favIds.has(String(r.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                      >
-                        {favIds.has(String(r.id)) ? '★ В избранном' : '+ В избранное'}
-                      </button>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                const best = bestId(row)
+                    </option>
+                  ))}
+              </select>
+            )}
+          </>
+        }
+      />
+      <div className="pb-page">
+        {loading ? (
+          <div className="loading">Загрузка...</div>
+        ) : chosen.length < 2 ? (
+          <div className="empty-state">
+            <p>Выберите минимум два курорта для сравнения.</p>
+          </div>
+        ) : (
+          <>
+            {/* Шапка колонок */}
+            <div className="pb-cmp-row pb-cmp-head-row" style={gridStyle}>
+              <div className="pb-cmp-label" />
+              {chosen.map((r) => (
+                <div key={r.id} className={cellCls(r, 'pb-cmp-head')}>
+                  <div className="pb-cmp-head-top">
+                    <Link to={`/resorts/${r.id}`} className="pb-cmp-name">
+                      {r.name}
+                    </Link>
+                    <button
+                      type="button"
+                      className={`pb-cmp-star ${favIds.has(String(r.id)) ? 'on' : ''}`}
+                      onClick={() => toggleFavorite(r.id)}
+                      title={favIds.has(String(r.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
+                    >
+                      ★
+                    </button>
+                    <button
+                      type="button"
+                      className="pb-cmp-x"
+                      onClick={() => removeResort(r.id)}
+                      title="Убрать из сравнения"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="pb-cmp-sub">
+                    {extras[r.id]?.maxAltitude != null
+                      ? `${extras[r.id].maxAltitude!.toLocaleString('ru-RU')} М`
+                      : ''}
+                    {r.track_length_km != null ? ` · ${r.track_length_km} КМ` : ''}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* СНЕГ · 48Ч */}
+            <div className="pb-cmp-row" style={gridStyle}>
+              <div className="pb-cmp-label">СНЕГ · 48 Ч</div>
+              {chosen.map((r) => {
+                const cm = snow48(r)
                 return (
-                  <tr key={row.label || 'link'}>
-                    <td>{row.label}</td>
-                    {chosen.map((r) => (
-                      <td key={r.id} className={r.id === best ? 'compare-best' : ''} title={r.id === best ? 'Лучшее значение' : undefined}>
-                        {row.render(r, extras[r.id] ?? {})}
-                      </td>
-                    ))}
-                  </tr>
+                  <div key={r.id} className={cellCls(r)}>
+                    {cm != null ? (
+                      <>
+                        <div className="pb-cmp-snow-top">
+                          <span className="pb-cmp-snow-val">+{cm} см</span>
+                          {cm === maxSnow && maxSnow > 0 && <span className="pb-cmp-max">МАКС</span>}
+                        </div>
+                        <div className="pb-cmp-bar">
+                          <div
+                            className="pb-cmp-bar-fill"
+                            style={{ width: `${maxSnow ? Math.round((cm / maxSnow) * 100) : 0}%` }}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      '—'
+                    )}
+                  </div>
                 )
               })}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </div>
+
+            {/* ВЕРШИНА / НИЗ */}
+            <div className="pb-cmp-row" style={gridStyle}>
+              <div className="pb-cmp-label">ВЕРШИНА / НИЗ</div>
+              {chosen.map((r) => {
+                const x = extras[r.id] ?? {}
+                const rainy =
+                  x.bottom &&
+                  x.bottom.temperature > 0 &&
+                  /дождь|ливень|морось/i.test(x.bottom.condition)
+                return (
+                  <div key={r.id} className={cellCls(r)}>
+                    {x.top && x.bottom ? (
+                      <span className="pb-cmp-temps">
+                        <strong>{Math.round(x.top.temperature)}°</strong>
+                        <span className="pb-cmp-sep">/</span>
+                        {Math.round(x.bottom.temperature)}°
+                        {rainy && <span className="pb-cmp-note warn"> ДОЖДЬ ВНИЗУ</span>}
+                      </span>
+                    ) : (
+                      '—'
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ВЕТЕР НАВЕРХУ */}
+            <div className="pb-cmp-row" style={gridStyle}>
+              <div className="pb-cmp-label">ВЕТЕР НАВЕРХУ</div>
+              {chosen.map((r) => {
+                const w = extras[r.id]?.top?.windSpeed
+                const danger = w != null && w >= 15
+                const calm = w != null && w < 8
+                return (
+                  <div key={r.id} className={cellCls(r, 'pb-cmp-wind')}>
+                    {w != null ? (
+                      <>
+                        <span className={danger ? 'pb-cmp-wind-val danger' : 'pb-cmp-wind-val'}>
+                          {Math.round(w)} м/с
+                        </span>
+                        <span className="pb-cmp-windbar">
+                          <span
+                            style={{
+                              width: `${Math.min(100, Math.round((w / 20) * 100))}%`,
+                              background: danger ? 'var(--danger)' : calm ? 'var(--green)' : 'var(--text-3)',
+                            }}
+                          />
+                        </span>
+                        {danger && <span className="pb-cmp-note danger">⚠ РИСК ЗАКРЫТИЙ</span>}
+                      </>
+                    ) : (
+                      '—'
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ТРАССЫ ВСЕГО (реальные данные вместо «подъёмников») */}
+            <div className="pb-cmp-row" style={gridStyle}>
+              <div className="pb-cmp-label">ТРАССЫ ВСЕГО</div>
+              {chosen.map((r) => {
+                const total = totalTrails(r)
+                return (
+                  <div key={r.id} className={cellCls(r, 'pb-cmp-lifts')}>
+                    {total != null ? (
+                      <>
+                        <span className="pulse-dot pulse-dot-cmp" />
+                        <span className="pb-cmp-lifts-val">{total}</span>
+                        {r.rating != null && (
+                          <span className="pb-cmp-note">★ {r.rating.toFixed(1)}</span>
+                        )}
+                      </>
+                    ) : (
+                      '—'
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ТРАССЫ по сложности */}
+            <div className="pb-cmp-row" style={gridStyle}>
+              <div className="pb-cmp-label">ТРАССЫ</div>
+              {chosen.map((r) => (
+                <div key={r.id} className={cellCls(r)}>
+                  <TrailPills r={r} />
+                </div>
+              ))}
+            </div>
+
+            {/* СКИПАСС ОТ */}
+            <div className="pb-cmp-row" style={gridStyle}>
+              <div className="pb-cmp-label">СКИПАСС ОТ</div>
+              {chosen.map((r) => {
+                const s = extras[r.id]?.minSkipass
+                return (
+                  <div key={r.id} className={cellCls(r)}>
+                    {s ? `${s.price} ${s.currency}` : '—'}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ОТЕЛИ */}
+            <div className="pb-cmp-row" style={gridStyle}>
+              <div className="pb-cmp-label">ОТЕЛИ</div>
+              {chosen.map((r) => {
+                const h = extras[r.id]?.hotels
+                return (
+                  <div key={r.id} className={cellCls(r)}>
+                    {h && h.count > 0
+                      ? h.from != null
+                        ? `${h.count} шт. · от ${h.from} ₽`
+                        : `${h.count} шт.`
+                      : '—'}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ЛУЧШИЙ ДЕНЬ */}
+            <div className="pb-cmp-row pb-cmp-last-row" style={gridStyle}>
+              <div className="pb-cmp-label">ЛУЧШИЙ ДЕНЬ</div>
+              {chosen.map((r) => {
+                const b = bestOf(r)
+                const top = b != null && b.score === maxScore && maxScore > 0
+                return (
+                  <div key={r.id} className={cellCls(r)}>
+                    {b ? (
+                      <span className={`pb-cmp-bestpill ${top ? 'top' : ''}`}>
+                        <span className="pb-cmp-bestday">{b.day}</span>
+                        <span className="pb-cmp-bestscore">{b.score}</span>
+                      </span>
+                    ) : (
+                      '—'
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            <SnowMail
+              variant="strip"
+              message={`Подпишитесь на алерты по этим ${chosen.length} курортам — письмо придёт за 48 часов до снегопада.`}
+            />
+          </>
+        )}
+      </div>
     </div>
   )
 }

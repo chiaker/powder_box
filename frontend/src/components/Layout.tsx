@@ -1,6 +1,10 @@
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Nav from './Nav'
+import Footer from './Footer'
+
+/** Маршруты, рисующие собственный hero/градиент — nav ложится поверх */
+const heroRoute = (p: string) => p === '/' || p === '/compare' || /^\/resorts\/[^/]+$/.test(p)
 
 export default function Layout() {
   const { pathname } = useLocation()
@@ -11,12 +15,15 @@ export default function Layout() {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [pathname])
 
+  const overlay = heroRoute(pathname)
+
   return (
     <div className="layout">
-      <Nav />
-      <main className="main">
+      {overlay ? <Nav /> : <div className="top-band"><Nav /></div>}
+      <main className={overlay ? 'main main-full' : 'main'}>
         <Outlet />
       </main>
+      <Footer />
     </div>
   )
 }

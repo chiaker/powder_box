@@ -11,35 +11,41 @@ import {
   type AltitudePointWeather,
   type AltitudePointHourlyForecast,
   type AltitudePointDailyForecast,
-  type AltitudeDailyEntry,
   type SkipassTariff,
   type SkipassPriceResponse,
   type Hotel,
 } from '../api/client'
-import { weatherIcon, snowSum, bestDayIndex } from '../utils/weather'
+import { weatherIcon, snowSum, dayScores, bestDayIndex, dayName } from '../utils/weather'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import PageHead from '../components/PageHead'
+import SnowMail from '../components/SnowMail'
 
 // three.js/leaflet тянутся только при открытии страницы курорта с картой
 const ResortMap3D = lazy(() => import('../components/ResortMap3D'))
 const ResortMap2D = lazy(() => import('../components/ResortMap2D'))
 
 type MapMode = 'points' | 'solid' | 'flat' | 'original'
-
-const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=800'
 type WeatherMode = 'current' | 'today_hourly' | 'tomorrow_hourly' | 'week'
+
+/** Цвет статус-точки высоты по ветру и условиям */
+const pointStatus = (p: AltitudePointWeather): 'ok' | 'warn' | 'danger' => {
+  if (p.windSpeed >= 15 || /гроза|шторм/i.test(p.condition)) return 'danger'
+  if (p.windSpeed >= 8) return 'warn'
+  return 'ok'
+}
 
 export default function ResortDetail() {
   const { id } = useParams<{ id: string }>()
   const [resort, setResort] = useState<Resort | null>(null)
   const [reviews, setReviews] = useState<ResortReview[]>([])
-  const [altitudeWeather, setAltitudeWeather] = useState<AltitudePointWeather[]>([])
+  // Текущая погода по высотам — используется и в шапке, и в сайдбаре, и в блоке «Сейчас»
+  const [nowPoints, setNowPoints] = useState<AltitudePointWeather[]>([])
+  // Недельный прогноз по всем точкам — сайдбар «снег по высотам» и режим «Неделя»
+  const [dailyPoints, setDailyPoints] = useState<AltitudePointDailyForecast[]>([])
   const [altitudeHourly, setAltitudeHourly] = useState<AltitudePointHourlyForecast[]>([])
-  const [altitudeDaily, setAltitudeDaily] = useState<AltitudePointDailyForecast[]>([])
   const [weatherMode, setWeatherMode] = useState<WeatherMode>('current')
   const [weatherLoading, setWeatherLoading] = useState(false)
-  // 7-дневный прогноз самой высокой точки — для паудер-бейджа и «лучшего дня»
-  const [powderDaily, setPowderDaily] = useState<AltitudeDailyEntry[]>([])
   // Точки высот — центр 3D-карты
   const [altPoints, setAltPoints] = useState<AltitudePoint[]>([])
   // Режим карты запоминается между страницами и заходами
@@ -54,9 +60,6 @@ export default function ResortDetail() {
     localStorage.setItem('map-mode', mode)
   }
 
-  // Карта рендерится только после раскрытия секции: three.js в скрытом
-  // блоке создал бы канвас нулевого размера
-  const [mapOpen, setMapOpen] = useState(false)
   const [skipassTariffs, setSkipassTariffs] = useState<SkipassTariff[]>([])
   const [skipassPrice, setSkipassPrice] = useState<SkipassPriceResponse | null>(null)
   const [hotels, setHotels] = useState<Hotel[]>([])
@@ -264,17 +267,43 @@ export default function ResortDetail() {
     }
   }, [skipassTariffs])
 
+  // Погода по высотам: текущая и недельная тянутся один раз на курорт
   useEffect(() => {
     if (resortId == null) return
-    // Точки отсортированы по высоте — берём последнюю (самую высокую): снег наверху репрезентативнее
+    void api
+      .get<AltitudePointWeather[]>(`/weather/${resortId}/altitudes/current`)
+      .then(setNowPoints)
+      .catch(() => setNowPoints([]))
     void api
       .get<AltitudePointDailyForecast[]>(`/weather/${resortId}/altitudes/daily?days=7`)
-      .then((points) => setPowderDaily(points.length ? points[points.length - 1].days : []))
-      .catch(() => setPowderDaily([]))
+      .then(setDailyPoints)
+      .catch(() => setDailyPoints([]))
   }, [resortId])
 
+  // Почасовой прогноз — только когда его запросили
+  useEffect(() => {
+    if (resortId == null) return
+    if (weatherMode !== 'today_hourly' && weatherMode !== 'tomorrow_hourly') return
+    const day = weatherMode === 'today_hourly' ? 'today' : 'tomorrow'
+    setWeatherLoading(true)
+    void api
+      .get<AltitudePointHourlyForecast[]>(`/weather/${resortId}/altitudes/hourly?day=${day}`)
+      .then(setAltitudeHourly)
+      .catch(() => setAltitudeHourly([]))
+      .finally(() => setWeatherLoading(false))
+  }, [resortId, weatherMode])
+
+  // Прогноз самой высокой точки — паудер-бейдж и «лучший день»
+  const powderDaily = useMemo(
+    () => (dailyPoints.length ? dailyPoints[dailyPoints.length - 1].days : []),
+    [dailyPoints]
+  )
   const powderCm = useMemo(() => snowSum(powderDaily, 3), [powderDaily])
   const bestDay = useMemo(() => bestDayIndex(powderDaily), [powderDaily])
+  const bestScore = useMemo(() => {
+    const s = dayScores(powderDaily)
+    return bestDay >= 0 ? s[bestDay] : null
+  }, [powderDaily, bestDay])
 
   useEffect(() => {
     if (resortId == null) return
@@ -289,431 +318,509 @@ export default function ResortDetail() {
     [altPoints]
   )
 
-  useEffect(() => {
-    if (resortId == null) return
-    setWeatherLoading(true)
-    const load = async () => {
-      if (weatherMode === 'current') {
-        const current = await api.get<AltitudePointWeather[]>(`/weather/${resortId}/altitudes/current`).catch(() => [])
-        setAltitudeWeather(current)
-        setAltitudeHourly([])
-        setAltitudeDaily([])
-        return
-      }
-      if (weatherMode === 'today_hourly' || weatherMode === 'tomorrow_hourly') {
-        const day = weatherMode === 'today_hourly' ? 'today' : 'tomorrow'
-        const hourly = await api
-          .get<AltitudePointHourlyForecast[]>(`/weather/${resortId}/altitudes/hourly?day=${day}`)
-          .catch(() => [])
-        setAltitudeHourly(hourly)
-        setAltitudeWeather([])
-        setAltitudeDaily([])
-        return
-      }
-      const daily = await api.get<AltitudePointDailyForecast[]>(`/weather/${resortId}/altitudes/daily?days=7`).catch(() => [])
-      setAltitudeDaily(daily)
-      setAltitudeWeather([])
-      setAltitudeHourly([])
-    }
-    void load().finally(() => setWeatherLoading(false))
-  }, [resortId, weatherMode])
+  // Снег по каждой высотной точке за 3 дня — сайдбар
+  const snowByPoint = useMemo(
+    () =>
+      dailyPoints.map((p) => ({
+        id: p.point_id,
+        name: p.point_name,
+        altitude: p.altitude_m,
+        cm: snowSum(p.days, 3),
+      })),
+    [dailyPoints]
+  )
+  const maxSnowPoint = Math.max(...snowByPoint.map((p) => p.cm), 0)
 
   if (loading) return <div className="page"><div className="loading">Загрузка...</div></div>
   if (error || !resort) return <div className="page"><div className="error">{error || 'Курорт не найден'}</div></div>
 
+  const trailsTotal =
+    (resort.trails_green ?? 0) + (resort.trails_blue ?? 0) + (resort.trails_red ?? 0) + (resort.trails_black ?? 0)
+
+  // Три высоты для шапки: низ / середина / вершина
+  const sorted = [...nowPoints].sort((a, b) => a.altitude_m - b.altitude_m)
+  const headPts =
+    sorted.length <= 3 ? sorted : [sorted[0], sorted[Math.floor(sorted.length / 2)], sorted[sorted.length - 1]]
+  const headLabels = ['НИЗ', 'СЕРЕДИНА', 'ВЕРШИНА']
+  const updated = sorted.length
+    ? new Date(sorted[sorted.length - 1].timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+    : ''
+
+  const effMode: MapMode = mapMode === 'original' && !resort.trail_map_url ? 'points' : mapMode
+
+  const snow48ByPoint = (pointId: number) => {
+    const p = dailyPoints.find((d) => d.point_id === pointId)
+    return p ? snowSum(p.days, 2) : null
+  }
+
   return (
-    <div className="page">
-      <Link to="/resorts" className="back-link">← Назад к курортам</Link>
-
-      <div className="resort-detail-hero">
-        <img
-          src={imageUrl(resort.image_url) || PLACEHOLDER_IMG}
-          onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG }}
-          alt={resort.name}
-          className="resort-detail-image"
-        />
-        <header className="page-header resort-detail-header">
-          <h1>{resort.name}</h1>
-          {resort.rating != null && (
-            <span className="rating-badge">
-              ★ {resort.rating.toFixed(1)} ({resort.review_count || 0})
-            </span>
-          )}
-          {powderCm >= 1 && (
-            <span className="powder-badge" title="Прогноз снегопадов на ближайшие 3 дня">
-              ❄ {powderCm} см за 3 дня
-            </span>
-          )}
-          {token && (
-            <button
-              type="button"
-              className={`btn btn-sm ${isFavorite ? 'btn-primary' : 'btn-outline'}`}
-              onClick={toggleFavorite}
-            >
-              {isFavorite ? '★ В избранном' : '+ В избранное'}
-            </button>
-          )}
-          {resort.description && <p>{resort.description}</p>}
-        </header>
-      </div>
-
-      {(resort.track_length_km != null || resort.elevation_drop_m != null || resort.trails_green != null || resort.freeride_rating != null) && (
-        <section className="resort-stats">
-          <h2>Характеристики</h2>
-          <div className="resort-stats-grid">
-            {resort.track_length_km != null && (
-              <div className="resort-stat">
-                <span className="resort-stat-value">{resort.track_length_km} км</span>
-                <span className="resort-stat-label">Протяжённость трасс</span>
-              </div>
-            )}
-            {resort.elevation_drop_m != null && (
-              <div className="resort-stat">
-                <span className="resort-stat-value">{resort.elevation_drop_m} м</span>
-                <span className="resort-stat-label">Перепад высот</span>
-              </div>
-            )}
-            {(resort.trails_green != null || resort.trails_blue != null || resort.trails_red != null || resort.trails_black != null) && (
-              <div className="resort-stat resort-stat-trails">
-                <span className="resort-stat-label">Трассы</span>
-                <div className="trails-list">
-                  {resort.trails_green != null && <span className="trail trail-green">🟢 {resort.trails_green}</span>}
-                  {resort.trails_blue != null && <span className="trail trail-blue">🔵 {resort.trails_blue}</span>}
-                  {resort.trails_red != null && <span className="trail trail-red">🔴 {resort.trails_red}</span>}
-                  {resort.trails_black != null && <span className="trail trail-black">⚫ {resort.trails_black}</span>}
+    <div className="pb-resort">
+      <PageHead
+        kicker={updated ? `ОБНОВЛЕНО ${updated}` : undefined}
+        title={resort.name}
+        right={
+          <div className="pb-rd-metrics">
+            {[...headPts].reverse().map((p, i) => {
+              const label = headLabels[headPts.length - 1 - i] ?? p.point_name.toUpperCase()
+              const cm = snow48ByPoint(p.point_id)
+              const rainy = p.temperature > 0 && /дождь|ливень|морось/i.test(p.condition)
+              return (
+                <div key={p.point_id} className="pb-rd-metric">
+                  <div className="pb-rd-metric-label">{label}</div>
+                  <div className="pb-rd-metric-value">
+                    {Math.round(p.temperature)}°{' '}
+                    {rainy ? (
+                      <span className="pb-rd-rain">дождь</span>
+                    ) : (
+                      cm != null && <span className="pb-rd-snow">+{cm} см</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+            {bestDay >= 0 && (
+              <div className="pb-rd-metric pb-rd-best">
+                <div className="pb-rd-metric-label">ЛУЧШИЙ ДЕНЬ</div>
+                <div className="pb-rd-metric-value pb-rd-best-value">
+                  {dayName(powderDaily[bestDay].date)} · {bestScore}
                 </div>
               </div>
             )}
-            {resort.freeride_rating != null && (
-              <div className="resort-stat">
-                <span className="resort-stat-value">{resort.freeride_rating}/5</span>
-                <span className="resort-stat-label">Фрирайд</span>
+          </div>
+        }
+      />
+
+      <div className="pb-page">
+        <div className="pb-rd-grid">
+          {/* Левая колонка: карта трасс */}
+          <div className="pb-rd-main">
+            <div className="pb-rd-maphead">
+              <h3>Карта трасс</h3>
+              <span className="pb-rd-maphead-count">
+                {trailsTotal > 0 ? `${trailsTotal} ТРАСС` : ''}
+                {resort.track_length_km != null ? ` · ${resort.track_length_km} КМ` : ''}
+              </span>
+              <div className="pb-rd-legend">
+                <span><i className="pb-leg pb-leg-green" />Зелёные</span>
+                <span><i className="pb-leg pb-leg-blue" />Синие</span>
+                <span><i className="pb-leg pb-leg-red" />Красные</span>
+                <span><i className="pb-leg pb-leg-black" />Чёрные</span>
               </div>
+            </div>
+
+            {mapPoints.length === 0 ? (
+              <div className="pb-rd-mapbox-static">
+                <span>карта появится, когда админ добавит точки высот</span>
+              </div>
+            ) : effMode === 'original' && resort.trail_map_url ? (
+              <div className="pb-rd-mapbox-static">
+                <img
+                  src={imageUrl(resort.trail_map_url)}
+                  alt={`Схема трасс: ${resort.name}`}
+                  className="trail-map-img"
+                  onClick={() => setMapLightbox(true)}
+                  title="Нажмите для увеличения"
+                />
+              </div>
+            ) : (
+              <div className="pb-rd-mapbox">
+                <Suspense fallback={<div className="loading">Загрузка карты...</div>}>
+                  {(effMode === 'points' || effMode === 'solid') && resortId != null && (
+                    <ResortMap3D resortId={resortId} points={mapPoints} variant={effMode} />
+                  )}
+                  {effMode === 'flat' && <ResortMap2D points={mapPoints} />}
+                </Suspense>
+              </div>
+            )}
+
+            {mapLightbox && resort.trail_map_url && (
+              <div className="hotel-lightbox-overlay" onClick={() => setMapLightbox(false)}>
+                <img src={imageUrl(resort.trail_map_url)} alt={`Схема трасс: ${resort.name}`} className="hotel-lightbox-img" />
+                <button type="button" className="hotel-lightbox-close" onClick={() => setMapLightbox(false)}>✕</button>
+              </div>
+            )}
+
+            {mapPoints.length > 0 && (
+              <div className="pb-pills">
+                <button type="button" className={`pb-pill ${effMode === 'points' ? 'active' : ''}`} onClick={() => changeMapMode('points')}>Точечная</button>
+                <button type="button" className={`pb-pill ${effMode === 'solid' ? 'active' : ''}`} onClick={() => changeMapMode('solid')}>3D</button>
+                <button type="button" className={`pb-pill ${effMode === 'flat' ? 'active' : ''}`} onClick={() => changeMapMode('flat')}>2D</button>
+                {resort.trail_map_url && (
+                  <button type="button" className={`pb-pill ${effMode === 'original' ? 'active' : ''}`} onClick={() => changeMapMode('original')}>Схема курорта</button>
+                )}
+              </div>
+            )}
+
+            {resort.description && <p className="pb-rd-desc">{resort.description}</p>}
+
+            <div className="pb-rd-actions">
+              {resort.rating != null && (
+                <span className="pb-rd-rating">★ {resort.rating.toFixed(1)} · {resort.review_count || 0} отзывов</span>
+              )}
+              {powderCm >= 1 && (
+                <span className="pb-rd-powder" title="Прогноз снегопадов на ближайшие 3 дня">❄ {powderCm} см за 3 дня</span>
+              )}
+              {token && (
+                <button
+                  type="button"
+                  className={`btn btn-sm ${isFavorite ? 'btn-primary' : 'btn-outline'}`}
+                  onClick={toggleFavorite}
+                >
+                  {isFavorite ? '★ В избранном' : '+ В избранное'}
+                </button>
+              )}
+              <Link to={`/compare?ids=${resort.id}`} className="btn btn-sm btn-outline">Сравнить →</Link>
+            </div>
+          </div>
+
+          {/* Правый сайдбар */}
+          <aside className="pb-rd-side">
+            <div className="pb-rd-block">
+              <div className="mono-label pb-rd-block-label">ВЫСОТЫ · СЕЙЧАС</div>
+              {sorted.length === 0 ? (
+                <div className="pb-strip-empty">нет данных</div>
+              ) : (
+                <div className="pb-rd-list">
+                  {[...sorted].reverse().map((p, i) => {
+                    const st = pointStatus(p)
+                    return (
+                      <div key={p.point_id} className="pb-rd-list-row">
+                        <span
+                          className={`pb-status-dot pb-status-${st}`}
+                          style={{ animationDelay: `${i * 0.6}s` }}
+                        />
+                        <span className="pb-rd-list-name">{p.point_name}</span>
+                        <span className={`pb-rd-list-meta ${st === 'danger' ? 'danger' : st === 'warn' ? 'warn' : ''}`}>
+                          {Math.round(p.temperature)}° · {Math.round(p.windSpeed)} м/с
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="pb-rd-block">
+              <div className="mono-label pb-rd-block-label">СНЕГ ПО ВЫСОТАМ · 3 ДНЯ</div>
+              {snowByPoint.length === 0 ? (
+                <div className="pb-strip-empty">нет прогноза</div>
+              ) : (
+                <div className="pb-rd-bars">
+                  {[...snowByPoint].reverse().map((p) => (
+                    <div key={p.id} className="pb-rd-bar-row">
+                      <span className="pb-rd-bar-name">{p.name}</span>
+                      <div className="pb-rd-bar">
+                        <div
+                          className="pb-rd-bar-fill"
+                          style={{
+                            width: `${maxSnowPoint ? Math.round((p.cm / maxSnowPoint) * 100) : 0}%`,
+                            background: p.cm >= 10 ? 'var(--green)' : p.cm >= 3 ? 'var(--accent)' : 'var(--warn)',
+                          }}
+                        />
+                      </div>
+                      <span className="pb-rd-bar-val">{p.cm} СМ</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <SnowMail
+              variant="plate"
+              message={
+                <>
+                  <strong>{resort.name} в вашем списке.</strong> Напишем за 48 часов до снегопада.
+                </>
+              }
+            />
+          </aside>
+        </div>
+
+        {/* Погода по высотам */}
+        <section className="pb-section">
+          <div className="pb-section-head">
+            <h3>Погода по высотам</h3>
+            <div className="pb-pills pb-pills-right">
+              <button type="button" className={`pb-pill ${weatherMode === 'current' ? 'active' : ''}`} onClick={() => setWeatherMode('current')}>Сейчас</button>
+              <button type="button" className={`pb-pill ${weatherMode === 'today_hourly' ? 'active' : ''}`} onClick={() => setWeatherMode('today_hourly')}>Сегодня по часам</button>
+              <button type="button" className={`pb-pill ${weatherMode === 'tomorrow_hourly' ? 'active' : ''}`} onClick={() => setWeatherMode('tomorrow_hourly')}>Завтра по часам</button>
+              <button type="button" className={`pb-pill ${weatherMode === 'week' ? 'active' : ''}`} onClick={() => setWeatherMode('week')}>Неделя</button>
+            </div>
+          </div>
+
+          {weatherLoading && <div className="loading">Загрузка прогноза...</div>}
+
+          {!weatherLoading && weatherMode === 'current' && (
+            nowPoints.length === 0 ? (
+              <div className="empty-state"><p>Точки высот еще не добавлены.</p></div>
+            ) : (
+              <div className="altitude-weather-grid">
+                {nowPoints.slice(0, 4).map((point) => (
+                  <article key={point.point_id} className="altitude-weather-card">
+                    <div className="altitude-weather-header">
+                      <strong>{point.point_name}</strong>
+                      <span>{point.altitude_m} м</span>
+                    </div>
+                    <div className="altitude-weather-values">
+                      <div><span className="weather-value">{point.temperature}°C</span><span className="weather-label">Температура</span></div>
+                      <div><span className="weather-value">{point.windSpeed} м/с</span><span className="weather-label">Ветер</span></div>
+                      <div><span className="weather-value">{point.humidity}%</span><span className="weather-label">Влажность</span></div>
+                    </div>
+                    <p className="weather-current-condition">
+                      <span className="weather-icon-lg">{weatherIcon(point.condition)}</span>
+                      <span className="weather-label">{point.condition}</span>
+                    </p>
+                  </article>
+                ))}
+              </div>
+            )
+          )}
+
+          {!weatherLoading && (weatherMode === 'today_hourly' || weatherMode === 'tomorrow_hourly') && (
+            altitudeHourly.length === 0 ? (
+              <div className="empty-state"><p>Почасовой прогноз недоступен.</p></div>
+            ) : (
+              <div className="altitude-forecast-list">
+                {altitudeHourly.slice(0, 4).map((point) => (
+                  <article key={point.point_id} className="altitude-weather-card">
+                    <div className="altitude-weather-header">
+                      <strong>{point.point_name}</strong>
+                      <span>{point.altitude_m} м</span>
+                    </div>
+                    <div className="hourly-grid">
+                      {point.hours.map((h) => (
+                        <div key={`${point.point_id}-${h.timestamp}`} className="hourly-item">
+                          <span>{new Date(h.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+                          <strong>{weatherIcon(h.condition)} {h.temperature}°C</strong>
+                          <span className="weather-label">Осадки: {h.precipitation} мм</span>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )
+          )}
+
+          {!weatherLoading && weatherMode === 'week' && (
+            dailyPoints.length === 0 ? (
+              <div className="empty-state"><p>Недельный прогноз недоступен.</p></div>
+            ) : (
+              <div className="altitude-forecast-list">
+                {dailyPoints.slice(0, 4).map((point) => (
+                  <article key={point.point_id} className="altitude-weather-card">
+                    <div className="altitude-weather-header">
+                      <strong>{point.point_name}</strong>
+                      <span>{point.altitude_m} м</span>
+                    </div>
+                    <div className="daily-grid">
+                      {point.days.map((d, i) => (
+                        <div key={`${point.point_id}-${d.date}`} className={`daily-item ${i === bestDay ? 'daily-item-best' : ''}`}>
+                          <span>{new Date(d.date).toLocaleDateString('ru-RU', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
+                          <strong>{weatherIcon(d.condition)} {d.minTemperature}° / {d.maxTemperature}°</strong>
+                          <span className="weather-label">{d.condition}</span>
+                          {d.snowfall >= 0.5
+                            ? <span>❄ Снег: {d.snowfall} см</span>
+                            : <span>Осадки: {d.precipitation} мм</span>}
+                          {i === bestDay && <span className="best-day-label">🏂 Лучший день</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )
+          )}
+        </section>
+
+        {/* Скипассы */}
+        <section className="pb-section">
+          <div className="pb-section-head"><h3>Скипассы</h3></div>
+          <div className="skipass-controls">
+            <label>
+              Дата катания
+              <input type="date" value={seasonDate} onChange={(e) => setSeasonDate(e.target.value)} />
+            </label>
+            <label>
+              Возраст
+              <select value={ageCategory} onChange={(e) => setAgeCategory(e.target.value as typeof ageCategory)}>
+                <option value="child">Ребенок</option>
+                <option value="teen">Подросток</option>
+                <option value="adult">Взрослый</option>
+                <option value="senior">Пенсионер</option>
+              </select>
+            </label>
+            <label>
+              Тип
+              <select value={accessType} onChange={(e) => setAccessType(e.target.value as typeof accessType)}>
+                <option value="day">Дневной</option>
+                <option value="evening">Вечерний</option>
+                <option value="full">Полный день</option>
+              </select>
+            </label>
+            <label>
+              Дней
+              <input type="number" min={1} max={30} value={durationDays} onChange={(e) => setDurationDays(Math.max(1, Number(e.target.value) || 1))} />
+            </label>
+            <label className="skipass-check">
+              <input type="checkbox" checked={fastTrack} onChange={(e) => setFastTrack(e.target.checked)} />
+              Fast Track
+            </label>
+          </div>
+
+          <div className="skipass-price-box">
+            {skipassPrice && skipassPrice.price > 0 ? (
+              <p>
+                Итоговая цена: <strong>{skipassPrice.price} {skipassPrice.currency}</strong>
+                {skipassPrice.season_name ? ` (${skipassPrice.season_name})` : ''}
+              </p>
+            ) : (
+              <p>Под этот набор условий активный тариф не найден.</p>
+            )}
+          </div>
+
+          {skipassTariffs.length > 0 && (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Сезон</th>
+                    <th>Категория</th>
+                    <th>Тип</th>
+                    <th>Дней</th>
+                    <th>Fast</th>
+                    <th>Цена</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {skipassTariffs
+                    .filter((t) => t.is_active)
+                    .map((tariff) => (
+                      <tr key={tariff.id}>
+                        <td>{tariff.season_name}</td>
+                        <td>{tariff.age_category}</td>
+                        <td>{tariff.access_type}</td>
+                        <td>{tariff.duration_days}</td>
+                        <td>{tariff.is_fast_track ? 'Да' : 'Нет'}</td>
+                        <td>{tariff.price} {tariff.currency}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {hotels.length > 0 && (
+          <section className="pb-section">
+            <div className="pb-section-head"><h3>Отели рядом</h3></div>
+            <div className="hotel-grid">
+              {hotels.map((h) => (
+                <Link key={h.id} to={`/hotels/${h.id}`} className="hotel-card hotel-card-link">
+                  <img
+                    src={imageUrl(h.image_url) || IMG_PLACEHOLDER}
+                    onError={(e) => { (e.target as HTMLImageElement).src = IMG_PLACEHOLDER }}
+                    alt={h.name}
+                    className="hotel-card-image"
+                  />
+                  <div className="hotel-card-body">
+                    <h3 className="hotel-card-title">{h.name}</h3>
+                    {h.rating != null && (
+                      <span className="hotel-rating">★ {h.rating.toFixed(1)}</span>
+                    )}
+                    {h.description && <p className="hotel-card-desc">{h.description}</p>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="pb-section resort-reviews">
+          <div className="pb-section-head"><h3>Отзывы и оценки</h3></div>
+          <p className="section-hint">
+            Средняя оценка рассчитывается на основе отзывов пользователей.
+          </p>
+          {token ? (
+            <form className="review-form" onSubmit={handleReviewSubmit}>
+              <label>Ваша оценка</label>
+              <div className="review-rating-picker" role="radiogroup" aria-label="Оценка курорта">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className={`star-btn ${value <= (hoverRating || reviewRating) ? 'active' : ''}`}
+                    onClick={() => setReviewRating(value)}
+                    onMouseEnter={() => setHoverRating(value)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    disabled={submittingReview}
+                    aria-pressed={value === reviewRating}
+                    title={`Оценка ${value} из 5`}
+                  >
+                    ★
+                  </button>
+                ))}
+                <span className="review-rating-value">{reviewRating}/5</span>
+              </div>
+
+              <label htmlFor="review-text">Комментарий</label>
+              <textarea
+                id="review-text"
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                placeholder="Опишите впечатления о трассах, сервисе и условиях катания"
+                rows={4}
+                maxLength={3000}
+                disabled={submittingReview}
+              />
+
+              <div className="review-form-actions">
+                <button type="submit" className="btn btn-primary" disabled={submittingReview}>
+                  {submittingReview ? 'Сохранение...' : userReview ? 'Обновить отзыв' : 'Оставить отзыв'}
+                </button>
+                {userReview && (
+                  <button type="button" className="btn btn-outline" onClick={handleDeleteReview}>
+                    Удалить мой отзыв
+                  </button>
+                )}
+              </div>
+            </form>
+          ) : (
+            <p className="section-hint">
+              <Link to="/login">Войдите</Link>, чтобы поставить оценку и оставить отзыв.
+            </p>
+          )}
+
+          <div className="reviews-list">
+            {reviews.length === 0 ? (
+              <div className="empty-state"><p>Пока нет отзывов. Будьте первым!</p></div>
+            ) : (
+              reviews.map((review) => (
+                <article key={review.id} className="review-card">
+                  <div className="review-header">
+                    <span>
+                      <strong>{reviewAuthors[review.user_id] || `Пользователь #${review.user_id}`}</strong>
+                      {review.updated_at && (
+                        <span className="review-date">
+                          {new Date(review.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </span>
+                      )}
+                    </span>
+                    <span className="rating-stars" aria-label={`Оценка: ${review.rating} из 5`}>
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <span key={value} className={value <= Math.round(review.rating) ? 'star-filled' : 'star-empty'}>
+                          ★
+                        </span>
+                      ))}
+                    </span>
+                  </div>
+                  {review.review_text && <p>{review.review_text}</p>}
+                </article>
+              ))
             )}
           </div>
         </section>
-      )}
-      <details className="weather-card" open>
-        <summary><h2>Погода по высотам</h2></summary>
-        <div className="weather-mode-switch">
-          <button type="button" className={`btn btn-sm ${weatherMode === 'current' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setWeatherMode('current')}>Сейчас</button>
-          <button type="button" className={`btn btn-sm ${weatherMode === 'today_hourly' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setWeatherMode('today_hourly')}>Сегодня по часам</button>
-          <button type="button" className={`btn btn-sm ${weatherMode === 'tomorrow_hourly' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setWeatherMode('tomorrow_hourly')}>Завтра по часам</button>
-          <button type="button" className={`btn btn-sm ${weatherMode === 'week' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setWeatherMode('week')}>Неделя</button>
-        </div>
-
-        {weatherLoading && <div className="loading">Загрузка прогноза...</div>}
-
-        {!weatherLoading && weatherMode === 'current' && (
-          altitudeWeather.length === 0 ? (
-            <div className="empty-state"><p>Точки высот еще не добавлены.</p></div>
-          ) : (
-            <div className="altitude-weather-grid">
-              {altitudeWeather.slice(0, 4).map((point) => (
-                <article key={point.point_id} className="altitude-weather-card">
-                  <div className="altitude-weather-header">
-                    <strong>{point.point_name}</strong>
-                    <span>{point.altitude_m} м</span>
-                  </div>
-                  <div className="altitude-weather-values">
-                    <div><span className="weather-value">{point.temperature}°C</span><span className="weather-label">Температура</span></div>
-                    <div><span className="weather-value">{point.windSpeed} м/с</span><span className="weather-label">Ветер</span></div>
-                    <div><span className="weather-value">{point.humidity}%</span><span className="weather-label">Влажность</span></div>
-                  </div>
-                  <p className="weather-current-condition">
-                    <span className="weather-icon-lg">{weatherIcon(point.condition)}</span>
-                    <span className="weather-label">{point.condition}</span>
-                  </p>
-                </article>
-              ))}
-            </div>
-          )
-        )}
-
-        {!weatherLoading && (weatherMode === 'today_hourly' || weatherMode === 'tomorrow_hourly') && (
-          altitudeHourly.length === 0 ? (
-            <div className="empty-state"><p>Почасовой прогноз недоступен.</p></div>
-          ) : (
-            <div className="altitude-forecast-list">
-              {altitudeHourly.slice(0, 4).map((point) => (
-                <article key={point.point_id} className="altitude-weather-card">
-                  <div className="altitude-weather-header">
-                    <strong>{point.point_name}</strong>
-                    <span>{point.altitude_m} м</span>
-                  </div>
-                  <div className="hourly-grid">
-                    {point.hours.map((h) => (
-                      <div key={`${point.point_id}-${h.timestamp}`} className="hourly-item">
-                        <span>{new Date(h.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
-                        <strong>{weatherIcon(h.condition)} {h.temperature}°C</strong>
-                        <span className="weather-label">Осадки: {h.precipitation} мм</span>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          )
-        )}
-
-        {!weatherLoading && weatherMode === 'week' && (
-          altitudeDaily.length === 0 ? (
-            <div className="empty-state"><p>Недельный прогноз недоступен.</p></div>
-          ) : (
-            <div className="altitude-forecast-list">
-              {altitudeDaily.slice(0, 4).map((point) => (
-                <article key={point.point_id} className="altitude-weather-card">
-                  <div className="altitude-weather-header">
-                    <strong>{point.point_name}</strong>
-                    <span>{point.altitude_m} м</span>
-                  </div>
-                  <div className="daily-grid">
-                    {point.days.map((d, i) => (
-                      <div key={`${point.point_id}-${d.date}`} className={`daily-item ${i === bestDay ? 'daily-item-best' : ''}`}>
-                        <span>{new Date(d.date).toLocaleDateString('ru-RU', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
-                        <strong>{weatherIcon(d.condition)} {d.minTemperature}° / {d.maxTemperature}°</strong>
-                        <span className="weather-label">{d.condition}</span>
-                        {d.snowfall >= 0.5
-                          ? <span>❄ Снег: {d.snowfall} см</span>
-                          : <span>Осадки: {d.precipitation} мм</span>}
-                        {i === bestDay && <span className="best-day-label">🏂 Лучший день</span>}
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          )
-        )}
-      </details>
-
-      {mapPoints.length > 0 && resortId != null && (() => {
-        // Сохранённый режим «Схема» недоступен у курорта без схемы — откат на точки
-        const effMode: MapMode = mapMode === 'original' && !resort.trail_map_url ? 'points' : mapMode
-        return (
-        <details className="weather-card" onToggle={(e) => setMapOpen((e.target as HTMLDetailsElement).open)}>
-          <summary><h2>Карта курорта</h2></summary>
-          {mapOpen && (<>
-          <div className="weather-mode-switch">
-            <button type="button" className={`btn btn-sm ${effMode === 'points' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('points')}>Точечная</button>
-            <button type="button" className={`btn btn-sm ${effMode === 'solid' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('solid')}>3D</button>
-            <button type="button" className={`btn btn-sm ${effMode === 'flat' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('flat')}>2D</button>
-            {resort.trail_map_url && (
-              <button type="button" className={`btn btn-sm ${effMode === 'original' ? 'btn-primary' : 'btn-outline'}`} onClick={() => changeMapMode('original')}>Схема курорта</button>
-            )}
-          </div>
-          <Suspense fallback={<div className="loading">Загрузка карты...</div>}>
-            {(effMode === 'points' || effMode === 'solid') && (
-              <ResortMap3D resortId={resortId} points={mapPoints} variant={effMode} />
-            )}
-            {effMode === 'flat' && <ResortMap2D points={mapPoints} />}
-            {effMode === 'original' && resort.trail_map_url && (
-              <img
-                src={imageUrl(resort.trail_map_url)}
-                alt={`Схема трасс: ${resort.name}`}
-                className="trail-map-img"
-                onClick={() => setMapLightbox(true)}
-                title="Нажмите для увеличения"
-              />
-            )}
-          </Suspense>
-          {mapLightbox && resort.trail_map_url && (
-            <div className="hotel-lightbox-overlay" onClick={() => setMapLightbox(false)}>
-              <img src={imageUrl(resort.trail_map_url)} alt={`Схема трасс: ${resort.name}`} className="hotel-lightbox-img" />
-              <button type="button" className="hotel-lightbox-close" onClick={() => setMapLightbox(false)}>✕</button>
-            </div>
-          )}
-          </>)}
-        </details>
-        )
-      })()}
-
-      <details className="weather-card" open>
-        <summary><h2>Скипассы</h2></summary>
-        <div className="skipass-controls">
-          <label>
-            Дата катания
-            <input type="date" value={seasonDate} onChange={(e) => setSeasonDate(e.target.value)} />
-          </label>
-          <label>
-            Возраст
-            <select value={ageCategory} onChange={(e) => setAgeCategory(e.target.value as typeof ageCategory)}>
-              <option value="child">Ребенок</option>
-              <option value="teen">Подросток</option>
-              <option value="adult">Взрослый</option>
-              <option value="senior">Пенсионер</option>
-            </select>
-          </label>
-          <label>
-            Тип
-            <select value={accessType} onChange={(e) => setAccessType(e.target.value as typeof accessType)}>
-              <option value="day">Дневной</option>
-              <option value="evening">Вечерний</option>
-              <option value="full">Полный день</option>
-            </select>
-          </label>
-          <label>
-            Дней
-            <input type="number" min={1} max={30} value={durationDays} onChange={(e) => setDurationDays(Math.max(1, Number(e.target.value) || 1))} />
-          </label>
-          <label className="skipass-check">
-            <input type="checkbox" checked={fastTrack} onChange={(e) => setFastTrack(e.target.checked)} />
-            Fast Track
-          </label>
-        </div>
-
-        <div className="skipass-price-box">
-          {skipassPrice && skipassPrice.price > 0 ? (
-            <p>
-              Итоговая цена: <strong>{skipassPrice.price} {skipassPrice.currency}</strong>
-              {skipassPrice.season_name ? ` (${skipassPrice.season_name})` : ''}
-            </p>
-          ) : (
-            <p>Под этот набор условий активный тариф не найден.</p>
-          )}
-        </div>
-
-        {skipassTariffs.length > 0 && (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Сезон</th>
-                  <th>Категория</th>
-                  <th>Тип</th>
-                  <th>Дней</th>
-                  <th>Fast</th>
-                  <th>Цена</th>
-                </tr>
-              </thead>
-              <tbody>
-                {skipassTariffs
-                  .filter((t) => t.is_active)
-                  .map((tariff) => (
-                    <tr key={tariff.id}>
-                      <td>{tariff.season_name}</td>
-                      <td>{tariff.age_category}</td>
-                      <td>{tariff.access_type}</td>
-                      <td>{tariff.duration_days}</td>
-                      <td>{tariff.is_fast_track ? 'Да' : 'Нет'}</td>
-                      <td>{tariff.price} {tariff.currency}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </details>
-
-      {hotels.length > 0 && (
-        <details className="weather-card" open>
-          <summary><h2>Отели рядом</h2></summary>
-          <div className="hotel-grid">
-            {hotels.map((h) => (
-              <Link key={h.id} to={`/hotels/${h.id}`} className="hotel-card hotel-card-link">
-                <img
-                  src={imageUrl(h.image_url) || IMG_PLACEHOLDER}
-                  onError={(e) => { (e.target as HTMLImageElement).src = IMG_PLACEHOLDER }}
-                  alt={h.name}
-                  className="hotel-card-image"
-                />
-                <div className="hotel-card-body">
-                  <h3 className="hotel-card-title">{h.name}</h3>
-                  {h.rating != null && (
-                    <span className="hotel-rating">★ {h.rating.toFixed(1)}</span>
-                  )}
-                  {h.description && <p className="hotel-card-desc">{h.description}</p>}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </details>
-      )}
-
-      <section className="resort-reviews">
-        <h2>Отзывы и оценки</h2>
-        <p className="section-hint">
-          Средняя оценка рассчитывается на основе отзывов пользователей.
-        </p>
-        {token ? (
-          <form className="review-form" onSubmit={handleReviewSubmit}>
-            <label>Ваша оценка</label>
-            <div className="review-rating-picker" role="radiogroup" aria-label="Оценка курорта">
-              {[1, 2, 3, 4, 5].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={`star-btn ${value <= (hoverRating || reviewRating) ? 'active' : ''}`}
-                  onClick={() => setReviewRating(value)}
-                  onMouseEnter={() => setHoverRating(value)}
-                  onMouseLeave={() => setHoverRating(0)}
-                  disabled={submittingReview}
-                  aria-pressed={value === reviewRating}
-                  title={`Оценка ${value} из 5`}
-                >
-                  ★
-                </button>
-              ))}
-              <span className="review-rating-value">{reviewRating}/5</span>
-            </div>
-
-            <label htmlFor="review-text">Комментарий</label>
-            <textarea
-              id="review-text"
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-              placeholder="Опишите впечатления о трассах, сервисе и условиях катания"
-              rows={4}
-              maxLength={3000}
-              disabled={submittingReview}
-            />
-
-            <div className="review-form-actions">
-              <button type="submit" className="btn btn-primary" disabled={submittingReview}>
-                {submittingReview ? 'Сохранение...' : userReview ? 'Обновить отзыв' : 'Оставить отзыв'}
-              </button>
-              {userReview && (
-                <button type="button" className="btn btn-outline" onClick={handleDeleteReview}>
-                  Удалить мой отзыв
-                </button>
-              )}
-            </div>
-          </form>
-        ) : (
-          <p className="section-hint">
-            <Link to="/login">Войдите</Link>, чтобы поставить оценку и оставить отзыв.
-          </p>
-        )}
-
-        <div className="reviews-list">
-          {reviews.length === 0 ? (
-            <div className="empty-state"><p>Пока нет отзывов. Будьте первым!</p></div>
-          ) : (
-            reviews.map((review) => (
-              <article key={review.id} className="review-card">
-                <div className="review-header">
-                  <span>
-                    <strong>{reviewAuthors[review.user_id] || `Пользователь #${review.user_id}`}</strong>
-                    {review.updated_at && (
-                      <span className="review-date">
-                        {new Date(review.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </span>
-                    )}
-                  </span>
-                  <span className="rating-stars" aria-label={`Оценка: ${review.rating} из 5`}>
-                    {[1, 2, 3, 4, 5].map((value) => (
-                      <span key={value} className={value <= Math.round(review.rating) ? 'star-filled' : 'star-empty'}>
-                        ★
-                      </span>
-                    ))}
-                  </span>
-                </div>
-                {review.review_text && <p>{review.review_text}</p>}
-              </article>
-            ))
-          )}
-        </div>
-      </section>
+      </div>
     </div>
   )
 }

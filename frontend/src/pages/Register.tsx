@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { api, imageUrl, ApiError, type UserProfile } from '../api/client'
@@ -12,7 +12,9 @@ export default function Register() {
   const { register, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
-  const [email, setEmail] = useState('')
+  const [searchParams] = useSearchParams()
+  // Email может прийти из плашки «Снежная почта»: /register?email=...
+  const [email, setEmail] = useState(() => searchParams.get('email') ?? '')
   const [password, setPassword] = useState('')
   const [nickname, setNickname] = useState('')
   const [level, setLevel] = useState('')

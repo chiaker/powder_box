@@ -8,7 +8,6 @@ $all_services = @(
     "auth-service",
     "resort-service",
     "activity-service",
-    "equipment-service",
     "hotel-service",
     "lesson-service",
     "skipass-service",

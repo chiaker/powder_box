@@ -7,7 +7,6 @@ GitHub Actions для CI/CD по SSH.
 Internet  →  HestiaCP nginx (80, HTTP)  →  127.0.0.1:3000  (frontend, статика)
                                        →  127.0.0.1:8000  (api-gateway, /api/*)
                                        →  127.0.0.1:8004  (resort-service, /static/*)
-                                       →  127.0.0.1:8003  (equipment-service, /equipment-static/*)
 
 Локально (на сервере, не торчат наружу):
   127.0.0.1:8001..8010 — backend-сервисы
@@ -239,7 +238,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
 ## Бэкапы
 
 Все данные лежат в named volumes Docker'а:
-`auth_data`, `profile_data`, `equipment_data`, `resort_data`, `weather_data`, `hotel_data`,
+`auth_data`, `profile_data`, `resort_data`, `weather_data`, `hotel_data`,
 `skipass_data`, `lesson_data`, `activity_data`, `stats_data`, `prometheus_data`, `grafana_data`.
 
 Бэкап одной командой (на сервере):

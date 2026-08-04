@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ThemeToggle from './ThemeToggle'
 
 export default function Nav() {
   const { user, token, isAdmin, logout } = useAuth()
@@ -13,10 +14,7 @@ export default function Nav() {
   }, [loc.pathname])
 
   const navLink = (to: string, label: string) => (
-    <Link
-      to={to}
-      className={`nav-link ${loc.pathname === to ? 'active' : ''}`}
-    >
+    <Link to={to} className={`nav-link ${loc.pathname === to ? 'active' : ''}`}>
       {label}
     </Link>
   )
@@ -24,8 +22,7 @@ export default function Nav() {
   return (
     <nav className="nav">
       <Link to="/" className="nav-brand">
-        <span className="brand-icon">⛷</span>
-        PowderBox
+        powderbox<span className="brand-star">*</span>
       </Link>
 
       <button
@@ -40,29 +37,30 @@ export default function Nav() {
 
       <div className={`nav-menu ${open ? 'open' : ''}`}>
         <div className="nav-links">
+          {navLink('/', 'Условия')}
           {navLink('/resorts', 'Курорты')}
+          {navLink('/compare', 'Сравнение')}
           {navLink('/hotels', 'Отели')}
-          {navLink('/equipment', 'Аренда')}
           {navLink('/lessons', 'Уроки')}
-          {token && navLink('/stats', 'Моя статистика')}
+          {token && navLink('/stats', 'Статистика')}
         </div>
         <div className="nav-auth">
           {token ? (
             <>
               {isAdmin && <Link to="/admin/resorts" className="nav-link">Админка</Link>}
-              <Link to="/profile" className="nav-link">
+              <Link to="/profile" className={`nav-link ${loc.pathname === '/profile' ? 'active' : ''}`}>
                 {user?.nickname || 'Профиль'}
               </Link>
-              <button onClick={() => void logout()} className="btn btn-ghost">
+              <button onClick={() => void logout()} className="nav-link nav-link-btn">
                 Выйти
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="nav-link">Вход</Link>
-              <Link to="/register" className="btn btn-primary">Регистрация</Link>
+              {navLink('/login', 'Войти')}
             </>
           )}
+          <ThemeToggle />
         </div>
       </div>
     </nav>

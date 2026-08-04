@@ -229,22 +229,6 @@ export type Resort = {
   beginner_friendly?: boolean;
 };
 export type Lesson = { id: number; title: string; category?: string; level?: string; lesson_url: string; preview_url?: string };
-export type EquipmentCategory = { id: number; name: string };
-export type EquipmentItem = {
-  id: number;
-  name: string;
-  description?: string;
-  category_id?: number;
-  price?: number;
-  owner_id?: number;
-  image_url?: string;
-  address?: string;
-  price_per_day?: number;
-  condition?: string;
-  equipment_type?: string;
-  contact?: string;
-  created_at?: string;
-};
 export type Hotel = {
   id: number;
   name: string;

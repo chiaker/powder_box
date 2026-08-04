@@ -5,7 +5,6 @@ const adminLinks = [
   { to: '/admin/weather-points', label: 'Погода по высотам' },
   { to: '/admin/skipasses', label: 'Скипассы' },
   { to: '/admin/lessons', label: 'Уроки' },
-  { to: '/admin/equipment', label: 'Снаряжение' },
   { to: '/admin/hotels', label: 'Отели' },
 ]
 

@@ -21,7 +21,6 @@ from app.observability import (
 SERVICE_URLS = {
     "auth": os.getenv("AUTH_SERVICE_URL", "http://auth-service:8001"),
     "user-profile": os.getenv("USER_PROFILE_SERVICE_URL", "http://user-profile-service:8002"),
-    "equipment": os.getenv("EQUIPMENT_SERVICE_URL", "http://equipment-service:8003"),
     "resort": os.getenv("RESORT_SERVICE_URL", "http://resort-service:8004"),
     "weather": os.getenv("WEATHER_SERVICE_URL", "http://weather-service:8005"),
     "hotel": os.getenv("HOTEL_SERVICE_URL", "http://hotel-service:8006"),
@@ -35,8 +34,6 @@ SERVICE_URLS = {
 PATH_TO_SERVICE = {
     "/auth": "auth",
     "/users": "user-profile",
-    "/equipment": "equipment",
-    "/equipment-static": "equipment",
     "/resorts": "resort",
     "/static": "resort",
     "/weather": "weather",
@@ -52,9 +49,7 @@ PUBLIC_PATH_PREFIXES = [
     "/auth/",      # register, login, refresh
     "/resorts",
     "/static",
-    "/equipment-static",
     "/lessons",
-    "/equipment",
     "/weather",
     "/hotels",
     "/skipasses",
@@ -69,7 +64,7 @@ ADMIN_EMAILS = {
     for email in os.getenv("ADMIN_EMAILS", "").split(",")
     if email.strip()
 }
-ADMIN_WRITE_PATH_PREFIXES = ["/resorts", "/lessons", "/equipment", "/hotels", "/skipasses", "/weather"]
+ADMIN_WRITE_PATH_PREFIXES = ["/resorts", "/lessons", "/hotels", "/skipasses", "/weather"]
 
 
 def get_service_for_path(path: str) -> tuple[str | None, str | None]:
@@ -108,8 +103,6 @@ def is_admin_write_path(path: str, method: str) -> bool:
     if method not in ("POST", "PATCH", "PUT", "DELETE"):
         return False
     if path.startswith("/resorts/") and "/reviews" in path:
-        return False
-    if path.startswith("/equipment/items") or path.startswith("/equipment/upload"):
         return False
     return any(path.startswith(prefix) for prefix in ADMIN_WRITE_PATH_PREFIXES)
 

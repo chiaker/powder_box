@@ -24,7 +24,6 @@ jobs:
           - auth-service
           - user-profile-service
           - resort-service
-          - equipment-service
           - hotel-service
           - weather-service
           - skipass-service

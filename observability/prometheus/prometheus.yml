@@ -19,10 +19,6 @@ scrape_configs:
         labels:
           service: user-profile-service
       - targets:
-          - equipment-service:8003
-        labels:
-          service: equipment-service
-      - targets:
           - resort-service:8004
         labels:
           service: resort-service

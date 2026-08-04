@@ -16,7 +16,6 @@
 | api-gateway | 8000 | Единая точка входа, проксирование, проверка JWT |
 | auth-service | 8001 | Регистрация, логин, обновление токена |
 | user-profile-service | 8002 | Профиль пользователя |
-| equipment-service | 8003 | Каталог снаряжения |
 | resort-service | 8004 | Курорты и категории |
 | weather-service | 8005 | Погода на курортах |
 | hotel-service | 8006 | Отели |
@@ -52,7 +51,7 @@ docker compose up -d --build
 Роль администратора зашивается в access-токен (claim `role`) при логине:
 auth-service сверяет email пользователя со списком `ADMIN_EMAILS` из `.env`.
 Gateway пускает к операциям записи (`POST/PATCH/PUT/DELETE`) в `/resorts`,
-`/lessons`, `/equipment`, `/hotels`, `/skipasses`, `/weather` только токены
+`/lessons`, `/hotels`, `/skipasses`, `/weather` только токены
 с `role=admin`; фронтенд по этому же claim показывает раздел `/admin`.
 
 Пример в `.env`:

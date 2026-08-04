@@ -24,12 +24,6 @@ services:
       - ./user-profile-service/app:/app/app
       - profile_data:/app/data
 
-  equipment-service:
-    volumes:
-      - ./equipment-service/app:/app/app
-      - equipment_data:/app/data
-      - equipment_static:/app/static
-
   resort-service:
     volumes:
       - ./resort-service/app:/app/app

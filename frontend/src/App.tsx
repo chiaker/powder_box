@@ -6,9 +6,6 @@ import ResortDetail from './pages/ResortDetail'
 import Compare from './pages/Compare'
 import Hotels from './pages/Hotels'
 import HotelDetail from './pages/HotelDetail'
-import Equipment from './pages/Equipment'
-import EquipmentDetail from './pages/EquipmentDetail'
-import EquipmentForm from './pages/EquipmentForm'
 import Lessons from './pages/Lessons'
 import Profile from './pages/Profile'
 import Stats from './pages/Stats'
@@ -18,7 +15,6 @@ import ConfirmEmail from './pages/ConfirmEmail'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminResorts from './pages/admin/AdminResorts'
 import AdminLessons from './pages/admin/AdminLessons'
-import AdminEquipment from './pages/admin/AdminEquipment'
 import AdminHotels from './pages/admin/AdminHotels'
 import AdminWeatherPoints from './pages/admin/AdminWeatherPoints'
 import AdminSkipasses from './pages/admin/AdminSkipasses'
@@ -49,10 +45,6 @@ export default function App() {
         <Route path="compare" element={<Compare />} />
         <Route path="hotels" element={<Hotels />} />
         <Route path="hotels/:id" element={<HotelDetail />} />
-        <Route path="equipment" element={<Equipment />} />
-        <Route path="equipment/new" element={<ProtectedRoute><EquipmentForm /></ProtectedRoute>} />
-        <Route path="equipment/:id" element={<EquipmentDetail />} />
-        <Route path="equipment/:id/edit" element={<ProtectedRoute><EquipmentForm /></ProtectedRoute>} />
         <Route path="lessons" element={<Lessons />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
@@ -87,7 +79,6 @@ export default function App() {
         <Route path="weather-points" element={<AdminWeatherPoints />} />
         <Route path="skipasses" element={<AdminSkipasses />} />
         <Route path="lessons" element={<AdminLessons />} />
-        <Route path="equipment" element={<AdminEquipment />} />
         <Route path="hotels" element={<AdminHotels />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

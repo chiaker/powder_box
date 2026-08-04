@@ -58,10 +58,6 @@ def test_is_admin_write_path_resorts_reviews_not_admin():
     assert is_admin_write_path("/resorts/1/reviews", "POST") is False
 
 
-def test_is_admin_write_path_equipment_items_not_admin():
-    assert is_admin_write_path("/equipment/items", "POST") is False
-
-
 def test_is_admin_write_path_get_never_admin():
     assert is_admin_write_path("/resorts", "GET") is False
 
@@ -185,17 +181,12 @@ async def test_service_unavailable(client: AsyncClient):
     assert r.status_code == 503
 
 
-async def test_equipment_upload_requires_auth(client: AsyncClient):
-    r = await client.post("/equipment/upload")
-    assert r.status_code == 401
-
-
 async def test_client_supplied_x_is_admin_is_stripped(client: AsyncClient):
     mock_request = make_mock_downstream(200, {"id": 1})
     with patch("app.main.get_http_client", return_value=mock_request):
-        r = await client.post(
-            "/equipment/items",
-            json={"name": "Skis"},
+        r = await client.put(
+            "/users/me",
+            json={"nickname": "rider"},
             headers={**auth_headers(user_id=1), "X-Is-Admin": "true"},
         )
     assert r.status_code == 200

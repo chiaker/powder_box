@@ -24,7 +24,6 @@ services:
     environment:
       - AUTH_SERVICE_URL=http://auth-service:8001
       - USER_PROFILE_SERVICE_URL=http://user-profile-service:8002
-      - EQUIPMENT_SERVICE_URL=http://equipment-service:8003
       - RESORT_SERVICE_URL=http://resort-service:8004
       - WEATHER_SERVICE_URL=http://weather-service:8005
       - HOTEL_SERVICE_URL=http://hotel-service:8006
@@ -76,20 +75,6 @@ services:
       - RABBITMQ_URL=${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672/}
     volumes:
       - profile_data:/app/data
-    networks:
-      - powderbox
-
-  equipment-service:
-    build: ./equipment-service
-    ports:
-      - "8003:8003"
-    env_file: .env
-    environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./data/equipment.db
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-key}
-    volumes:
-      - equipment_data:/app/data
-      - equipment_static:/app/static
     networks:
       - powderbox
 
@@ -227,9 +212,7 @@ services:
 volumes:
   frontend_node_modules:
   auth_data:
-  equipment_static:
   profile_data:
-  equipment_data:
   resort_data:
   weather_data:
   hotel_data:
