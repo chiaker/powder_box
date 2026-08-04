@@ -2505,32 +2505,6 @@ details.weather-card[open] > summary {
   max-width: 34ch;
 }
 
-.pb-footer-cols {
-  display: flex;
-  gap: 44px;
-  font-size: 13px;
-}
-
-.pb-footer-col {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-
-.pb-footer-col a {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.pb-footer-col a:hover {
-  color: #fff;
-}
-
-.pb-footer-head {
-  font: 400 10px var(--font-mono);
-  color: #8fb4dd;
-  letter-spacing: 0.12em;
-}
-
 .pb-footer-right {
   margin-left: auto;
   text-align: right;
@@ -2590,11 +2564,22 @@ details.weather-card[open] > summary {
 }
 
 /* ===== PowderBox: главная (5a/6a/7a) ===== */
+/* Фон hero и секций — во всю ширину окна, контент — по сетке 1180px */
 .pb-home {
-  max-width: 1180px;
-  margin: 0 auto;
   background: var(--bg);
   transition: background-color var(--dur-theme);
+}
+
+.pb-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.pb-hero-inner {
+  position: relative;
+  height: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
 }
 
 .pb-hero {

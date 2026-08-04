@@ -168,7 +168,8 @@ export default function Home() {
       <section className="pb-hero">
         <HeroSky />
         {shown && (
-          <div className="pb-hero-content" key={shown.id}>
+          <div className="pb-hero-inner" key={shown.id}>
+          <div className="pb-hero-content">
             <div className="pb-hero-left">
               <div className="pb-hero-kicker">
                 {shown.rating != null && <>★ {shown.rating.toFixed(1)} · </>}
@@ -204,9 +205,11 @@ export default function Home() {
               </div>
             )}
           </div>
+          </div>
         )}
       </section>
 
+      <div className="pb-wrap">
       <div className="pb-strip">
         <div className="pb-strip-col">
           <div className="mono-label pb-strip-label">ИНДЕКС КАТАНИЯ · 7 ДНЕЙ</div>
@@ -269,6 +272,7 @@ export default function Home() {
             )
           })}
         </div>
+      </div>
       </div>
     </div>
   )

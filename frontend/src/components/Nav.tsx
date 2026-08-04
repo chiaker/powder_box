@@ -37,7 +37,6 @@ export default function Nav() {
 
       <div className={`nav-menu ${open ? 'open' : ''}`}>
         <div className="nav-links">
-          {navLink('/', 'Условия')}
           {navLink('/resorts', 'Курорты')}
           {navLink('/compare', 'Сравнение')}
           {navLink('/hotels', 'Отели')}
