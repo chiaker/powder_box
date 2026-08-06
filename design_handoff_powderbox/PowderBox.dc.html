@@ -16,9 +16,605 @@
 @keyframes pbSunRise{0%{transform:translate(-580px,14px)}10%{transform:translate(-522px,-72px)}20%{transform:translate(-464px,-139px)}30%{transform:translate(-406px,-188px)}40%{transform:translate(-348px,-217px)}50%{transform:translate(-290px,-228px)}60%{transform:translate(-232px,-220px)}70%{transform:translate(-174px,-193px)}80%{transform:translate(-116px,-148px)}90%{transform:translate(-58px,-83px)}100%{transform:translate(0,0)}}
 @keyframes pbSunSetM{0%{transform:translate(0.0px,0.0px)}10%{transform:translate(-19.6px,-52.8px)}20%{transform:translate(-39.2px,-93.6px)}30%{transform:translate(-58.8px,-122.4px)}40%{transform:translate(-78.4px,-139.2px)}50%{transform:translate(-98.0px,-144.0px)}60%{transform:translate(-117.6px,-136.8px)}70%{transform:translate(-137.2px,-117.6px)}80%{transform:translate(-156.8px,-86.4px)}90%{transform:translate(-176.4px,-43.2px)}100%{transform:translate(-196.0px,12.0px)}}
 @keyframes pbSunRiseM{0%{transform:translate(-196.0px,12.0px)}10%{transform:translate(-176.4px,-43.2px)}20%{transform:translate(-156.8px,-86.4px)}30%{transform:translate(-137.2px,-117.6px)}40%{transform:translate(-117.6px,-136.8px)}50%{transform:translate(-98.0px,-144.0px)}60%{transform:translate(-78.4px,-139.2px)}70%{transform:translate(-58.8px,-122.4px)}80%{transform:translate(-39.2px,-93.6px)}90%{transform:translate(-19.6px,-52.8px)}100%{transform:translate(0.0px,0.0px)}}
+@keyframes pbSunSetL{0%{transform:translate(0.0px,0.0px)}10%{transform:translate(-34.0px,-69.0px)}20%{transform:translate(-68.0px,-122.4px)}30%{transform:translate(-102.0px,-160.2px)}40%{transform:translate(-136.0px,-182.4px)}50%{transform:translate(-170.0px,-189.0px)}60%{transform:translate(-204.0px,-180.0px)}70%{transform:translate(-238.0px,-155.4px)}80%{transform:translate(-272.0px,-115.2px)}90%{transform:translate(-306.0px,-59.4px)}100%{transform:translate(-340.0px,12.0px)}}
+@keyframes pbSunRiseL{0%{transform:translate(-340.0px,12.0px)}10%{transform:translate(-306.0px,-59.4px)}20%{transform:translate(-272.0px,-115.2px)}30%{transform:translate(-238.0px,-155.4px)}40%{transform:translate(-204.0px,-180.0px)}50%{transform:translate(-170.0px,-189.0px)}60%{transform:translate(-136.0px,-182.4px)}70%{transform:translate(-102.0px,-160.2px)}80%{transform:translate(-68.0px,-122.4px)}90%{transform:translate(-34.0px,-69.0px)}100%{transform:translate(0.0px,0.0px)}}
 @keyframes pbPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}</style></helmet>
 
 
+<section class="dv-turn" id="t12">
+<div class="dv-thd"><a class="dv-tid" href="#t12">12</a><span class="dv-tname">Вход и регистрация — обе темы (☀/☾ в шапке)</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="12a"><div class="dv-olabel"><a class="dv-oid" href="#12a">12a</a>Вход — гора слева как обещание продукта, форма справа</div>
+<div class="dv-card" style="width:1180px;background:{{ mFill }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="12a Вход">
+  <div style="display:grid;grid-template-columns:1fr 470px;min-height:620px">
+    <div style="position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#28406a 22%,#35507e 38%,#56688f 52%,#7d8fb4 63%,#a99ca3 72%,#d9a988 80%,#eecbaa 88%,#f9ecdf 100%)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#0b1322 0%,#122036 26%,#1e3252 44%,#3a4066 58%,#6a4d6b 69%,#a05f60 78%,#d68a5e 86%,#f2b878 94%,#ffdba6 100%);opacity:{{ skyDark }};transition:opacity 1.8s ease-in-out"></div>
+      <div style="position:absolute;left:22%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.75);animation:pbFall 14s linear infinite"></div>
+      <div style="position:absolute;left:58%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 17s linear 5s infinite"></div>
+      <div style="position:absolute;left:84%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.7);animation:pbFall 15s linear 9s infinite"></div>
+      <svg viewBox="0 0 710 620" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none">
+        <defs>
+          <radialGradient id="pbGlowLd" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffe8cc" stop-opacity=".9"></stop><stop offset="45%" stop-color="#f4c9a0" stop-opacity=".45"></stop><stop offset="100%" stop-color="#f4c9a0" stop-opacity="0"></stop></radialGradient>
+          <radialGradient id="pbSunLd" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffaf2"></stop><stop offset="62%" stop-color="#ffedd2"></stop><stop offset="100%" stop-color="#ffdda8" stop-opacity="0"></stop></radialGradient>
+          <radialGradient id="pbGlowLn" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffd9a8" stop-opacity=".9"></stop><stop offset="45%" stop-color="#e89a66" stop-opacity=".45"></stop><stop offset="100%" stop-color="#e89a66" stop-opacity="0"></stop></radialGradient>
+          <radialGradient id="pbSunLn" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff6e6"></stop><stop offset="62%" stop-color="#ffdfae"></stop><stop offset="100%" stop-color="#ffc987" stop-opacity="0"></stop></radialGradient>
+        </defs>
+        <g opacity="{{ starsOp }}" style="transition:opacity 1.8s ease-in-out">
+          <circle cx="120" cy="96" r="1.3" fill="#fff" opacity=".6"></circle>
+          <circle cx="300" cy="58" r="1.1" fill="#fff" opacity=".5"></circle>
+          <circle cx="470" cy="120" r="1.3" fill="#fff" opacity=".55"></circle>
+          <circle cx="620" cy="72" r="1.1" fill="#fff" opacity=".45"></circle>
+          <circle cx="210" cy="180" r="1.1" fill="#fff" opacity=".4"></circle>
+        </g>
+        <g style="transform:{{ sunPosL }};animation:{{ sunAnimL }}">
+          <g opacity="{{ dawnOp }}" style="transition:opacity 1.8s ease-in-out">
+            <ellipse cx="520" cy="470" rx="250" ry="120" fill="url(#pbGlowLd)" opacity=".55"></ellipse>
+            <ellipse cx="520" cy="470" rx="112" ry="66" fill="url(#pbGlowLd)" opacity=".8"></ellipse>
+            <circle cx="520" cy="472" r="28" fill="url(#pbSunLd)"></circle>
+          </g>
+          <g opacity="{{ duskOp }}" style="transition:opacity 1.8s ease-in-out">
+            <ellipse cx="520" cy="470" rx="250" ry="120" fill="url(#pbGlowLn)" opacity=".55"></ellipse>
+            <ellipse cx="520" cy="470" rx="112" ry="66" fill="url(#pbGlowLn)" opacity=".8"></ellipse>
+            <circle cx="520" cy="472" r="28" fill="url(#pbSunLn)"></circle>
+          </g>
+        </g>
+        <polygon points="-10,620 -10,520 110,470 240,498 400,330 540,478 620,442 720,500 720,620" fill="{{ mFill }}" style="transition:fill .9s"></polygon>
+        <polyline points="-10,520 110,470 240,498 400,330 540,478 620,442 720,500" fill="none" stroke="{{ rimStroke }}" stroke-width="2" opacity=".9" style="transition:stroke .9s"></polyline>
+        <circle cx="400" cy="330" r="4.5" fill="#fff"></circle><circle cx="400" cy="330" r="10" fill="none" stroke="#fff" stroke-width="1.4" opacity=".5" style="animation:pbPulse 2.6s ease-in-out infinite;transform-origin:400px 330px"></circle>
+        <circle cx="240" cy="498" r="4.5" fill="#e0a763"></circle><circle cx="240" cy="498" r="10" fill="none" stroke="#e0a763" stroke-width="1.4" opacity=".6" style="animation:pbPulse 2.6s ease-in-out 1.4s infinite;transform-origin:240px 498px"></circle>
+      </svg>
+      <div style="position:relative;padding:26px 36px;color:#fff">
+        <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
+      </div>
+      <div style="position:relative;padding:14px 36px 36px;color:#fff;max-width:420px">
+        <h1 style="margin:0;font-size:34px;font-weight:300;letter-spacing:-.03em;line-height:1.15">Не пропустите<br><span style="font-weight:600">свой день.</span></h1>
+      </div>
+    </div>
+    <div style="padding:34px 40px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:34px">
+        <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.14em;transition:color .9s">ВХОД</span>
+        <span style="margin-left:auto;font-size:13px;color:{{ cLabel }};transition:color .9s">Нет аккаунта? <span style="font-weight:600;color:{{ cMailLabel }};transition:color .9s">Регистрация</span></span>
+        <span onClick="{{ toggleTheme }}" title="Сменить тему" style="cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:{{ cLabel }};transition:color .9s" style-hover="background:rgba(127,150,180,.16)"><span style="display:block;transform:rotate({{ iconRot }});transition:transform .6s cubic-bezier(.4,0,.2,1)">{{ themeIcon }}</span></span>
+      </div>
+      <h2 style="margin:0 0 8px;font-size:26px;font-weight:500;letter-spacing:-.02em">С возвращением</h2>
+      <p style="margin:0 0 28px;font-size:13.5px;color:{{ cLabel }};transition:color .9s">В Шамони через два дня 53 см. Вы как раз вовремя.</p>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div>
+          <div style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-bottom:8px;transition:color .9s">EMAIL</div>
+          <div style="font-size:14px;color:{{ cDayLbl }};border-bottom:1px solid {{ cMailBorder }};padding-bottom:11px;transition:color .9s,border-color .9s">you@email.com</div>
+        </div>
+        <div>
+          <div style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-bottom:8px;transition:color .9s">ПАРОЛЬ</div>
+          <div style="display:flex;align-items:center;gap:10px;border-bottom:1px solid {{ cMailBorder }};padding-bottom:11px;transition:border-color .9s">
+            <span style="font-size:14px;letter-spacing:.24em;color:{{ cText }}">••••••••</span>
+            <span style="margin-left:auto;font-size:13px;color:{{ cLabel }};transition:color .9s">показать</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:{{ cLabel }};transition:color .9s">
+          <span style="width:18px;height:18px;border-radius:5px;background:{{ cMailLabel }};color:{{ cBtnColor }};display:flex;align-items:center;justify-content:center;font-size:11px;transition:background-color .9s,color .9s">✓</span>
+          Запомнить меня на этом устройстве
+          <span style="margin-left:auto;font-size:13px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">Забыли пароль?</span>
+        </div>
+        <div style="background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:15px;text-align:center;font-size:14px;font-weight:600;transition:background-color .9s,color .9s">Войти</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin:26px 0">
+        <span style="flex:1;height:1px;background:{{ cBorder }};transition:background-color .9s"></span>
+        <span style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.12em;transition:color .9s">ИЛИ</span>
+        <span style="flex:1;height:1px;background:{{ cBorder }};transition:background-color .9s"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:99px;padding:13px;font-size:13.5px;font-weight:500;transition:border-color .9s,background-color .9s">Продолжить с Google</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:99px;padding:13px;font-size:13.5px;font-weight:500;transition:border-color .9s,background-color .9s">Продолжить с Apple</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="12b"><div class="dv-olabel"><a class="dv-oid" href="#12b">12b</a>Регистрация — уровень катания цветом трассы и первый курорт сразу в форме</div>
+<div class="dv-card" style="width:1180px;background:{{ mFill }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="12b Регистрация">
+  <div style="display:grid;grid-template-columns:1fr 470px;min-height:680px">
+    <div style="position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#28406a 22%,#35507e 38%,#56688f 52%,#7d8fb4 63%,#a99ca3 72%,#d9a988 80%,#eecbaa 88%,#f9ecdf 100%)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#0b1322 0%,#122036 26%,#1e3252 44%,#3a4066 58%,#6a4d6b 69%,#a05f60 78%,#d68a5e 86%,#f2b878 94%,#ffdba6 100%);opacity:{{ skyDark }};transition:opacity 1.8s ease-in-out"></div>
+      <div style="position:absolute;left:30%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.75);animation:pbFall 15s linear 2s infinite"></div>
+      <div style="position:absolute;left:66%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 18s linear 7s infinite"></div>
+      <svg viewBox="0 0 710 680" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none">
+        <g opacity="{{ starsOp }}" style="transition:opacity 1.8s ease-in-out">
+          <circle cx="150" cy="86" r="1.3" fill="#fff" opacity=".6"></circle>
+          <circle cx="330" cy="140" r="1.1" fill="#fff" opacity=".5"></circle>
+          <circle cx="540" cy="70" r="1.3" fill="#fff" opacity=".55"></circle>
+          <circle cx="640" cy="180" r="1.1" fill="#fff" opacity=".4"></circle>
+        </g>
+        <g style="transform:{{ sunPosL }};animation:{{ sunAnimL }}">
+          <g opacity="{{ dawnOp }}" style="transition:opacity 1.8s ease-in-out">
+            <ellipse cx="520" cy="520" rx="250" ry="120" fill="url(#pbGlowLd)" opacity=".55"></ellipse>
+            <ellipse cx="520" cy="520" rx="112" ry="66" fill="url(#pbGlowLd)" opacity=".8"></ellipse>
+            <circle cx="520" cy="522" r="28" fill="url(#pbSunLd)"></circle>
+          </g>
+          <g opacity="{{ duskOp }}" style="transition:opacity 1.8s ease-in-out">
+            <ellipse cx="520" cy="520" rx="250" ry="120" fill="url(#pbGlowLn)" opacity=".55"></ellipse>
+            <ellipse cx="520" cy="520" rx="112" ry="66" fill="url(#pbGlowLn)" opacity=".8"></ellipse>
+            <circle cx="520" cy="522" r="28" fill="url(#pbSunLn)"></circle>
+          </g>
+        </g>
+        <polygon points="-10,680 -10,570 130,516 260,546 420,372 560,528 640,490 720,552 720,680" fill="{{ mFill }}" style="transition:fill .9s"></polygon>
+        <polyline points="-10,570 130,516 260,546 420,372 560,528 640,490 720,552" fill="none" stroke="{{ rimStroke }}" stroke-width="2" opacity=".9" style="transition:stroke .9s"></polyline>
+        <circle cx="420" cy="372" r="4.5" fill="#fff"></circle><circle cx="420" cy="372" r="10" fill="none" stroke="#fff" stroke-width="1.4" opacity=".5" style="animation:pbPulse 2.6s ease-in-out infinite;transform-origin:420px 372px"></circle>
+      </svg>
+      <div style="position:relative;padding:26px 36px;color:#fff">
+        <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
+      </div>
+      <div style="position:relative;padding:14px 36px 36px;color:#fff;max-width:430px">
+        <h1 style="margin:0 0 16px;font-size:34px;font-weight:300;letter-spacing:-.03em;line-height:1.15">Не пропустите<br><span style="font-weight:600">свой день.</span></h1>
+      </div>
+    </div>
+    <div style="padding:34px 40px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:30px">
+        <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.14em;transition:color .9s">РЕГИСТРАЦИЯ · ШАГ 1 ИЗ 2</span>
+        <span onClick="{{ toggleTheme }}" title="Сменить тему" style="margin-left:auto;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:{{ cLabel }};transition:color .9s" style-hover="background:rgba(127,150,180,.16)"><span style="display:block;transform:rotate({{ iconRot }});transition:transform .6s cubic-bezier(.4,0,.2,1)">{{ themeIcon }}</span></span>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:26px">
+        <span style="flex:1;height:3px;border-radius:2px;background:{{ cMailLabel }};transition:background-color .9s"></span>
+        <span style="flex:1;height:3px;border-radius:2px;background:{{ cBarBase }};transition:background-color .9s"></span>
+      </div>
+      <h2 style="margin:0 0 26px;font-size:26px;font-weight:500;letter-spacing:-.02em">Создать аккаунт</h2>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div>
+          <div style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-bottom:8px;transition:color .9s">ИМЯ</div>
+          <div style="font-size:14px;color:{{ cDayLbl }};border-bottom:1px solid {{ cMailBorder }};padding-bottom:11px;transition:color .9s,border-color .9s">Как вас зовут</div>
+        </div>
+        <div>
+          <div style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-bottom:8px;transition:color .9s">EMAIL</div>
+          <div style="font-size:14px;color:{{ cDayLbl }};border-bottom:1px solid {{ cMailBorder }};padding-bottom:11px;transition:color .9s,border-color .9s">you@email.com</div>
+        </div>
+        <div>
+          <div style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-bottom:8px;transition:color .9s">ПАРОЛЬ</div>
+          <div style="display:flex;align-items:center;gap:10px;border-bottom:1px solid {{ cMailBorder }};padding-bottom:11px;transition:border-color .9s">
+            <span style="font-size:14px;letter-spacing:.24em;color:{{ cText }}">••••••••</span>
+            <span style="margin-left:auto;font-size:13px;color:{{ cLabel }};transition:color .9s">показать</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+            <span style="flex:1;height:3px;border-radius:2px;background:{{ cGreen }};transition:background-color .9s"></span>
+            <span style="flex:1;height:3px;border-radius:2px;background:{{ cGreen }};transition:background-color .9s"></span>
+            <span style="flex:1;height:3px;border-radius:2px;background:{{ cBarBase }};transition:background-color .9s"></span>
+            <span style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cGreen }};letter-spacing:.08em;transition:color .9s">НАДЁЖНЫЙ</span>
+          </div>
+        </div>
+        <div>
+          <div style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-bottom:10px;transition:color .9s">УРОВЕНЬ КАТАНИЯ</div>
+          <div style="display:flex;gap:8px">
+            <span style="flex:1;display:flex;flex-direction:column;gap:7px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:11px 12px;transition:border-color .9s,background-color .9s"><span style="width:16px;height:5px;border-radius:3px;background:#22994a"></span><span style="font-size:12.5px;font-weight:500">Зелёные</span></span>
+            <span style="flex:1;display:flex;flex-direction:column;gap:7px;border:1.5px solid {{ cSnow }};background:{{ cMailBg }};border-radius:12px;padding:10.5px 12px;transition:border-color .9s,background-color .9s"><span style="width:16px;height:5px;border-radius:3px;background:#3d8fdd"></span><span style="font-size:12.5px;font-weight:600">Синие</span></span>
+            <span style="flex:1;display:flex;flex-direction:column;gap:7px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:11px 12px;transition:border-color .9s,background-color .9s"><span style="width:16px;height:5px;border-radius:3px;background:#c2452e"></span><span style="font-size:12.5px;font-weight:500">Красные</span></span>
+            <span style="flex:1;display:flex;flex-direction:column;gap:7px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:11px 12px;transition:border-color .9s,background-color .9s"><span style="width:16px;height:5px;border-radius:3px;background:{{ cText }}"></span><span style="font-size:12.5px;font-weight:500">Чёрные</span></span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:12.5px;line-height:1.5;color:{{ cLabel }};transition:color .9s">
+          <span style="flex:none;width:18px;height:18px;border-radius:5px;background:{{ cMailLabel }};color:{{ cBtnColor }};display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px;transition:background-color .9s,color .9s">✓</span>
+          <span>Присылать снежную почту по моим курортам. Отписаться можно в один клик.</span>
+        </div>
+        <div style="background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:15px;text-align:center;font-size:14px;font-weight:600;transition:background-color .9s,color .9s">Далее — выбрать курорты</div>
+      </div>
+      <div style="margin-top:auto;padding-top:24px;font-size:12.5px;color:{{ cLabel }};transition:color .9s">Уже с нами? <span style="font-weight:600;color:{{ cMailLabel }};transition:color .9s">Войти</span></div>
+    </div>
+  </div>
+</div></div>
+
+</div>
+<p class="dv-next">Тумблер ☀/☾ работает и здесь. Дальше: «шаг 2 — выбор курортов» · «мобильные версии входа и регистрации»</p>
+</section>
+<section class="dv-turn" id="t11">
+<div class="dv-thd"><a class="dv-tid" href="#t11">11</a><span class="dv-tname">Курорты и Уроки — в стиле сайта, обе темы (☀/☾ в шапке)</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="11a"><div class="dv-olabel"><a class="dv-oid" href="#11a">11a</a>Все курорты — фильтры по данным, снег и лучший день на каждой карточке</div>
+<div class="dv-card" style="width:1180px;background:{{ mFill }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="11a Курорты">
+  <div style="position:relative;overflow:hidden;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#35507e 65%,#56688f 100%)">
+    <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#0b1322 0%,#1e3252 60%,#6a4d6b 100%);opacity:{{ skyDark }};transition:opacity 1.8s ease-in-out"></div>
+    <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff;z-index:1">
+      <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
+        <span>Условия</span><span style="color:#fff;font-weight:600;border-bottom:2px solid #ffd9b0;padding-bottom:2px">Курорты</span><span>Сравнение</span><span>Отели</span><span>Уроки</span>
+      </nav>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+        <span style="font-size:13px;color:rgba(255,255,255,.65)">wwder</span>
+        <span onClick="{{ toggleTheme }}" style="cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:14px;line-height:1" style-hover="background:rgba(255,255,255,.14)"><span style="display:block;transform:rotate({{ iconRot }});transition:transform .6s cubic-bezier(.4,0,.2,1)">{{ themeIcon }}</span></span>
+      </div>
+    </header>
+    <div style="position:relative;padding:12px 36px 26px;color:#fff;z-index:1;display:flex;align-items:flex-end;gap:24px">
+      <div>
+        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.14em;margin-bottom:10px">2 400 КУРОРТОВ · ДАННЫЕ ОБНОВЛЕНЫ 07:12</div>
+        <h1 style="margin:0;font-size:32px;font-weight:300;letter-spacing:-.03em">Курорты</h1>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:99px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,.7);width:230px">⌕&nbsp; Название, страна, регион…</span>
+        <span style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:99px;padding:9px 16px;font-size:13px;font-weight:500">Больше всего снега ▾</span>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;padding:18px 36px;border-bottom:1px solid {{ cBorder }};transition:border-color .9s;flex-wrap:wrap">
+    <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-right:4px;transition:color .9s">ФИЛЬТРЫ</span>
+    <span style="font-size:12.5px;font-weight:500;background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:7px 14px;transition:background-color .9s,color .9s">Свежий снег 20+ см</span>
+    <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:{{ cText }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:border-color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#c2452e"></span>Красные и чёрные</span>
+    <span style="font-size:12.5px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:color .9s,border-color .9s">Перепад 1000+ м</span>
+    <span style="font-size:12.5px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:color .9s,border-color .9s">Фрирайд 4+</span>
+    <span style="font-size:12.5px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:color .9s,border-color .9s">Только избранные</span>
+    <span style="margin-left:auto;font-size:12.5px;color:{{ cLabel }};transition:color .9s">Найдено <strong style="color:{{ cText }}">128</strong> курортов</span>
+  </div>
+  <div style="padding:22px 36px 30px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;overflow:hidden;transition:border-color .9s,background-color .9s">
+      <div style="position:relative;height:140px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">
+        ФОТО КУРОРТА
+        <span style="position:absolute;top:12px;left:12px;font:500 10px 'IBM Plex Mono',monospace;background:#3d8fdd;color:#fff;border-radius:99px;padding:4px 10px;letter-spacing:.08em">+78 СМ ЗА 48 Ч</span>
+        <span style="position:absolute;top:10px;right:12px;width:28px;height:28px;border-radius:50%;background:#ffd9b0;color:#1b2a4a;display:grid;place-items:center;font-size:13px">★</span>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:16px;font-weight:600">Роза Хутор</span><span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cLabel }};transition:color .9s">★ 4.8</span></div>
+        <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;margin-top:3px;transition:color .9s">РОССИЯ · 102 КМ ТРАСС · ПЕРЕПАД 1 534 М</div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-top:12px">
+          <span style="font-size:22px;font-weight:600;color:{{ cSnow }};transition:color .9s">−8°</span>
+          <span style="font-size:12.5px;color:{{ cLabel }};transition:color .9s">верх / низ −2°</span>
+          <span style="margin-left:auto;display:inline-flex;align-items:baseline;gap:7px;background:{{ cGreenPill }};border-radius:99px;padding:5px 12px;transition:background-color .9s"><span style="font-size:12.5px;font-weight:600;color:{{ cGreen }};transition:color .9s">ПТ</span><span style="font:500 10.5px 'IBM Plex Mono',monospace;color:{{ cGreen }};transition:color .9s">8.9</span></span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:14px">
+          <span style="background:#22994a;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">15</span>
+          <span style="background:#3d8fdd;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">22</span>
+          <span style="background:#c2452e;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">18</span>
+          <span style="background:#132030;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">12</span>
+          <span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">Сравнить</span>
+        </div>
+      </div>
+    </div>
+    <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;overflow:hidden;transition:border-color .9s,background-color .9s">
+      <div style="position:relative;height:140px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">
+        ФОТО КУРОРТА
+        <span style="position:absolute;top:12px;left:12px;font:500 10px 'IBM Plex Mono',monospace;background:#3d8fdd;color:#fff;border-radius:99px;padding:4px 10px;letter-spacing:.08em">+24 СМ ЗА 48 Ч</span>
+        <span style="position:absolute;top:10px;right:12px;width:28px;height:28px;border-radius:50%;background:#ffd9b0;color:#1b2a4a;display:grid;place-items:center;font-size:13px">★</span>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:16px;font-weight:600">Красная Поляна</span><span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cLabel }};transition:color .9s">★ 4.5</span></div>
+        <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;margin-top:3px;transition:color .9s">РОССИЯ · 30 КМ ТРАСС · ПЕРЕПАД 1 350 М</div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-top:12px">
+          <span style="font-size:22px;font-weight:600;color:{{ cSnow }};transition:color .9s">−6°</span>
+          <span style="font-size:12.5px;color:{{ cLabel }};transition:color .9s">верх / низ 0°</span>
+          <span style="margin-left:auto;display:inline-flex;align-items:baseline;gap:7px;background:{{ cGreenPill }};border-radius:99px;padding:5px 12px;transition:background-color .9s"><span style="font-size:12.5px;font-weight:600;color:{{ cGreen }};transition:color .9s">ЧТ</span><span style="font:500 10.5px 'IBM Plex Mono',monospace;color:{{ cGreen }};transition:color .9s">8.6</span></span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:14px">
+          <span style="background:#22994a;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">8</span>
+          <span style="background:#3d8fdd;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">12</span>
+          <span style="background:#c2452e;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">6</span>
+          <span style="background:#132030;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">4</span>
+          <span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">Сравнить</span>
+        </div>
+      </div>
+    </div>
+    <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;overflow:hidden;transition:border-color .9s,background-color .9s">
+      <div style="position:relative;height:140px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">
+        ФОТО КУРОРТА
+        <span style="position:absolute;top:12px;left:12px;font:500 10px 'IBM Plex Mono',monospace;background:#3d8fdd;color:#fff;border-radius:99px;padding:4px 10px;letter-spacing:.08em">+18 СМ ЗА 48 Ч</span>
+        <span style="position:absolute;top:10px;right:12px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.5);color:#fff;display:grid;place-items:center;font-size:13px">☆</span>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:16px;font-weight:600">Газпром Поляна</span><span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cLabel }};transition:color .9s">★ 4.7</span></div>
+        <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;margin-top:3px;transition:color .9s">РОССИЯ · 102 КМ ТРАСС · ПЕРЕПАД 1 698 М</div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-top:12px">
+          <span style="font-size:22px;font-weight:600;color:{{ cSnow }};transition:color .9s">−7°</span>
+          <span style="font-size:12.5px;color:{{ cLabel }};transition:color .9s">верх / низ −1°</span>
+          <span style="margin-left:auto;display:inline-flex;align-items:baseline;gap:7px;background:{{ cNeutralPill }};border-radius:99px;padding:5px 12px;transition:background-color .9s"><span style="font-size:12.5px;font-weight:600">СР</span><span style="font:500 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};transition:color .9s">8.1</span></span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:14px">
+          <span style="background:#22994a;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">12</span>
+          <span style="background:#3d8fdd;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">20</span>
+          <span style="background:#c2452e;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">16</span>
+          <span style="background:#132030;color:#fff;font:500 10.5px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:99px">14</span>
+          <span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">Сравнить</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 36px 30px;display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;transition:color .9s">СПИСКОМ · ЕЩЁ 125</div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;align-items:center;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:14px 18px;font-size:13.5px;transition:border-color .9s,background-color .9s">
+      <span style="font-weight:600">Шерегеш<span style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};margin-left:10px;transition:color .9s">РОССИЯ</span></span>
+      <span style="font-weight:600;color:{{ cSnow }};transition:color .9s">+52 см</span>
+      <span>−13° / −8°</span>
+      <span style="display:flex;gap:4px"><span style="background:#22994a;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">9</span><span style="background:#3d8fdd;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">14</span><span style="background:#c2452e;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">11</span></span>
+      <span style="text-align:right;font-weight:600;color:{{ cGreen }};transition:color .9s">СБ · 9.1</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;align-items:center;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:14px 18px;font-size:13.5px;transition:border-color .9s,background-color .9s">
+      <span style="font-weight:600">Архыз<span style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};margin-left:10px;transition:color .9s">РОССИЯ</span></span>
+      <span style="font-weight:600;color:{{ cSnow }};transition:color .9s">+29 см</span>
+      <span>−9° / −4°</span>
+      <span style="display:flex;gap:4px"><span style="background:#22994a;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">7</span><span style="background:#3d8fdd;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">10</span><span style="background:#c2452e;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">5</span></span>
+      <span style="text-align:right;font-weight:600;color:{{ cLabel }};transition:color .9s">ПТ · 7.8</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;align-items:center;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:14px 18px;font-size:13.5px;transition:border-color .9s,background-color .9s">
+      <span style="font-weight:600">Эльбрус<span style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};margin-left:10px;transition:color .9s">РОССИЯ</span></span>
+      <span style="font-weight:600;color:{{ cSnow }};transition:color .9s">+16 см</span>
+      <span>−18° / −6°</span>
+      <span style="display:flex;gap:4px"><span style="background:#3d8fdd;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">6</span><span style="background:#c2452e;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">8</span><span style="background:#132030;color:#fff;font:500 10px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:99px">5</span></span>
+      <span style="text-align:right;font-weight:600;color:{{ cLabel }};transition:color .9s">ВС · 7.2</span>
+    </div>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="11b"><div class="dv-olabel"><a class="dv-oid" href="#11b">11b</a>Уроки катания — программа по уровню, а не просто плитка видео</div>
+<div class="dv-card" style="width:1180px;background:{{ mFill }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="11b Уроки">
+  <div style="position:relative;overflow:hidden;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#35507e 65%,#56688f 100%)">
+    <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#0b1322 0%,#1e3252 60%,#6a4d6b 100%);opacity:{{ skyDark }};transition:opacity 1.8s ease-in-out"></div>
+    <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff;z-index:1">
+      <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
+        <span>Условия</span><span>Курорты</span><span>Сравнение</span><span>Отели</span><span style="color:#fff;font-weight:600;border-bottom:2px solid #ffd9b0;padding-bottom:2px">Уроки</span>
+      </nav>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+        <span style="font-size:13px;color:rgba(255,255,255,.65)">wwder</span>
+        <span onClick="{{ toggleTheme }}" style="cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:14px;line-height:1" style-hover="background:rgba(255,255,255,.14)"><span style="display:block;transform:rotate({{ iconRot }});transition:transform .6s cubic-bezier(.4,0,.2,1)">{{ themeIcon }}</span></span>
+      </div>
+    </header>
+    <div style="position:relative;padding:12px 36px 28px;color:#fff;z-index:1;display:flex;align-items:flex-end;gap:28px">
+      <div>
+        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.14em;margin-bottom:10px">ЛЫЖИ · УРОВЕНЬ СРЕДНИЙ · КРАСНЫЕ ТРАССЫ</div>
+        <h1 style="margin:0 0 10px;font-size:32px;font-weight:300;letter-spacing:-.03em">Уроки катания</h1>
+        <p style="margin:0;font-size:13.5px;color:rgba(255,255,255,.7);max-width:52ch;text-wrap:pretty">Подборка под ваш профиль и под погоду на курорте: в четверг ожидается пухляк — три урока про глубокий снег вынесены вперёд.</p>
+      </div>
+      <div style="margin-left:auto;background:rgba(10,17,30,.5);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px 20px;backdrop-filter:blur(6px);min-width:250px">
+        <div style="font:400 10px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em;margin-bottom:10px">ВАШ ПРОГРЕСС</div>
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:26px;font-weight:600">4</span><span style="font-size:13px;color:rgba(255,255,255,.65)">из 9 уроков программы</span></div>
+        <div style="margin-top:12px;height:6px;background:rgba(255,255,255,.16);border-radius:3px;overflow:hidden"><div style="width:44%;height:100%;background:#6fe09a"></div></div>
+        <div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,.7)">Следующий: карвинг на крутом склоне</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:9px;padding:18px 36px;border-bottom:1px solid {{ cBorder }};transition:border-color .9s;flex-wrap:wrap">
+    <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-right:4px;transition:color .9s">СНАРЯЖЕНИЕ</span>
+    <span style="font-size:12.5px;font-weight:500;background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:7px 14px;transition:background-color .9s,color .9s">Лыжи</span>
+    <span style="font-size:12.5px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:color .9s,border-color .9s">Сноуборд</span>
+    <span style="width:1px;height:22px;background:{{ cBorder }};margin:0 8px;transition:background-color .9s"></span>
+    <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.12em;margin-right:4px;transition:color .9s">УРОВЕНЬ</span>
+    <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:color .9s,border-color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#22994a"></span>Новичок</span>
+    <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:{{ cText }};border:1px solid #c2452e;border-radius:99px;padding:7px 14px"><span style="width:9px;height:9px;border-radius:50%;background:#c2452e"></span>Средний</span>
+    <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:color .9s,border-color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#132030"></span>Продвинутый</span>
+    <span style="margin-left:auto;font-size:12.5px;color:{{ cLabel }};transition:color .9s">Темы: карвинг · пухляк · бугры · безопасность</span>
+  </div>
+  <div style="padding:24px 36px 8px">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+      <h3 style="margin:0;font-size:16px;font-weight:600">Под четверг: глубокий снег</h3>
+      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cGreen }};letter-spacing:.1em;transition:color .9s">ЛУЧШИЙ ДЕНЬ 9.2 · 53 СМ</span>
+    </div>
+    <p style="margin:0 0 16px;font-size:12.5px;color:{{ cLabel }};transition:color .9s">Успеть посмотреть до выезда — 22 минуты суммарно.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;overflow:hidden;transition:border-color .9s,background-color .9s">
+        <div style="position:relative;height:150px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">
+          ПРЕВЬЮ ВИДЕО
+          <span style="position:absolute;inset:0;display:grid;place-items:center"><span style="width:44px;height:44px;border-radius:50%;background:rgba(19,32,48,.8);color:#fff;display:grid;place-items:center;font-size:14px">▶</span></span>
+          <span style="position:absolute;bottom:10px;right:12px;font:500 10px 'IBM Plex Mono',monospace;background:rgba(19,32,48,.8);color:#fff;border-radius:99px;padding:3px 9px">8:24</span>
+        </div>
+        <div style="padding:16px 18px">
+          <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">УРОК 5 · ПУХЛЯК</div>
+          <div style="font-size:15.5px;font-weight:600;margin-top:6px">Как не тонуть в глубоком снегу</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:8px 16px;transition:background-color .9s,color .9s">▶ Смотреть</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#c2452e"></span>Средний</span>
+          </div>
+        </div>
+      </div>
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;overflow:hidden;transition:border-color .9s,background-color .9s">
+        <div style="position:relative;height:150px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">
+          ПРЕВЬЮ ВИДЕО
+          <span style="position:absolute;inset:0;display:grid;place-items:center"><span style="width:44px;height:44px;border-radius:50%;background:rgba(19,32,48,.8);color:#fff;display:grid;place-items:center;font-size:14px">▶</span></span>
+          <span style="position:absolute;bottom:10px;right:12px;font:500 10px 'IBM Plex Mono',monospace;background:rgba(19,32,48,.8);color:#fff;border-radius:99px;padding:3px 9px">6:10</span>
+        </div>
+        <div style="padding:16px 18px">
+          <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">УРОК 6 · КАРВИНГ</div>
+          <div style="font-size:15.5px;font-weight:600;margin-top:6px">Контроль скорости на крутом</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:8px 16px;transition:background-color .9s,color .9s">▶ Смотреть</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#c2452e"></span>Средний</span>
+          </div>
+        </div>
+      </div>
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;overflow:hidden;transition:border-color .9s,background-color .9s">
+        <div style="position:relative;height:150px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">
+          ПРЕВЬЮ ВИДЕО
+          <span style="position:absolute;inset:0;display:grid;place-items:center"><span style="width:44px;height:44px;border-radius:50%;background:rgba(19,32,48,.8);color:#fff;display:grid;place-items:center;font-size:14px">▶</span></span>
+          <span style="position:absolute;bottom:10px;right:12px;font:500 10px 'IBM Plex Mono',monospace;background:rgba(19,32,48,.8);color:#fff;border-radius:99px;padding:3px 9px">7:35</span>
+        </div>
+        <div style="padding:16px 18px">
+          <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">УРОК 7 · БЕЗОПАСНОСТЬ</div>
+          <div style="font-size:15.5px;font-weight:600;margin-top:6px">Лавинный минимум для трасс вне зон</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:8px 16px;transition:background-color .9s,color .9s">▶ Смотреть</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#132030"></span>Продвинутый</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:26px 36px 32px">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px">
+      <h3 style="margin:0;font-size:16px;font-weight:600">Программа «Средний уровень»</h3>
+      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">4 ИЗ 9 ПРОЙДЕНО</span>
+      <span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">Все уроки →</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div style="display:grid;grid-template-columns:34px 1fr 130px 90px 70px;align-items:center;gap:14px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:13px 18px;font-size:13.5px;transition:border-color .9s,background-color .9s">
+        <span style="width:24px;height:24px;border-radius:50%;background:{{ cGreenPill }};color:{{ cGreen }};display:grid;place-items:center;font-size:12px;transition:background-color .9s,color .9s">✓</span>
+        <span style="font-weight:500;color:{{ cLabel }};transition:color .9s">Базовый поворот: где на самом деле центр</span>
+        <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">ТЕХНИКА</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#3d8fdd"></span>Синие</span>
+        <span style="text-align:right;font:400 11px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">5:40</span>
+      </div>
+      <div style="display:grid;grid-template-columns:34px 1fr 130px 90px 70px;align-items:center;gap:14px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:13px 18px;font-size:13.5px;transition:border-color .9s,background-color .9s">
+        <span style="width:24px;height:24px;border-radius:50%;background:{{ cGreenPill }};color:{{ cGreen }};display:grid;place-items:center;font-size:12px;transition:background-color .9s,color .9s">✓</span>
+        <span style="font-weight:500;color:{{ cLabel }};transition:color .9s">Карвинг для начинающих</span>
+        <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">КАРВИНГ</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#3d8fdd"></span>Синие</span>
+        <span style="text-align:right;font:400 11px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">9:12</span>
+      </div>
+      <div style="display:grid;grid-template-columns:34px 1fr 130px 90px 70px;align-items:center;gap:14px;border:1px solid #c2452e;background:{{ cCardActive }};border-radius:12px;padding:13px 18px;font-size:13.5px;transition:background-color .9s">
+        <span style="width:24px;height:24px;border-radius:50%;background:#c2452e;color:#fff;display:grid;place-items:center;font-size:11px">5</span>
+        <span style="font-weight:600">Как не тонуть в глубоком снегу<span style="font:500 9.5px 'IBM Plex Mono',monospace;color:#c2452e;margin-left:10px;letter-spacing:.08em">СЛЕДУЮЩИЙ · К ЧЕТВЕРГУ</span></span>
+        <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">ПУХЛЯК</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#c2452e"></span>Красные</span>
+        <span style="text-align:right;font:400 11px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">8:24</span>
+      </div>
+      <div style="display:grid;grid-template-columns:34px 1fr 130px 90px 70px;align-items:center;gap:14px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:13px 18px;font-size:13.5px;transition:border-color .9s,background-color .9s">
+        <span style="width:24px;height:24px;border-radius:50%;border:1px solid {{ cCardBorder }};color:{{ cDayLbl }};display:grid;place-items:center;font-size:11px;transition:color .9s,border-color .9s">6</span>
+        <span style="font-weight:500">Контроль скорости на крутом</span>
+        <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">КАРВИНГ</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#c2452e"></span>Красные</span>
+        <span style="text-align:right;font:400 11px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">6:10</span>
+      </div>
+      <div style="display:grid;grid-template-columns:34px 1fr 130px 90px 70px;align-items:center;gap:14px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:13px 18px;font-size:13.5px;transition:border-color .9s,background-color .9s">
+        <span style="width:24px;height:24px;border-radius:50%;border:1px solid {{ cCardBorder }};color:{{ cDayLbl }};display:grid;place-items:center;font-size:11px;transition:color .9s,border-color .9s">7</span>
+        <span style="font-weight:500">Бугры: ритм и раннее закантование</span>
+        <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">БУГРЫ</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ cLabel }};transition:color .9s"><span style="width:9px;height:9px;border-radius:50%;background:#132030"></span>Чёрные</span>
+        <span style="text-align:right;font:400 11px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">11:02</span>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+</div>
+<p class="dv-next">Дальше: «страница отелей» · «страница статистики» · «мобильные версии этих экранов»</p>
+</section>
+<section class="dv-turn" id="t10">
+<div class="dv-thd"><a class="dv-tid" href="#t10">10</a><span class="dv-tname">Профиль пользователя — в стиле сайта, обе темы (☀/☾ в шапке)</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="10a"><div class="dv-olabel"><a class="dv-oid" href="#10a">10a</a>Профиль — уровень катания как цвет трассы, статистика сезона, избранное с живыми данными</div>
+<div class="dv-card" style="width:1180px;background:{{ mFill }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="10a Профиль">
+  <div style="position:relative;overflow:hidden;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#35507e 60%,#56688f 100%)">
+    <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#0b1322 0%,#1e3252 55%,#6a4d6b 100%);opacity:{{ skyDark }};transition:opacity 1.8s ease-in-out"></div>
+    <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff;z-index:1">
+      <span style="font-weight:600;font-size:16px;color:#fff">powderbox<span style="color:#ffd9b0">*</span></span>
+      <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
+        <span>Условия</span><span>Курорты</span><span>Сравнение</span><span>Алерты</span>
+      </nav>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+        <span style="font-size:13px;color:rgba(255,255,255,.65);border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:2px">⌕&nbsp; поиск</span>
+        <span style="font-size:13px;font-weight:600;color:#fff;border-bottom:2px solid #ffd9b0;padding-bottom:2px">wwder</span>
+        <span onClick="{{ toggleTheme }}" title="Сменить тему" style="cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:14px;line-height:1" style-hover="background:rgba(255,255,255,.14)"><span style="display:block;transform:rotate({{ iconRot }});transition:transform .6s cubic-bezier(.4,0,.2,1)">{{ themeIcon }}</span></span>
+      </div>
+    </header>
+    <div style="position:relative;display:flex;align-items:flex-end;gap:24px;padding:14px 36px 28px;color:#fff;z-index:1">
+      <div style="width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:34px;flex:none">⛷</div>
+      <div style="padding-bottom:4px">
+        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.14em;margin-bottom:8px">В POWDERBOX С ДЕКАБРЯ 2024</div>
+        <h1 style="margin:0 0 10px;font-size:34px;font-weight:300;letter-spacing:-.03em;line-height:1">wwder</h1>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;background:rgba(255,255,255,.12);border-radius:99px;padding:6px 14px"><span style="width:9px;height:9px;border-radius:50%;background:#c2452e"></span>Средний уровень · красные трассы</span>
+          <span style="font-size:12.5px;font-weight:500;background:rgba(255,255,255,.12);border-radius:99px;padding:6px 14px">Лыжи</span>
+          <span style="font-size:12.5px;font-weight:500;background:rgba(255,255,255,.12);border-radius:99px;padding:6px 14px">2 курорта в избранном</span>
+        </div>
+      </div>
+      <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:10px;padding-bottom:6px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;color:#ffd9b0;background:rgba(255,217,176,.14);border:1px solid rgba(255,217,176,.4);border-radius:99px;padding:7px 15px">⚠ Почта не подтверждена</span>
+        <span style="font-size:12.5px;color:rgba(255,255,255,.6)">123@gmail.com</span>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid {{ cBorder }};transition:border-color .9s">
+    <div style="padding:26px 36px;border-right:1px solid {{ cBorder }};transition:border-color .9s">
+      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.14em;margin-bottom:16px;transition:color .9s">СЕЗОН 2025/26</div>
+      <div style="display:flex;gap:30px">
+        <div><div style="font-size:30px;font-weight:600;color:{{ cSnow }};transition:color .9s">0.0<span style="font-size:15px;font-weight:500"> км</span></div><div style="font-size:12px;color:{{ cLabel }};margin-top:2px;transition:color .9s">пройдено</div></div>
+        <div><div style="font-size:30px;font-weight:600;color:{{ cSnow }};transition:color .9s">0<span style="font-size:15px;font-weight:500"> м</span></div><div style="font-size:12px;color:{{ cLabel }};margin-top:2px;transition:color .9s">суммарный спуск</div></div>
+      </div>
+      <p style="margin:14px 0 0;font-size:12.5px;line-height:1.5;color:{{ cLabel }};text-wrap:pretty;transition:color .9s">Пока нет заездов. Первый выезд появится здесь автоматически — и мы сравним его с прогнозом на тот день.</p>
+      <div style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">История заездов →</div>
+    </div>
+    <div style="padding:26px 36px;border-right:1px solid {{ cBorder }};transition:border-color .9s">
+      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.14em;margin-bottom:16px;transition:color .9s">ПРОФИЛЬ КАТАНИЯ</div>
+      <div style="display:flex;flex-direction:column;gap:13px;font-size:13.5px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:{{ cLabel }};width:120px;transition:color .9s">Никнейм</span><span style="font-weight:500">wwder</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:{{ cLabel }};width:120px;transition:color .9s">Уровень</span><span style="display:flex;align-items:center;gap:7px;font-weight:500"><span style="display:flex;gap:3px"><span style="width:16px;height:5px;border-radius:3px;background:#22994a"></span><span style="width:16px;height:5px;border-radius:3px;background:#3d8fdd"></span><span style="width:16px;height:5px;border-radius:3px;background:#c2452e"></span><span style="width:16px;height:5px;border-radius:3px;background:{{ cBarBase }}"></span></span>Средний</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:{{ cLabel }};width:120px;transition:color .9s">Снаряжение</span><span style="font-weight:500">Лыжи</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:{{ cLabel }};width:120px;transition:color .9s">Единицы</span><span style="font-weight:500">°C · см · км/ч</span></div>
+      </div>
+      <div style="display:inline-flex;margin-top:18px;font-size:12.5px;font-weight:500;color:{{ cBtnColor }};background:{{ cBtnBg }};border-radius:99px;padding:9px 18px;transition:background-color .9s,color .9s">Редактировать</div>
+    </div>
+    <div style="padding:26px 36px">
+      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.14em;margin-bottom:16px;transition:color .9s">АККАУНТ</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13.5px"><span style="color:{{ cLabel }};width:70px;transition:color .9s">Почта</span><span style="font-weight:500">123@gmail.com</span></div>
+      <div style="margin-top:14px;padding:14px 16px;border-radius:12px;background:{{ cWarnBg }};box-shadow:inset 0 0 0 1px {{ cWarnBorder }};transition:background-color .9s,box-shadow .9s">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:{{ cWarn }};transition:color .9s">⚠ Почта не подтверждена</div>
+        <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:{{ cLabel }};transition:color .9s">Снежные алерты и письма не приходят, пока адрес не подтверждён.</p>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:14px">
+        <span style="font-size:12.5px;font-weight:500;color:{{ cBtnColor }};background:{{ cBtnBg }};border-radius:99px;padding:9px 16px;transition:background-color .9s,color .9s">Отправить письмо</span>
+        <span style="font-size:12.5px;font-weight:500;color:{{ cMailLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:9px 16px;transition:color .9s,border-color .9s">Изменить почту</span>
+      </div>
+    </div>
+  </div>
+  <div style="padding:26px 36px;border-top:1px solid {{ cBorder }};transition:border-color .9s">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <h3 style="margin:0;font-size:16px;font-weight:600">Снежные алерты</h3>
+      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">2 КУРОРТА НА СЛЕЖЕНИИ</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:{{ cLabel }};transition:color .9s">выключены до подтверждения почты<span style="width:44px;height:24px;border-radius:99px;background:{{ cBarBase }};display:flex;align-items:center;padding:2px;transition:background-color .9s"><span style="width:20px;height:20px;border-radius:50%;background:#fff"></span></span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:16px 18px;transition:border-color .9s,background-color .9s">
+        <div style="font-size:13.5px;font-weight:600">Порог снегопада</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px"><span style="font-size:24px;font-weight:600;color:{{ cSnow }};transition:color .9s">20 см</span><span style="font-size:12px;color:{{ cLabel }};transition:color .9s">за 48 часов</span></div>
+        <div style="margin-top:12px;height:5px;background:{{ cBarBase }};border-radius:3px;overflow:hidden;transition:background-color .9s"><div style="width:40%;height:100%;background:linear-gradient(90deg,#8cc2f0,#3d8fdd)"></div></div>
+      </div>
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:16px 18px;transition:border-color .9s,background-color .9s">
+        <div style="font-size:13.5px;font-weight:600">Когда писать</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <span style="font-size:12px;font-weight:500;background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:6px 13px;transition:background-color .9s,color .9s">за 48 ч</span>
+          <span style="font-size:12px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:6px 13px;transition:color .9s,border-color .9s">за 24 ч</span>
+          <span style="font-size:12px;font-weight:500;color:{{ cLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:6px 13px;transition:color .9s,border-color .9s">утром</span>
+        </div>
+      </div>
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:16px 18px;transition:border-color .9s,background-color .9s">
+        <div style="font-size:13.5px;font-weight:600">Лучший день недели</div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.5;color:{{ cLabel }};transition:color .9s">Письмо в воскресенье вечером: где на этой неделе будет лучший день из моих курортов.</p>
+      </div>
+    </div>
+  </div>
+  <div style="padding:26px 36px 32px;border-top:1px solid {{ cBorder }};transition:border-color .9s">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+      <h3 style="margin:0;font-size:16px;font-weight:600">Избранные курорты</h3>
+      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">2 ИЗ 6</span>
+      <span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">Сравнить все →</span>
+    </div>
+    <p style="margin:0 0 16px;font-size:12.5px;color:{{ cLabel }};transition:color .9s">Погода на главной, алерты и «лучший день» считаются по этому списку.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;overflow:hidden;transition:border-color .9s,background-color .9s">
+        <div style="height:110px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">ФОТО КУРОРТА</div>
+        <div style="padding:14px 16px">
+          <div style="display:flex;align-items:baseline"><span style="font-size:14.5px;font-weight:600">Газпром Поляна</span><span style="margin-left:auto;font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">РОССИЯ</span></div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font-size:19px;font-weight:600;color:{{ cSnow }};transition:color .9s">+18 см</span><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cGreen }};transition:color .9s">СР 8.1</span></div>
+          <div style="display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:12px;font-weight:600;background:#ffd9b0;color:#1b2a4a;border-radius:99px;padding:7px 14px">★ В избранном</div>
+        </div>
+      </div>
+      <div style="border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;overflow:hidden;transition:border-color .9s,background-color .9s">
+        <div style="height:110px;background:repeating-linear-gradient(-45deg,{{ cPhotoA }} 0 10px,{{ cPhotoB }} 10px 20px);display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">ФОТО КУРОРТА</div>
+        <div style="padding:14px 16px">
+          <div style="display:flex;align-items:baseline"><span style="font-size:14.5px;font-weight:600">Красная Поляна</span><span style="margin-left:auto;font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">РОССИЯ</span></div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font-size:19px;font-weight:600;color:{{ cSnow }};transition:color .9s">+24 см</span><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cGreen }};transition:color .9s">ЧТ 8.6</span></div>
+          <div style="display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:12px;font-weight:600;background:#ffd9b0;color:#1b2a4a;border-radius:99px;padding:7px 14px">★ В избранном</div>
+        </div>
+      </div>
+      <div style="border:1px dashed {{ cCardBorder }};border-radius:12px;overflow:hidden;transition:border-color .9s">
+        <div style="height:110px;display:grid;place-items:center;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">РОЗА ХУТОР</div>
+        <div style="padding:14px 16px">
+          <div style="display:flex;align-items:baseline"><span style="font-size:14.5px;font-weight:600;color:{{ cLabel }};transition:color .9s">Роза Хутор</span><span style="margin-left:auto;font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};transition:color .9s">РОССИЯ</span></div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font-size:19px;font-weight:600;color:{{ cLabel }};transition:color .9s">+31 см</span><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};transition:color .9s">ПТ 8.9</span></div>
+          <div style="display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:12px;font-weight:500;color:{{ cMailLabel }};border:1px solid {{ cCardBorder }};border-radius:99px;padding:7px 14px;transition:color .9s,border-color .9s">+ Добавить</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+<p class="dv-next">Дальше: «мобильный профиль» · «экран редактирования профиля» · «история заездов»</p>
+</section>
 <section class="dv-turn" id="t9">
 <div class="dv-thd"><a class="dv-tid" href="#t9">9</a><span class="dv-tname">Мобильная версия — 390px</span></div>
 <div class="dv-opts">
@@ -463,7 +1059,6 @@
       <div style="display:flex;flex-direction:column;gap:9px"><span style="font:400 10px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ДАННЫЕ</span><span style="color:rgba(255,255,255,.75)">Источники прогнозов</span><span style="color:rgba(255,255,255,.75)">Как считается индекс</span><span style="color:rgba(255,255,255,.75)">API</span></div>
     </div>
     <div style="margin-left:auto;text-align:right">
-      <div style="font:400 10px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.45);letter-spacing:.1em">ОБНОВЛЕНИЕ КАЖДЫЕ 3 ЧАСА</div>
       <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:8px">© 2026 powderbox</div>
     </div>
   </footer>
@@ -670,7 +1265,7 @@ class Component extends DCLogic {
       liftStatus: d ? 'вечернее катание · 6 подъёмников до 21:00' : 'работает 41 из 47 подъёмников',
       cBg: d ? '#0f1828' : '#ffffff', cText: d ? '#e8eef7' : '#132030',
       cBorder: d ? 'rgba(255,255,255,.08)' : '#e8eef4',
-      cLabel: d ? '#7d8ea6' : '#6d7d8e', cDayLbl: d ? '#5f7188' : '#9db4c8',
+      cLabel: d ? '#8fa0b8' : '#5f6f80', cDayLbl: d ? '#7787a0' : '#7a8ea3',
       cBarBase: d ? '#24344e' : '#dfe9f1', cBarMid: d ? '#3a5578' : '#b9cfe2',
       cGreen: d ? '#3fc06a' : '#22994a', cSnow: d ? '#6fb1ff' : '#3d8fdd',
       cMailBg: d ? '#1d3050' : '#ffffff', cMailBorder: d ? '#3a5a8c' : '#a8c6e4',
@@ -679,10 +1274,15 @@ class Component extends DCLogic {
       cCardBorder: d ? 'rgba(255,255,255,.1)' : '#dfe9f1',
       cCardActive: d ? '#16233c' : 'rgba(255,255,255,.72)',
       cFooterBg: d ? '#0b1322' : '#1b2a4a',
+      sunPosL: d ? 'translate(-340px,12px)' : 'translate(0px,0px)',
+      sunAnimL: this.state.toggled ? `${d ? 'pbSunSetL' : 'pbSunRiseL'} 1.8s linear both` : 'none',
       sunPosM: d ? 'translate(-196px,12px)' : 'translate(0px,0px)',
       sunAnimM: this.state.toggled ? `${d ? 'pbSunSetM' : 'pbSunRiseM'} 1.8s linear both` : 'none',
       cPinBg: d ? 'rgba(255,255,255,.12)' : '#132030', cPinFg: d ? '#e8eef7' : '#ffffff',
       cWarn: d ? '#ff9d8b' : '#c2452e', cRain: d ? '#ffd9b0' : '#b3742a',
+      cWarnBg: d ? 'rgba(255,157,139,.10)' : '#fdf1ee', cWarnBorder: d ? 'rgba(255,157,139,.35)' : '#f0cdc4',
+      cPhotoA: d ? '#1f3454' : '#e2ecf5', cPhotoB: d ? '#24395c' : '#eef5fa',
+      cGreenPill: d ? 'rgba(63,192,106,.16)' : '#e9f6ee', cNeutralPill: d ? 'rgba(255,255,255,.08)' : '#f0f5fa',
       cBestBg: d ? '#16233c' : '#132030', cTabBg: d ? 'rgba(255,255,255,.04)' : '#ffffff',
     };
   }

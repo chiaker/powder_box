@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { ApiError } from '../api/client'
+import AuthScene from '../components/AuthScene'
+import ThemeToggle from '../components/ThemeToggle'
 
 export default function Login() {
   const { login } = useAuth()
@@ -10,6 +12,7 @@ export default function Login() {
   const toast = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -31,41 +34,51 @@ export default function Login() {
   }
 
   return (
-    <div className="page auth-page">
-      <div className="auth-card">
-        <h1>Вход</h1>
-        <p className="auth-subtitle">Войдите в свой аккаунт PowderBox</p>
+    <div className="pb-auth">
+      <AuthScene />
+      <div className="pb-auth-form">
+        <div className="pb-auth-form-head">
+          <span className="mono-label">ВХОД</span>
+          <span className="pb-auth-switch">
+            Нет аккаунта? <Link to="/register">Регистрация</Link>
+          </span>
+          <ThemeToggle />
+        </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label>Email</label>
+        <h2 className="pb-auth-title">С возвращением</h2>
+        <p className="pb-auth-sub">Снег не ждёт — посмотрим, где он выпадет.</p>
+
+        <form onSubmit={handleSubmit} className="pb-auth-fields">
+          <label className="pb-field">
+            <span className="pb-field-label">EMAIL</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="you@example.com"
+              placeholder="you@email.com"
             />
-          </div>
-          <div className="form-group">
-            <label>Пароль</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-            />
-          </div>
+          </label>
+          <label className="pb-field">
+            <span className="pb-field-label">ПАРОЛЬ</span>
+            <span className="pb-field-row">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
+              <button type="button" className="pb-field-toggle" onClick={() => setShowPassword((v) => !v)}>
+                {showPassword ? 'скрыть' : 'показать'}
+              </button>
+            </span>
+          </label>
           {error && <div className="form-message error">{error}</div>}
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <button type="submit" className="btn btn-primary pb-auth-submit" disabled={loading}>
             {loading ? 'Вход...' : 'Войти'}
           </button>
         </form>
-
-        <p className="auth-footer">
-          Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
-        </p>
       </div>
     </div>
   )

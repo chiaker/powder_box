@@ -12,7 +12,6 @@ export default function Footer() {
           </p>
         </div>
         <div className="pb-footer-right">
-          <div className="pb-footer-note">ОБНОВЛЕНИЕ КАЖДЫЕ 3 ЧАСА</div>
           <div className="pb-footer-copy">© 2026 powderbox</div>
         </div>
       </div>

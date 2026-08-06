@@ -18,6 +18,11 @@ export default function Layout() {
 
   const overlay = heroRoute(pathname)
 
+  // Вход и регистрация — полноэкранный сплит со своей шапкой (дизайн 12a/12b)
+  if (pathname === '/login' || pathname === '/register') {
+    return <Outlet />
+  }
+
   return (
     <div className="layout">
       {overlay ? <Nav /> : <div className="top-band"><Nav /></div>}

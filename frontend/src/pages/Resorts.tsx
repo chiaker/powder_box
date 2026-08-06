@@ -1,43 +1,51 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api, ApiError, imageUrl, IMG_PLACEHOLDER, type Resort } from '../api/client'
+import {
+  api,
+  ApiError,
+  imageUrl,
+  type Resort,
+  type AltitudePointWeather,
+  type AltitudePointDailyForecast,
+  type AltitudeDailyEntry,
+} from '../api/client'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
+import { snowSum, dayScores, bestDayIndex, dayShort } from '../utils/weather'
+import PageHead from '../components/PageHead'
+import TrailPills from '../components/TrailPills'
 
-type SortKey = 'rating' | 'track_length_km' | 'elevation_drop_m'
+type SortKey = 'snow' | 'rating' | 'track_length_km' | 'elevation_drop_m'
+type FilterKey = 'snow20' | 'hard' | 'drop1000' | 'freeride4' | 'favorites'
+
+/** Погоду тянем только для первых карточек — на каждый курорт два запроса */
+const WEATHER_LIMIT = 12
+const CARDS = 6
+
+type Wx = { top?: AltitudePointWeather; bottom?: AltitudePointWeather; days: AltitudeDailyEntry[] }
+
+const FILTERS: { key: FilterKey; label: string; dot?: string }[] = [
+  { key: 'snow20', label: 'Свежий снег 20+ см' },
+  { key: 'hard', label: 'Красные и чёрные', dot: 'var(--danger)' },
+  { key: 'drop1000', label: 'Перепад 1000+ м' },
+  { key: 'freeride4', label: 'Фрирайд 4+' },
+  { key: 'favorites', label: 'Только избранные' },
+]
 
 export default function Resorts() {
   const [resorts, setResorts] = useState<Resort[]>([])
+  const [wx, setWx] = useState<Record<number, Wx>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [sortKey, setSortKey] = useState<SortKey>('rating')
+  const [sortKey, setSortKey] = useState<SortKey>('snow')
+  const [filters, setFilters] = useState<Set<FilterKey>>(new Set())
   const [compareIds, setCompareIds] = useState<number[]>([])
   const toast = useToast()
   const navigate = useNavigate()
   const { user, token, refreshProfile } = useAuth()
 
   const favoriteIds = useMemo(() => new Set(user?.favorite_resorts ?? []), [user])
-
-  const visibleResorts = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    return resorts
-      .filter((r) => !q || r.name.toLowerCase().includes(q))
-      .sort((a, b) =>
-        Number(favoriteIds.has(String(b.id))) - Number(favoriteIds.has(String(a.id))) ||
-        (b[sortKey] ?? -Infinity) - (a[sortKey] ?? -Infinity))
-  }, [resorts, search, sortKey, favoriteIds])
-
-  const toggleCompare = (id: number) => {
-    setCompareIds((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id)
-      if (prev.length >= 3) {
-        toast.show('Можно сравнить не больше 3 курортов', 'info')
-        return prev
-      }
-      return [...prev, id]
-    })
-  }
 
   useEffect(() => {
     api
@@ -55,13 +63,84 @@ export default function Resorts() {
       .finally(() => setLoading(false))
   }, [toast])
 
+  // Снег и температуры по высотам — для карточек и фильтра «свежий снег»
+  const requested = useRef(new Set<number>())
+  useEffect(() => {
+    resorts.slice(0, WEATHER_LIMIT).forEach((r) => {
+      if (requested.current.has(r.id)) return
+      requested.current.add(r.id)
+      void Promise.all([
+        api.get<AltitudePointWeather[]>(`/weather/${r.id}/altitudes/current`).catch(() => []),
+        api.get<AltitudePointDailyForecast[]>(`/weather/${r.id}/altitudes/daily?days=7`).catch(() => []),
+      ]).then(([cur, daily]) => {
+        const sorted = [...cur].sort((a, b) => a.altitude_m - b.altitude_m)
+        setWx((p) => ({
+          ...p,
+          [r.id]: {
+            top: sorted[sorted.length - 1],
+            bottom: sorted[0],
+            days: daily.length ? daily[daily.length - 1].days : [],
+          },
+        }))
+      })
+    })
+  }, [resorts])
+
+  const snow48 = (id: number) => {
+    const d = wx[id]?.days
+    return d?.length ? snowSum(d, 2) : null
+  }
+
+  const best = (id: number) => {
+    const days = wx[id]?.days ?? []
+    const b = bestDayIndex(days)
+    if (b < 0) return null
+    return { date: days[b].date, score: dayScores(days)[b] }
+  }
+
+  const toggleFilter = (k: FilterKey) =>
+    setFilters((prev) => {
+      const next = new Set(prev)
+      next.has(k) ? next.delete(k) : next.add(k)
+      return next
+    })
+
+  const visibleResorts = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    const hardCount = (r: Resort) => (r.trails_red ?? 0) + (r.trails_black ?? 0)
+    return resorts
+      .filter((r) => !q || r.name.toLowerCase().includes(q))
+      .filter((r) => !filters.has('snow20') || (snow48(r.id) ?? 0) >= 20)
+      .filter((r) => !filters.has('hard') || hardCount(r) > 0)
+      .filter((r) => !filters.has('drop1000') || (r.elevation_drop_m ?? 0) >= 1000)
+      .filter((r) => !filters.has('freeride4') || (r.freeride_rating ?? 0) >= 4)
+      .filter((r) => !filters.has('favorites') || favoriteIds.has(String(r.id)))
+      .sort((a, b) => {
+        if (sortKey === 'snow') return (snow48(b.id) ?? -1) - (snow48(a.id) ?? -1)
+        return (b[sortKey] ?? -Infinity) - (a[sortKey] ?? -Infinity)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resorts, search, sortKey, filters, favoriteIds, wx])
+
+  const toggleCompare = (id: number) => {
+    setCompareIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id)
+      if (prev.length >= 6) {
+        toast.show('Можно сравнить не больше 6 курортов', 'info')
+        return prev
+      }
+      return [...prev, id]
+    })
+  }
+
   const toggleFavorite = async (resortId: number) => {
-    if (!token) return
+    if (!token) {
+      toast.show('Войдите, чтобы добавлять курорты в избранное', 'info')
+      return
+    }
     const favs = user?.favorite_resorts ?? []
     const idStr = String(resortId)
-    const next = favs.includes(idStr)
-      ? favs.filter((id) => id !== idStr)
-      : [...favs, idStr]
+    const next = favs.includes(idStr) ? favs.filter((id) => id !== idStr) : [...favs, idStr]
     try {
       await api.put('/users/me', {
         nickname: user?.nickname,
@@ -81,97 +160,170 @@ export default function Resorts() {
     <div className="page">
       <div className="error-state">
         <p>{error}</p>
-        {error.includes('авторизоваться') && (
-          <Link to="/login" className="btn btn-primary">Войти</Link>
-        )}
+        {error.includes('авторизоваться') && <Link to="/login" className="btn btn-primary">Войти</Link>}
       </div>
     </div>
   )
 
+  const cards = visibleResorts.slice(0, CARDS)
+  const rest = visibleResorts.slice(CARDS)
+
+  const meta = (r: Resort) =>
+    [
+      r.track_length_km != null ? `${r.track_length_km} КМ ТРАСС` : null,
+      r.elevation_drop_m != null ? `ПЕРЕПАД ${r.elevation_drop_m.toLocaleString('ru-RU')} М` : null,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+
   return (
-    <div className="page">
-      <header className="page-header">
-        <h1>Курорты</h1>
-        <p>Выберите горнолыжный курорт для просмотра погоды и условий</p>
-      </header>
+    <div className="pb-resorts">
+      <PageHead
+        kicker={`${resorts.length} курортов · погода по высотам`}
+        title="Курорты"
+        right={
+          <>
+            <input
+              type="search"
+              className="pb-head-search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="⌕  Название курорта…"
+            />
+            <select
+              className="pb-cmp-add"
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as SortKey)}
+            >
+              <option value="snow">Больше всего снега</option>
+              <option value="rating">По рейтингу</option>
+              <option value="track_length_km">По длине трасс</option>
+              <option value="elevation_drop_m">По перепаду высот</option>
+            </select>
+          </>
+        }
+      />
 
-      <div className="filter-bar">
-        <label>
-          Поиск
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Название курорта"
-          />
-        </label>
-        <label>
-          Сортировка
-          <select value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)}>
-            <option value="rating">По рейтингу</option>
-            <option value="track_length_km">По длине трасс</option>
-            <option value="elevation_drop_m">По перепаду высот</option>
-          </select>
-        </label>
-      </div>
+      <div className="pb-page">
+        <div className="pb-filterbar">
+          <span className="mono-label">ФИЛЬТРЫ</span>
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              className={`pb-filter ${filters.has(f.key) ? 'active' : ''}`}
+              onClick={() => toggleFilter(f.key)}
+            >
+              {f.dot && <span className="pb-filter-dot" style={{ background: f.dot }} />}
+              {f.label}
+            </button>
+          ))}
+          <span className="pb-filter-count">
+            Найдено <strong>{visibleResorts.length}</strong> курортов
+          </span>
+        </div>
 
-      <div className="resort-grid">
         {visibleResorts.length === 0 ? (
           <div className="empty-state">
-            <p>{resorts.length === 0 ? 'Курортов пока нет. Добавьте данные через API.' : 'Ничего не найдено — попробуйте изменить фильтры.'}</p>
+            <p>{resorts.length === 0 ? 'Курортов пока нет.' : 'Ничего не найдено — попробуйте изменить фильтры.'}</p>
           </div>
         ) : (
-          visibleResorts.map((r) => (
-            <div key={r.id} className="resort-card-wrapper">
-              <Link to={`/resorts/${r.id}`} className="resort-card">
-                <img
-                  src={imageUrl(r.image_url) || IMG_PLACEHOLDER}
-                  onError={(e) => { (e.target as HTMLImageElement).src = IMG_PLACEHOLDER }}
-                  alt={r.name}
-                  className="resort-card-image"
-                />
-                <div className="resort-card-body">
-                  <div className="resort-card-header">
-                    <h3>{r.name}</h3>
-                    {r.rating != null && (
-                      <span className="rating">★ {r.rating.toFixed(1)} ({r.review_count || 0})</span>
-                    )}
-                  </div>
-                  {(r.track_length_km != null || r.elevation_drop_m != null) && (
-                    <div className="resort-card-meta">
-                      {r.track_length_km != null && <span>{r.track_length_km} км трасс</span>}
-                      {r.elevation_drop_m != null && <span>{r.elevation_drop_m} м перепад</span>}
+          <>
+            <div className="pb-resorts-grid">
+              {cards.map((r) => {
+                const w = wx[r.id]
+                const cm = snow48(r.id)
+                const b = best(r.id)
+                const fav = favoriteIds.has(String(r.id))
+                return (
+                  <div key={r.id} className="pb-rcard">
+                    <Link to={`/resorts/${r.id}`} className="pb-rcard-photo">
+                      {r.image_url ? (
+                        <img src={imageUrl(r.image_url)} alt={r.name} loading="lazy" />
+                      ) : (
+                        <span className="pb-rcard-photo-empty">ФОТО КУРОРТА</span>
+                      )}
+                      {cm != null && cm > 0 && <span className="pb-rcard-snowbadge">+{cm} СМ ЗА 48 Ч</span>}
+                    </Link>
+                    <button
+                      type="button"
+                      className={`pb-rcard-fav ${fav ? 'active' : ''}`}
+                      onClick={() => toggleFavorite(r.id)}
+                      title={fav ? 'Удалить из избранного' : 'Добавить в избранное'}
+                    >
+                      {fav ? '★' : '☆'}
+                    </button>
+                    <div className="pb-rcard-body">
+                      <div className="pb-rcard-head">
+                        <Link to={`/resorts/${r.id}`} className="pb-rcard-name">{r.name}</Link>
+                        {r.rating != null && <span className="pb-rcard-rating">★ {r.rating.toFixed(1)}</span>}
+                      </div>
+                      <div className="pb-rcard-meta">{meta(r) || 'НЕТ ДАННЫХ О ТРАССАХ'}</div>
+                      <div className="pb-rcard-temps">
+                        {w?.top ? (
+                          <>
+                            <span className="pb-rcard-temp">{Math.round(w.top.temperature)}°</span>
+                            {w.bottom && (
+                              <span className="pb-rcard-temp-sub">
+                                верх / низ {Math.round(w.bottom.temperature)}°
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="pb-rcard-temp-sub">погода загружается…</span>
+                        )}
+                        {b && (
+                          <span className={`pb-cmp-bestpill ${b.score >= 8 ? 'top' : ''}`}>
+                            <span className="pb-cmp-bestday">{dayShort(b.date)}</span>
+                            <span className="pb-cmp-bestscore">{b.score}</span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="pb-rcard-foot">
+                        <TrailPills r={r} />
+                        <button
+                          type="button"
+                          className={`pb-rcard-compare ${compareIds.includes(r.id) ? 'active' : ''}`}
+                          onClick={() => toggleCompare(r.id)}
+                        >
+                          {compareIds.includes(r.id) ? '✓ В сравнении' : 'Сравнить'}
+                        </button>
+                      </div>
                     </div>
-                  )}
-                  <div className="resort-badges">
-                    {r.freeride_rating != null && <span className="trail">🏔 Фрирайд {r.freeride_rating}/5</span>}
-                    {r.trails_green != null && <span className="trail">🟢 {r.trails_green}</span>}
-                    {r.trails_blue != null && <span className="trail">🔵 {r.trails_blue}</span>}
-                    {r.trails_red != null && <span className="trail">🔴 {r.trails_red}</span>}
-                    {r.trails_black != null && <span className="trail">⚫ {r.trails_black}</span>}
                   </div>
-                  {r.description && <p className="resort-desc">{r.description}</p>}
-                </div>
-              </Link>
-              {token && (
-                <button
-                  type="button"
-                  className={`resort-fav-btn ${favoriteIds.has(String(r.id)) ? 'active' : ''}`}
-                  onClick={(e) => { e.preventDefault(); toggleFavorite(r.id) }}
-                  title={favoriteIds.has(String(r.id)) ? 'Удалить из избранного' : 'Добавить в избранное'}
-                >
-                  ★
-                </button>
-              )}
-              <button
-                type="button"
-                className={`btn btn-sm compare-btn ${compareIds.includes(r.id) ? 'btn-primary' : 'btn-ghost'}`}
-                onClick={() => toggleCompare(r.id)}
-              >
-                {compareIds.includes(r.id) ? '✓ В сравнении' : '⚖ Добавить к сравнению'}
-              </button>
+                )
+              })}
             </div>
-          ))
+
+            {rest.length > 0 && (
+              <div className="pb-resorts-list">
+                <div className="mono-label">СПИСКОМ · ЕЩЁ {rest.length}</div>
+                {rest.map((r) => {
+                  const w = wx[r.id]
+                  const cm = snow48(r.id)
+                  const b = best(r.id)
+                  return (
+                    <Link key={r.id} to={`/resorts/${r.id}`} className="pb-rrow">
+                      <span className="pb-rrow-name">
+                        {r.name}
+                        {r.track_length_km != null && <span className="pb-rrow-sub">{r.track_length_km} КМ</span>}
+                      </span>
+                      <span className="pb-rrow-snow">{cm != null ? `+${cm} см` : '—'}</span>
+                      <span className="pb-rrow-temp">
+                        {w?.top && w?.bottom
+                          ? `${Math.round(w.top.temperature)}° / ${Math.round(w.bottom.temperature)}°`
+                          : '—'}
+                      </span>
+                      <TrailPills r={r} />
+                      <span className={`pb-rrow-best ${b && b.score >= 8 ? 'top' : ''}`}>
+                        {b ? `${dayShort(b.date)} · ${b.score}` : '—'}
+                      </span>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
 

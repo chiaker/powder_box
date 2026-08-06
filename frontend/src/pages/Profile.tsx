@@ -3,19 +3,28 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { api, imageUrl, type UserProfile, type AuthMe } from '../api/client'
+import PageHead from '../components/PageHead'
 
-const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=400'
-
+/** Уровни названы по цветам трасс — единая система с бейджами (дизайн 10a/11b) */
 const LEVEL_LABELS: Record<string, string> = {
-  beginner: 'Начинающий',
-  intermediate: 'Средний',
-  advanced: 'Продвинутый',
+  beginner: 'Зелёные трассы',
+  intermediate: 'Красные трассы',
+  advanced: 'Чёрные трассы',
+}
+
+const LEVEL_COLORS: Record<string, string> = {
+  beginner: 'var(--green)',
+  intermediate: 'var(--danger)',
+  advanced: 'var(--trail-black)',
 }
 
 const EQUIPMENT_LABELS: Record<string, string> = {
   ski: 'Лыжи',
   snowboard: 'Сноуборд',
 }
+
+/** Шкала в профиле закрашивается до текущего уровня включительно */
+const LEVEL_ORDER = ['beginner', 'intermediate', 'advanced'] as const
 
 export default function Profile() {
   const { user, refreshProfile } = useAuth()
@@ -137,9 +146,7 @@ export default function Profile() {
 
   const toggleFavorite = async (resortId: string) => {
     const favs = user?.favorite_resorts ?? []
-    const next = favs.includes(resortId)
-      ? favs.filter((id) => id !== resortId)
-      : [...favs, resortId]
+    const next = favs.includes(resortId) ? favs.filter((id) => id !== resortId) : [...favs, resortId]
     try {
       await api.put('/users/me', {
         nickname: user?.nickname || null,
@@ -166,60 +173,104 @@ export default function Profile() {
       return fa - fb || a.name.localeCompare(b.name, 'ru')
     })
 
-  const avatarEmoji = user?.equipment_type === 'snowboard' ? '🏂' : user?.equipment_type === 'ski' ? '⛷️' : '🏔'
+  const avatarEmoji = user?.equipment_type === 'snowboard' ? '🏂' : '⛷'
+  const emailOk = authMe?.email_confirmed
 
   return (
-    <div className="page profile-page">
-      <header className="page-header profile-header">
-        <div className="profile-avatar">{avatarEmoji}</div>
-        <h1>{user?.nickname?.trim() || 'Мой профиль'}</h1>
-        {authMe && (
-          <p className="profile-email">
-            {authMe.email}{' '}
-            {authMe.email_confirmed ? (
-              <span className="email-status confirmed">✓ подтверждён</span>
-            ) : (
-              <span className="email-status unconfirmed">не подтверждён</span>
-            )}
-          </p>
-        )}
-        <div className="profile-badges">
-          {user?.level && <span className="trail">🎿 {LEVEL_LABELS[user.level]}</span>}
-          {user?.equipment_type && <span className="trail">{EQUIPMENT_LABELS[user.equipment_type]}</span>}
-          {(user?.favorite_resorts?.length ?? 0) > 0 && (
-            <span className="trail">★ Курортов в избранном: {user!.favorite_resorts.length}</span>
-          )}
-        </div>
-      </header>
+    <div className="pb-profile">
+      <PageHead
+        kicker={user?.level ? LEVEL_LABELS[user.level] : 'профиль катания'}
+        title={
+          <span className="pb-profile-head">
+            <span className="pb-profile-avatar">{avatarEmoji}</span>
+            <span>
+              <span className="pb-profile-name">{user?.nickname?.trim() || 'Мой профиль'}</span>
+              <span className="pb-profile-badges">
+                {user?.level && (
+                  <span className="pb-profile-badge">
+                    <span className="pb-level-dot" style={{ background: LEVEL_COLORS[user.level] }} />
+                    {LEVEL_LABELS[user.level]}
+                  </span>
+                )}
+                {user?.equipment_type && (
+                  <span className="pb-profile-badge">{EQUIPMENT_LABELS[user.equipment_type]}</span>
+                )}
+                <span className="pb-profile-badge">
+                  {user?.favorite_resorts?.length ?? 0} курортов в избранном
+                </span>
+              </span>
+            </span>
+          </span>
+        }
+        right={
+          authMe && (
+            <div className="pb-profile-email">
+              <span className={`pb-profile-emailstate ${emailOk ? 'ok' : ''}`}>
+                {emailOk ? '✓ Почта подтверждена' : '⚠ Почта не подтверждена'}
+              </span>
+              <span className="pb-profile-emailaddr">{authMe.email}</span>
+            </div>
+          )
+        }
+      />
 
-      <div className="profile-center">
-        <div className="profile-columns">
-          <div className="profile-main">
+      <div className="pb-page">
+        <div className="pb-strip pb-profile-strip">
+          {/* Сезон */}
+          <div className="pb-strip-col">
+            <div className="mono-label pb-strip-label">СЕЗОН</div>
+            <div className="pb-profile-stats">
+              <div>
+                <div className="pb-profile-stat">
+                  {(user?.total_distance ?? 0).toFixed(1)}
+                  <span> км</span>
+                </div>
+                <div className="pb-profile-stat-label">пройдено</div>
+              </div>
+              <div>
+                <div className="pb-profile-stat">
+                  {Math.round(user?.total_descent ?? 0)}
+                  <span> м</span>
+                </div>
+                <div className="pb-profile-stat-label">суммарный спуск</div>
+              </div>
+            </div>
+            <p className="pb-profile-note">
+              {(user?.total_distance ?? 0) > 0
+                ? 'Данные обновляются после каждой записи заезда.'
+                : 'Пока нет заездов. Первый выезд появится здесь автоматически.'}
+            </p>
+            <Link to="/stats" className="pb-link">История заездов →</Link>
+          </div>
+
+          {/* Профиль катания */}
+          <div className="pb-strip-col">
+            <div className="mono-label pb-strip-label">ПРОФИЛЬ КАТАНИЯ</div>
             {isEditing ? (
-              <form className="profile-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>Никнейм</label>
+              <form className="pb-profile-form" onSubmit={handleSubmit}>
+                <label className="pb-field">
+                  <span className="pb-field-label">НИКНЕЙМ</span>
                   <input
                     type="text"
                     value={form.nickname ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, nickname: e.target.value }))}
                     placeholder="Ваш ник"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Уровень катания</label>
+                </label>
+                <label className="pb-field">
+                  <span className="pb-field-label">УРОВЕНЬ</span>
                   <select
                     value={form.level ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, level: (e.target.value || undefined) as UserProfile['level'] }))}
                   >
                     <option value="">— Выберите —</option>
-                    <option value="beginner">Начинающий</option>
-                    <option value="intermediate">Средний</option>
-                    <option value="advanced">Продвинутый</option>
+                    <option value="beginner">Зелёные трассы</option>
+                    <option value="intermediate">Красные трассы</option>
+                    <option value="advanced">Чёрные трассы</option>
                   </select>
-                </div>
-                <div className="form-group">
-                  <label>Тип снаряжения</label>
+                </label>
+                <label className="pb-field">
+                  <span className="pb-field-label">СНАРЯЖЕНИЕ</span>
                   <select
                     value={form.equipment_type ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, equipment_type: (e.target.value || undefined) as UserProfile['equipment_type'] }))}
@@ -228,155 +279,201 @@ export default function Profile() {
                     <option value="ski">Лыжи</option>
                     <option value="snowboard">Сноуборд</option>
                   </select>
-                  <span className="form-hint">Уроки и рекомендации будут подобраны под ваш тип снаряжения</span>
-                </div>
-                {message && <div className={`form-message ${message.startsWith('Ошибка') ? 'error' : 'success'}`}>{message}</div>}
+                </label>
+                {message && (
+                  <div className={`form-message ${message.startsWith('Ошибка') ? 'error' : 'success'}`}>{message}</div>
+                )}
                 <button type="submit" className="btn btn-primary" disabled={saving}>
                   {saving ? 'Сохранение...' : 'Сохранить'}
                 </button>
               </form>
             ) : (
-              <div className="profile-view">
-                <div className="profile-view-row">
-                  <span className="profile-view-label">Никнейм</span>
-                  <span className="profile-view-value">{form.nickname || '—'}</span>
+              <>
+                <div className="pb-profile-rows">
+                  <div className="pb-profile-row">
+                    <span>Никнейм</span>
+                    <strong>{form.nickname || '—'}</strong>
+                  </div>
+                  <div className="pb-profile-row">
+                    <span>Уровень</span>
+                    <strong className="pb-profile-level">
+                      <span className="pb-level-scale">
+                        {LEVEL_ORDER.map((lv, i) => (
+                          <span
+                            key={lv}
+                            style={{
+                              background:
+                                i <= LEVEL_ORDER.indexOf(form.level ?? ('' as never))
+                                  ? LEVEL_COLORS[lv]
+                                  : 'var(--bar-base)',
+                            }}
+                          />
+                        ))}
+                      </span>
+                      {form.level ? LEVEL_LABELS[form.level] : '—'}
+                    </strong>
+                  </div>
+                  <div className="pb-profile-row">
+                    <span>Снаряжение</span>
+                    <strong>{form.equipment_type ? EQUIPMENT_LABELS[form.equipment_type] : '—'}</strong>
+                  </div>
+                  <div className="pb-profile-row">
+                    <span>Единицы</span>
+                    <strong>°C · см · м/с</strong>
+                  </div>
                 </div>
-                <div className="profile-view-row">
-                  <span className="profile-view-label">Уровень катания</span>
-                  <span className="profile-view-value">{form.level ? LEVEL_LABELS[form.level] : '—'}</span>
-                </div>
-                <div className="profile-view-row">
-                  <span className="profile-view-label">Тип снаряжения</span>
-                  <span className="profile-view-value">{form.equipment_type ? EQUIPMENT_LABELS[form.equipment_type] : '—'}</span>
-                </div>
-                <button type="button" className="btn btn-outline" onClick={() => setIsEditing(true)}>
+                <button type="button" className="btn btn-primary" onClick={() => setIsEditing(true)}>
                   Редактировать
                 </button>
-              </div>
+              </>
             )}
-
-            <section className="account-card">
-              <h2>Аккаунт</h2>
-              <div className="profile-view-row">
-                <span className="profile-view-label">Почта</span>
-                <span className="profile-view-value">{authMe?.email ?? '...'}</span>
-              </div>
-              {authMe && !authMe.email_confirmed && (
-                <div className="form-message error account-warning">
-                  ✉️ Почта не подтверждена — письма (алерты, уведомления) приходить не будут.
-                </div>
-              )}
-              <div className="account-actions">
-                {authMe && !authMe.email_confirmed && (
-                  <button type="button" className="btn btn-sm btn-outline" onClick={() => void resendConfirmation()} disabled={resending}>
-                    {resending ? 'Отправка...' : 'Отправить письмо ещё раз'}
-                  </button>
-                )}
-                <button type="button" className="btn btn-sm btn-outline" onClick={() => setShowEmailForm((v) => !v)}>
-                  {showEmailForm ? 'Отмена' : 'Изменить почту'}
-                </button>
-              </div>
-              {showEmailForm && (
-                <form className="email-change-form" onSubmit={changeEmail}>
-                  <div className="form-group">
-                    <label>Новая почта</label>
-                    <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required placeholder="new@example.com" />
-                  </div>
-                  <div className="form-group">
-                    <label>Текущий пароль</label>
-                    <input type="password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} required placeholder="Для подтверждения" />
-                  </div>
-                  <span className="form-hint">На новую почту придёт письмо для подтверждения</span>
-                  <button type="submit" className="btn btn-primary btn-sm" disabled={changingEmail}>
-                    {changingEmail ? 'Сохранение...' : 'Сменить почту'}
-                  </button>
-                </form>
-              )}
-            </section>
           </div>
 
-          <div className="profile-side">
-            <section className="resort-stats profile-stats">
-              <h2>Моя статистика</h2>
-              <div className="resort-stats-grid">
-                <div className="resort-stat">
-                  <span className="resort-stat-value">{(user?.total_distance ?? 0).toFixed(1)} км</span>
-                  <span className="resort-stat-label">Общая дистанция</span>
-                </div>
-                <div className="resort-stat">
-                  <span className="resort-stat-value">{Math.round(user?.total_descent ?? 0)} м</span>
-                  <span className="resort-stat-label">Суммарный спуск</span>
-                </div>
-                <div className="resort-stat">
-                  <span className="resort-stat-value"><Link to="/stats">История →</Link></span>
-                  <span className="resort-stat-label">Мои заезды</span>
-                </div>
+          {/* Аккаунт */}
+          <div className="pb-strip-col">
+            <div className="mono-label pb-strip-label">АККАУНТ</div>
+            <div className="pb-profile-row">
+              <span>Почта</span>
+              <strong>{authMe?.email ?? '…'}</strong>
+            </div>
+            {authMe && !authMe.email_confirmed && (
+              <div className="pb-warnbox">
+                <div className="pb-warnbox-title">⚠ Почта не подтверждена</div>
+                <p>Снежные алерты и письма не приходят, пока адрес не подтверждён.</p>
               </div>
-            </section>
-
-            <section className="snow-alerts-card">
-              <h2>❄️ Снежные алерты</h2>
-              <label className="switch-row">
-                <input
-                  type="checkbox"
-                  checked={alertsEnabled}
-                  onChange={(e) => {
-                    setAlertsEnabled(e.target.checked)
-                    void saveAlerts(e.target.checked, threshold)
-                  }}
-                />
-                <span>Письмо, когда на избранных курортах ожидается снегопад</span>
-              </label>
-              {alertsEnabled && (
-                <div className="threshold-row">
-                  <label>Порог, см/день</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={100}
-                    value={threshold}
-                    onChange={(e) => setThreshold(Number(e.target.value))}
-                    onBlur={() => void saveAlerts(alertsEnabled, threshold || 10)}
-                  />
-                </div>
+            )}
+            <div className="pb-profile-actions">
+              {authMe && !authMe.email_confirmed && (
+                <button type="button" className="btn btn-primary btn-sm" onClick={() => void resendConfirmation()} disabled={resending}>
+                  {resending ? 'Отправка...' : 'Отправить письмо'}
+                </button>
               )}
-              <span className="form-hint">
-                {authMe && !authMe.email_confirmed
-                  ? 'Для получения алертов подтвердите почту'
-                  : 'Настройки сохраняются автоматически'}
-              </span>
-            </section>
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowEmailForm((v) => !v)}>
+                {showEmailForm ? 'Отмена' : 'Изменить почту'}
+              </button>
+            </div>
+            {showEmailForm && (
+              <form className="pb-profile-form" onSubmit={changeEmail}>
+                <label className="pb-field">
+                  <span className="pb-field-label">НОВАЯ ПОЧТА</span>
+                  <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required placeholder="new@example.com" />
+                </label>
+                <label className="pb-field">
+                  <span className="pb-field-label">ТЕКУЩИЙ ПАРОЛЬ</span>
+                  <input type="password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} required placeholder="Для подтверждения" />
+                </label>
+                <button type="submit" className="btn btn-primary btn-sm" disabled={changingEmail}>
+                  {changingEmail ? 'Сохранение...' : 'Сменить почту'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
-        <section className="profile-favorites">
-          <h2>Избранные курорты</h2>
-          <p className="favorites-hint">Погода и рекомендации будут привязаны к избранным курортам</p>
+        {/* Снежные алерты */}
+        <section className="pb-section">
+          <div className="pb-section-head">
+            <h3>Снежные алерты</h3>
+            <span className="mono-label">
+              {user?.favorite_resorts?.length ?? 0} КУРОРТОВ НА СЛЕЖЕНИИ
+            </span>
+            <label className="pb-switch-row">
+              <span>{alertsEnabled ? 'включены' : 'выключены'}</span>
+              <input
+                type="checkbox"
+                checked={alertsEnabled}
+                onChange={(e) => {
+                  setAlertsEnabled(e.target.checked)
+                  void saveAlerts(e.target.checked, threshold)
+                }}
+              />
+              <span className="pb-switch" />
+            </label>
+          </div>
+          <div className="pb-alert-cards">
+            <div className="pb-alert-card">
+              <div className="pb-alert-card-title">Порог снегопада</div>
+              <div className="pb-alert-card-main">
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={threshold}
+                  onChange={(e) => setThreshold(Number(e.target.value))}
+                  onBlur={() => void saveAlerts(alertsEnabled, threshold || 10)}
+                  className="pb-alert-threshold"
+                />
+                <span>см за 48 часов</span>
+              </div>
+              <div className="pb-alert-bar">
+                <div style={{ width: `${Math.min(100, threshold)}%` }} />
+              </div>
+            </div>
+            <div className="pb-alert-card">
+              <div className="pb-alert-card-title">Куда писать</div>
+              <p className="pb-alert-card-text">
+                {authMe?.email ?? '…'}
+                {authMe && !authMe.email_confirmed && ' — адрес пока не подтверждён, письма не уходят.'}
+              </p>
+            </div>
+            <div className="pb-alert-card">
+              <div className="pb-alert-card-title">Как это работает</div>
+              <p className="pb-alert-card-text">
+                Проверяем прогноз по вашим избранным курортам и пишем, когда за 48 часов ожидается больше {threshold} см снега.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Избранные курорты */}
+        <section className="pb-section">
+          <div className="pb-section-head">
+            <h3>Избранные курорты</h3>
+            <span className="mono-label">{user?.favorite_resorts?.length ?? 0} ИЗ {resorts.length}</span>
+            {(user?.favorite_resorts?.length ?? 0) >= 2 && (
+              <Link
+                to={`/compare?ids=${(user?.favorite_resorts ?? []).join(',')}`}
+                className="pb-link pb-section-cta"
+              >
+                Сравнить все →
+              </Link>
+            )}
+          </div>
+          <p className="section-hint">Погода на главной, алерты и «лучший день» считаются по этому списку.</p>
           {resorts.length > 8 && (
             <input
               type="search"
-              className="resort-search"
-              placeholder="Поиск курорта..."
+              className="pb-head-search pb-profile-search"
+              placeholder="Поиск курорта…"
               value={resortQuery}
               onChange={(e) => setResortQuery(e.target.value)}
             />
           )}
-          <div className="favorites-grid">
-            {visibleResorts.map((r) => (
-              <div key={r.id} className="favorite-resort-card">
-                <img src={imageUrl(r.image_url) || PLACEHOLDER_IMG} alt={r.name} />
-                <div className="favorite-resort-info">
-                  <Link to={`/resorts/${r.id}`}>{r.name}</Link>
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${favoriteResortIds.has(String(r.id)) ? 'btn-primary' : 'btn-outline'}`}
-                    onClick={() => void toggleFavorite(String(r.id))}
-                  >
-                    {favoriteResortIds.has(String(r.id)) ? '★ В избранном' : '+ В избранное'}
-                  </button>
+          <div className="pb-fav-grid">
+            {visibleResorts.map((r) => {
+              const fav = favoriteResortIds.has(String(r.id))
+              return (
+                <div key={r.id} className={`pb-fav-card ${fav ? '' : 'muted'}`}>
+                  <Link to={`/resorts/${r.id}`} className="pb-fav-photo">
+                    {r.image_url ? (
+                      <img src={imageUrl(r.image_url)} alt={r.name} loading="lazy" />
+                    ) : (
+                      <span className="pb-rcard-photo-empty">ФОТО КУРОРТА</span>
+                    )}
+                  </Link>
+                  <div className="pb-fav-body">
+                    <Link to={`/resorts/${r.id}`} className="pb-fav-name">{r.name}</Link>
+                    <button
+                      type="button"
+                      className={`pb-fav-btn ${fav ? 'active' : ''}`}
+                      onClick={() => void toggleFavorite(String(r.id))}
+                    >
+                      {fav ? '★ В избранном' : '+ Добавить'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       </div>
