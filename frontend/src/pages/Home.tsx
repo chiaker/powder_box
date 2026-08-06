@@ -165,6 +165,9 @@ export default function Home() {
 
   return (
     <div className="pb-home">
+      {/* Высоты и «лучший день» — соседи hero: на десктопе лежат поверх него,
+          на мобильном (дизайн 9a) становятся карточками под ним */}
+      <div className="pb-hero-block">
       <section className="pb-hero">
         <HeroSky />
         {shown && (
@@ -192,22 +195,30 @@ export default function Home() {
                 {top ? ` · ${top.condition.toLowerCase()}` : ''}
               </div>
             </div>
-            <div className="pb-hero-right">{[...heroPts].reverse().map(heroGroup)}</div>
-            {best >= 0 && topDays[best] && (
-              <div className="pb-bestday">
-                <span className="pb-bestday-label">ЛУЧШИЙ ДЕНЬ</span>
-                <span className="pb-bestday-day">{dayName(topDays[best].date)}</span>
-                <span className="pb-bestday-score">{scores[best]} /10</span>
-                <span className="pb-bestday-note">
-                  {topDays[best].snowfall > 0 ? `+${Math.round(topDays[best].snowfall)} см снега · ` : ''}
-                  ветер {Math.round(topDays[best].windSpeed)} м/с · {topDays[best].condition.toLowerCase()}
-                </span>
-              </div>
-            )}
           </div>
           </div>
         )}
       </section>
+      {shown && (
+        <div className="pb-hero-side" key={`side-${shown.id}`}>
+          <div className="pb-hero-right">{[...heroPts].reverse().map(heroGroup)}</div>
+          {best >= 0 && topDays[best] && (
+            <div className="pb-bestday">
+              <span className="pb-bestday-label">ЛУЧШИЙ ДЕНЬ</span>
+              <span className="pb-bestday-day">{dayName(topDays[best].date)}</span>
+              <span className="pb-bestday-score">
+                {scores[best]}
+                <span className="pb-bestday-of">ИЗ 10</span>
+              </span>
+              <span className="pb-bestday-note">
+                {topDays[best].snowfall > 0 ? `+${Math.round(topDays[best].snowfall)} см снега · ` : ''}
+                ветер {Math.round(topDays[best].windSpeed)} м/с · {topDays[best].condition.toLowerCase()}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+      </div>
 
       <div className="pb-wrap">
       <div className="pb-strip">

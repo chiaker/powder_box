@@ -14,13 +14,307 @@
 @keyframes pbFall{0%{transform:translateY(-30px)}100%{transform:translateY(470px)}}
 @keyframes pbSunSet{0%{transform:translate(0,0)}10%{transform:translate(-58px,-83px)}20%{transform:translate(-116px,-148px)}30%{transform:translate(-174px,-193px)}40%{transform:translate(-232px,-220px)}50%{transform:translate(-290px,-228px)}60%{transform:translate(-348px,-217px)}70%{transform:translate(-406px,-188px)}80%{transform:translate(-464px,-139px)}90%{transform:translate(-522px,-72px)}100%{transform:translate(-580px,14px)}}
 @keyframes pbSunRise{0%{transform:translate(-580px,14px)}10%{transform:translate(-522px,-72px)}20%{transform:translate(-464px,-139px)}30%{transform:translate(-406px,-188px)}40%{transform:translate(-348px,-217px)}50%{transform:translate(-290px,-228px)}60%{transform:translate(-232px,-220px)}70%{transform:translate(-174px,-193px)}80%{transform:translate(-116px,-148px)}90%{transform:translate(-58px,-83px)}100%{transform:translate(0,0)}}
+@keyframes pbSunSetM{0%{transform:translate(0.0px,0.0px)}10%{transform:translate(-19.6px,-52.8px)}20%{transform:translate(-39.2px,-93.6px)}30%{transform:translate(-58.8px,-122.4px)}40%{transform:translate(-78.4px,-139.2px)}50%{transform:translate(-98.0px,-144.0px)}60%{transform:translate(-117.6px,-136.8px)}70%{transform:translate(-137.2px,-117.6px)}80%{transform:translate(-156.8px,-86.4px)}90%{transform:translate(-176.4px,-43.2px)}100%{transform:translate(-196.0px,12.0px)}}
+@keyframes pbSunRiseM{0%{transform:translate(-196.0px,12.0px)}10%{transform:translate(-176.4px,-43.2px)}20%{transform:translate(-156.8px,-86.4px)}30%{transform:translate(-137.2px,-117.6px)}40%{transform:translate(-117.6px,-136.8px)}50%{transform:translate(-98.0px,-144.0px)}60%{transform:translate(-78.4px,-139.2px)}70%{transform:translate(-58.8px,-122.4px)}80%{transform:translate(-39.2px,-93.6px)}90%{transform:translate(-19.6px,-52.8px)}100%{transform:translate(0.0px,0.0px)}}
 @keyframes pbPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}</style></helmet>
+
+
+<section class="dv-turn" id="t9">
+<div class="dv-thd"><a class="dv-tid" href="#t9">9</a><span class="dv-tname">Мобильная версия — 390px</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="9a"><div class="dv-olabel"><a class="dv-oid" href="#9a">9a</a>Мобильная главная — светлая и тёмная тема, кликните ☀/☾</div>
+<div class="dv-card" style="width:390px;background:{{ mFill }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="9a Мобильная главная">
+  <div style="position:relative;height:420px;overflow:hidden">
+    <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#28406a 20%,#35507e 34%,#56688f 47%,#7d8fb4 58%,#a99ca3 67%,#d9a988 74%,#e8c8ab 79%,#f3e2d3 84%,#faf1e8 91%,#ffffff 100%)"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#0b1322 0%,#122036 26%,#1e3252 42%,#3a4066 55%,#6a4d6b 66%,#a05f60 74%,#d68a5e 81%,#f2b878 88%,#ffdba6 94%,#ffeed0 100%);opacity:{{ skyDark }};transition:opacity 1.8s ease-in-out"></div>
+    <div style="position:absolute;left:18%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.75);animation:pbFall 13s linear infinite"></div>
+    <div style="position:absolute;left:52%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 16s linear 4s infinite"></div>
+    <div style="position:absolute;left:81%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.7);animation:pbFall 14s linear 8s infinite"></div>
+    <header style="position:relative;display:flex;align-items:center;padding:16px 20px;color:#fff;z-index:2">
+      <span style="font-weight:600;font-size:15px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+        <span style="font-size:15px;color:rgba(255,255,255,.8)">⌕</span>
+        <span onClick="{{ toggleTheme }}" style="cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:rgba(255,255,255,.9)" style-hover="background:rgba(255,255,255,.14)"><span style="display:block;transform:rotate({{ iconRot }});transition:transform .6s cubic-bezier(.4,0,.2,1)">{{ themeIcon }}</span></span>
+        <span style="display:flex;flex-direction:column;gap:3.5px"><span style="width:18px;height:1.5px;background:#fff"></span><span style="width:18px;height:1.5px;background:#fff"></span><span style="width:12px;height:1.5px;background:#fff"></span></span>
+      </div>
+    </header>
+    <svg viewBox="0 0 390 420" style="position:absolute;inset:0;width:100%;height:100%;z-index:1" preserveAspectRatio="none">
+      <defs>
+        <radialGradient id="pbGlowMd" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffe8cc" stop-opacity=".9"></stop><stop offset="45%" stop-color="#f4c9a0" stop-opacity=".45"></stop><stop offset="100%" stop-color="#f4c9a0" stop-opacity="0"></stop></radialGradient>
+        <radialGradient id="pbSunMd" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffaf2"></stop><stop offset="62%" stop-color="#ffedd2"></stop><stop offset="100%" stop-color="#ffdda8" stop-opacity="0"></stop></radialGradient>
+        <radialGradient id="pbGlowMn" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffd9a8" stop-opacity=".9"></stop><stop offset="45%" stop-color="#e89a66" stop-opacity=".45"></stop><stop offset="100%" stop-color="#e89a66" stop-opacity="0"></stop></radialGradient>
+        <radialGradient id="pbSunMn" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff6e6"></stop><stop offset="62%" stop-color="#ffdfae"></stop><stop offset="100%" stop-color="#ffc987" stop-opacity="0"></stop></radialGradient>
+      </defs>
+      <g opacity="{{ starsOp }}" style="transition:opacity 1.8s ease-in-out">
+        <circle cx="95" cy="118" r="1.3" fill="#fff" opacity=".6"></circle>
+        <circle cx="250" cy="72" r="1.1" fill="#fff" opacity=".5"></circle>
+        <circle cx="330" cy="140" r="1.3" fill="#fff" opacity=".55"></circle>
+        <circle cx="60" cy="60" r="1.1" fill="#fff" opacity=".45"></circle>
+        <circle cx="180" cy="160" r="1.1" fill="#fff" opacity=".4"></circle>
+      </g>
+      <g style="transform:{{ sunPosM }};animation:{{ sunAnimM }}">
+        <g opacity="{{ dawnOp }}" style="transition:opacity 1.8s ease-in-out">
+          <ellipse cx="292" cy="336" rx="205" ry="100" fill="url(#pbGlowMd)" opacity=".55"></ellipse>
+          <ellipse cx="292" cy="336" rx="94" ry="56" fill="url(#pbGlowMd)" opacity=".8"></ellipse>
+          <circle cx="292" cy="338" r="23" fill="url(#pbSunMd)"></circle>
+        </g>
+        <g opacity="{{ duskOp }}" style="transition:opacity 1.8s ease-in-out">
+          <ellipse cx="292" cy="336" rx="205" ry="100" fill="url(#pbGlowMn)" opacity=".55"></ellipse>
+          <ellipse cx="292" cy="336" rx="94" ry="56" fill="url(#pbGlowMn)" opacity=".8"></ellipse>
+          <circle cx="292" cy="338" r="23" fill="url(#pbSunMn)"></circle>
+        </g>
+      </g>
+      <polygon points="-10,420 -10,372 70,336 140,354 215,236 300,344 350,322 400,364 400,420" fill="{{ mFill }}" style="transition:fill .9s"></polygon>
+      <polyline points="-10,372 70,336 140,354 215,236 300,344 350,322 400,364" fill="none" stroke="{{ rimStroke }}" stroke-width="2" opacity=".9" style="transition:stroke .9s"></polyline>
+      <circle cx="215" cy="236" r="4.5" fill="#fff"></circle><circle cx="215" cy="236" r="10" fill="none" stroke="#fff" stroke-width="1.4" opacity=".5" style="animation:pbPulse 2.6s ease-in-out infinite;transform-origin:215px 236px"></circle>
+      <circle cx="258" cy="291" r="4.5" fill="#fff"></circle><circle cx="258" cy="291" r="10" fill="none" stroke="#fff" stroke-width="1.4" opacity=".5" style="animation:pbPulse 2.6s ease-in-out .9s infinite;transform-origin:258px 291px"></circle>
+      <circle cx="140" cy="354" r="4.5" fill="#e0a763"></circle><circle cx="140" cy="354" r="10" fill="none" stroke="#e0a763" stroke-width="1.4" opacity=".6" style="animation:pbPulse 2.6s ease-in-out 1.7s infinite;transform-origin:140px 354px"></circle>
+    </svg>
+    <div style="position:absolute;left:20px;top:74px;color:#fff;z-index:1">
+      <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.14em;margin-bottom:8px">ФРАНЦИЯ · {{ updTime }}</div>
+      <h1 style="margin:0 0 10px;font-size:30px;font-weight:300;letter-spacing:-.03em;line-height:1.08">Шамони<br><span style="font-weight:600">Монблан</span></h1>
+      <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:rgba(255,255,255,.78)"><span style="width:5px;height:5px;border-radius:50%;background:#6fe09a;animation:pbPulse 2.4s ease-in-out infinite"></span>{{ liftStatus }}</div>
+    </div>
+  </div>
+  <div style="padding:18px 20px 0;display:flex;flex-direction:column;gap:9px">
+    <div style="display:flex;align-items:center;gap:11px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;padding:12px 14px;transition:border-color .9s,background-color .9s">
+      <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">ВЕРШИНА<br>3 842 М</span>
+      <span style="font-size:22px;font-weight:600;margin-left:2px">−11°</span>
+      <span style="font-size:15px;font-weight:600;color:{{ cSnow }}">+32 см</span>
+      <span style="margin-left:auto;font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cWarn }};text-align:right">⚠ 58<br>КМ/Ч</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;padding:12px 14px;transition:border-color .9s,background-color .9s">
+      <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">СЕРЕДИНА<br>2 600 М</span>
+      <span style="font-size:22px;font-weight:600;margin-left:2px">−6°</span>
+      <span style="font-size:15px;font-weight:600;color:{{ cSnow }}">+21 см</span>
+      <span style="margin-left:auto;font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};text-align:right">ШТИЛЬ</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:14px;padding:12px 14px;transition:border-color .9s,background-color .9s">
+      <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};letter-spacing:.1em;transition:color .9s">НИЗ<br>1 035 М</span>
+      <span style="font-size:22px;font-weight:600;margin-left:2px">+1°</span>
+      <span style="font-size:15px;font-weight:600;color:{{ cRain }}">дождь</span>
+      <span style="margin-left:auto;font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};text-align:right">СНЕГ ОТ<br>1 400 М</span>
+    </div>
+  </div>
+  <div style="margin:18px 20px 0;position:relative;z-index:2;background:{{ cBestBg }};border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px;color:#fff;box-shadow:0 8px 24px rgba(19,32,48,.22);transition:background-color .9s">
+    <div>
+      <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ЛУЧШИЙ ДЕНЬ</div>
+      <div style="font-size:18px;font-weight:600;margin-top:2px">Четверг</div>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:20px;font-weight:600;color:#6fe09a">9.2</div>
+      <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55)">ИЗ 10</div>
+    </div>
+  </div>
+  <p style="margin:12px 20px 0;font-size:12.5px;line-height:1.5;color:{{ cLabel }};text-wrap:pretty;transition:color .9s">53 см уляжется в ночь на чт, ветер стихнет, ясное небо. Первые вагоны на Grands Montets.</p>
+  <div style="padding:22px 20px 0">
+    <div style="font:400 10px 'IBM Plex Mono',monospace;color:{{ cLabel }};letter-spacing:.14em;margin-bottom:12px;transition:color .9s">ИНДЕКС КАТАНИЯ · 7 ДНЕЙ</div>
+    <div style="display:flex;align-items:flex-end;gap:7px;height:64px">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:{{ cBarBase }};border-radius:3px;height:41%;transition:background-color .9s"></div><div style="font:400 9px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};text-align:center;transition:color .9s">ПН</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:{{ cBarBase }};border-radius:3px;height:58%;transition:background-color .9s"></div><div style="font:400 9px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};text-align:center;transition:color .9s">ВТ</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:{{ cBarMid }};border-radius:3px;height:74%;transition:background-color .9s"></div><div style="font:400 9px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};text-align:center;transition:color .9s">СР</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:{{ cGreen }};border-radius:3px;height:92%;transition:background-color .9s"></div><div style="font:600 9px 'IBM Plex Mono',monospace;color:{{ cGreen }};text-align:center;transition:color .9s">ЧТ</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:{{ cBarMid }};border-radius:3px;height:81%;transition:background-color .9s"></div><div style="font:400 9px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};text-align:center;transition:color .9s">ПТ</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:{{ cBarBase }};border-radius:3px;height:63%;transition:background-color .9s"></div><div style="font:400 9px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};text-align:center;transition:color .9s">СБ</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:{{ cBarBase }};border-radius:3px;height:59%;transition:background-color .9s"></div><div style="font:400 9px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};text-align:center;transition:color .9s">ВС</div></div>
+    </div>
+  </div>
+  <div style="padding:22px 20px 0">
+    <div style="display:flex;align-items:baseline;margin-bottom:12px"><span style="font-size:15px;font-weight:600">Мои курорты</span><span style="margin-left:auto;font-size:12.5px;font-weight:500;color:{{ cMailLabel }};transition:color .9s">Сравнить →</span></div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:center;gap:10px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:12px 14px;transition:border-color .9s,background-color .9s">
+        <div><div style="font-size:14px;font-weight:600">Нисеко</div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};margin-top:2px;transition:color .9s">ЯПОНИЯ</div></div>
+        <div style="margin-left:auto;text-align:right"><div style="font-size:18px;font-weight:600;color:{{ cSnow }};transition:color .9s">+78 см</div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cGreen }};transition:color .9s">СЕГОДНЯ 9.6</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:12px 14px;transition:border-color .9s,background-color .9s">
+        <div><div style="font-size:14px;font-weight:600">Шамони</div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};margin-top:2px;transition:color .9s">ФРАНЦИЯ</div></div>
+        <div style="margin-left:auto;text-align:right"><div style="font-size:18px;font-weight:600;color:{{ cSnow }};transition:color .9s">+53 см</div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cGreen }};transition:color .9s">ЧТ 9.2</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;border:1px solid {{ cCardBorder }};background:{{ cCardActive }};border-radius:12px;padding:12px 14px;transition:border-color .9s,background-color .9s">
+        <div><div style="font-size:14px;font-weight:600">Церматт</div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cDayLbl }};margin-top:2px;transition:color .9s">ШВЕЙЦАРИЯ</div></div>
+        <div style="margin-left:auto;text-align:right"><div style="font-size:18px;font-weight:600;color:{{ cSnow }};transition:color .9s">+34 см</div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};transition:color .9s">ПТ 8.8</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin:22px 20px 0;padding:18px 20px;background:{{ cMailBg }};box-shadow:inset 0 0 0 1px {{ cMailBorder }},0 6px 20px rgba(19,32,48,.10);border-radius:14px;transition:background-color .9s,box-shadow .9s">
+    <div style="display:flex;align-items:center;gap:7px;font:400 10px 'IBM Plex Mono',monospace;color:{{ cMailLabel }};letter-spacing:.14em;margin-bottom:10px;transition:color .9s"><span style="width:6px;height:6px;border-radius:50%;background:{{ cSnow }};animation:pbPulse 2.4s ease-in-out infinite;transition:background-color .9s"></span>СНЕЖНАЯ ПОЧТА</div>
+    <p style="margin:0 0 14px;font-size:13.5px;line-height:1.5;text-wrap:pretty"><strong>«Через два дня в Нисеко выпадет 30 см».</strong> Письмо приходит раньше шторма.</p>
+    <div style="font-size:13px;color:{{ cDayLbl }};border-bottom:1px solid {{ cMailBorder }};padding-bottom:10px;margin-bottom:12px;transition:color .9s,border-color .9s">you@email.com</div>
+    <div style="background:{{ cBtnBg }};color:{{ cBtnColor }};border-radius:99px;padding:13px;text-align:center;font-size:13.5px;font-weight:600;transition:background-color .9s,color .9s">Подписаться</div>
+  </div>
+  <div style="display:flex;justify-content:space-around;padding:12px 8px 14px;margin-top:22px;border-top:1px solid {{ cBorder }};background:{{ cTabBg }};transition:border-color .9s,background-color .9s">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cMailLabel }};transition:color .9s"><span style="font-size:16px">❄</span><span style="font-size:10px;font-weight:600">Условия</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cDayLbl }};transition:color .9s"><span style="font-size:16px">◭</span><span style="font-size:10px">Курорты</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cDayLbl }};transition:color .9s"><span style="font-size:16px">⇄</span><span style="font-size:10px">Сравнение</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cDayLbl }};transition:color .9s"><span style="font-size:16px">✉</span><span style="font-size:10px">Алерты</span></div>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="9b"><div class="dv-olabel"><a class="dv-oid" href="#9b">9b</a>Сравнение — вместо таблицы карточки-строки со шкалами</div>
+<div class="dv-card" style="width:390px;background:#fff;font-family:Rubik,sans-serif;color:#132030" data-screen-label="9b Мобильное сравнение">
+  <div style="background:linear-gradient(in oklab 180deg,#1b2a4a,#35507e);padding:16px 20px 20px;color:#fff">
+    <div style="display:flex;align-items:center">
+      <span style="font-weight:600;font-size:15px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <span style="font-size:15px;color:rgba(255,255,255,.8)">⌕</span>
+        <span style="display:flex;flex-direction:column;gap:3.5px"><span style="width:18px;height:1.5px;background:#fff"></span><span style="width:18px;height:1.5px;background:#fff"></span><span style="width:12px;height:1.5px;background:#fff"></span></span>
+      </div>
+    </div>
+    <h1 style="margin:18px 0 4px;font-size:23px;font-weight:500;letter-spacing:-.02em">Сравнение</h1>
+    <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.12em">4 КУРОРТА · СНЕГ ЗА 48 Ч</div>
+  </div>
+  <div style="display:flex;gap:8px;padding:14px 20px;overflow:hidden">
+    <span style="font-size:12px;font-weight:600;background:#132030;color:#fff;border-radius:99px;padding:7px 14px;white-space:nowrap">Снег 48 ч</span>
+    <span style="font-size:12px;font-weight:500;color:#6d7d8e;background:#f0f5fa;border-radius:99px;padding:7px 14px;white-space:nowrap">Лучший день</span>
+    <span style="font-size:12px;font-weight:500;color:#6d7d8e;background:#f0f5fa;border-radius:99px;padding:7px 14px;white-space:nowrap">Ветер</span>
+  </div>
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:12px">
+    <div style="border:1px solid #dfe9f1;border-radius:14px;padding:14px 16px">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-size:15px;font-weight:600">Нисеко</span>
+        <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8">ЯПОНИЯ</span>
+        <span style="margin-left:auto;font:500 9px 'IBM Plex Mono',monospace;color:#fff;background:#3d8fdd;border-radius:99px;padding:2px 8px;letter-spacing:.08em">МАКС</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font-size:24px;font-weight:600;color:#3d8fdd">+78 см</span><span style="font-size:12.5px;color:#6d7d8e">−9° / −4°</span></div>
+      <div style="margin-top:9px;height:5px;background:#eef3f8;border-radius:3px;overflow:hidden"><div style="width:100%;height:100%;background:linear-gradient(90deg,#8cc2f0,#3d8fdd)"></div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+        <span style="display:inline-flex;align-items:baseline;gap:7px;background:#e9f6ee;border-radius:99px;padding:5px 12px"><span style="font-size:12.5px;font-weight:600;color:#22994a">Сегодня</span><span style="font:500 10.5px 'IBM Plex Mono',monospace;color:#22994a">9.6</span></span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7d8e"><span style="width:6px;height:6px;border-radius:50%;background:#22994a;animation:pbPulse 2.4s ease-in-out infinite"></span>30/30</span>
+      </div>
+    </div>
+    <div style="border:1px solid #c9dcee;border-radius:14px;padding:14px 16px;background:#f8fbfd">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-size:15px;font-weight:600">Шамони</span>
+        <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8">ФРАНЦИЯ</span>
+        <span style="margin-left:auto;font:400 9.5px 'IBM Plex Mono',monospace;color:#35507e">МОЙ КУРОРТ</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font-size:24px;font-weight:600;color:#3d8fdd">+53 см</span><span style="font-size:12.5px;color:#6d7d8e">−11° / +1°</span></div>
+      <div style="margin-top:9px;height:5px;background:#eef3f8;border-radius:3px;overflow:hidden"><div style="width:68%;height:100%;background:linear-gradient(90deg,#8cc2f0,#3d8fdd)"></div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+        <span style="display:inline-flex;align-items:baseline;gap:7px;background:#e9f6ee;border-radius:99px;padding:5px 12px"><span style="font-size:12.5px;font-weight:600;color:#22994a">Четверг</span><span style="font:500 10.5px 'IBM Plex Mono',monospace;color:#22994a">9.2</span></span>
+        <span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#c2452e">⚠ ВЕТЕР 58 КМ/Ч</span>
+      </div>
+    </div>
+    <div style="border:1px solid #dfe9f1;border-radius:14px;padding:14px 16px">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-size:15px;font-weight:600">Санкт-Антон</span>
+        <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8">АВСТРИЯ</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font-size:24px;font-weight:600;color:#3d8fdd">+41 см</span><span style="font-size:12.5px;color:#6d7d8e">−12° / −3°</span></div>
+      <div style="margin-top:9px;height:5px;background:#eef3f8;border-radius:3px;overflow:hidden"><div style="width:53%;height:100%;background:linear-gradient(90deg,#8cc2f0,#3d8fdd)"></div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+        <span style="display:inline-flex;align-items:baseline;gap:7px;background:#f0f5fa;border-radius:99px;padding:5px 12px"><span style="font-size:12.5px;font-weight:600">Четверг</span><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">8.4</span></span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7d8e"><span style="width:6px;height:6px;border-radius:50%;background:#b3742a"></span>79/88</span>
+      </div>
+    </div>
+    <div style="border:1px solid #dfe9f1;border-radius:14px;padding:14px 16px">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-size:15px;font-weight:600">Церматт</span>
+        <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8">ШВЕЙЦАРИЯ</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span style="font-size:24px;font-weight:600;color:#3d8fdd">+34 см</span><span style="font-size:12.5px;color:#6d7d8e">−14° / −6°</span></div>
+      <div style="margin-top:9px;height:5px;background:#eef3f8;border-radius:3px;overflow:hidden"><div style="width:44%;height:100%;background:linear-gradient(90deg,#8cc2f0,#3d8fdd)"></div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+        <span style="display:inline-flex;align-items:baseline;gap:7px;background:#f0f5fa;border-radius:99px;padding:5px 12px"><span style="font-size:12.5px;font-weight:600">Пятница</span><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">8.8</span></span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7d8e"><span style="width:6px;height:6px;border-radius:50%;background:#22994a"></span>52/54</span>
+      </div>
+    </div>
+  </div>
+  <div style="margin:18px 20px 0;border:1px dashed #c9dcee;border-radius:14px;padding:14px;text-align:center;font-size:13px;font-weight:500;color:#35507e">+ Добавить курорт</div>
+  <div style="display:flex;justify-content:space-around;padding:12px 8px 14px;margin-top:22px;border-top:1px solid #e8eef4">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9db4c8"><span style="font-size:16px">❄</span><span style="font-size:10px">Условия</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9db4c8"><span style="font-size:16px">◭</span><span style="font-size:10px">Курорты</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#35507e"><span style="font-size:16px">⇄</span><span style="font-size:10px;font-weight:600">Сравнение</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9db4c8"><span style="font-size:16px">✉</span><span style="font-size:10px">Алерты</span></div>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="9c"><div class="dv-olabel"><a class="dv-oid" href="#9c">9c</a>Курорт — карта трасс, сектора, очереди</div>
+<div class="dv-card" style="width:390px;background:#fff;font-family:Rubik,sans-serif;color:#132030" data-screen-label="9c Мобильный курорт">
+  <div style="background:linear-gradient(in oklab 180deg,#1b2a4a,#35507e);padding:16px 20px 20px;color:#fff">
+    <div style="display:flex;align-items:center">
+      <span style="font-size:15px;color:rgba(255,255,255,.8)">←</span>
+      <span style="margin-left:12px;font-weight:600;font-size:15px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <span style="font-size:14px;color:rgba(255,255,255,.8)">☆</span>
+        <span style="display:flex;flex-direction:column;gap:3.5px"><span style="width:18px;height:1.5px;background:#fff"></span><span style="width:18px;height:1.5px;background:#fff"></span><span style="width:12px;height:1.5px;background:#fff"></span></span>
+      </div>
+    </div>
+    <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.14em;margin-top:18px">ФРАНЦИЯ · ОБНОВЛЕНО 07:12</div>
+    <h1 style="margin:6px 0 14px;font-size:23px;font-weight:500;letter-spacing:-.02em">Шамони Монблан</h1>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 12px">
+        <div style="font:400 9px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.6);letter-spacing:.1em">ВЕРХ</div>
+        <div style="font-size:17px;font-weight:600;margin-top:3px;white-space:nowrap">−11°</div>
+        <div style="font-size:12.5px;font-weight:600;color:#a8d4ff">+32 см</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 12px">
+        <div style="font:400 9px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.6);letter-spacing:.1em">СЕРЕДИНА</div>
+        <div style="font-size:17px;font-weight:600;margin-top:3px;white-space:nowrap">−6°</div>
+        <div style="font-size:12.5px;font-weight:600;color:#a8d4ff">+21 см</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 12px">
+        <div style="font:400 9px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.6);letter-spacing:.1em">НИЗ</div>
+        <div style="font-size:17px;font-weight:600;margin-top:3px;white-space:nowrap">+1°</div>
+        <div style="font-size:12.5px;font-weight:600;color:#ffd9b0">дождь</div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:18px 20px 0">
+    <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
+      <span style="font-size:15px;font-weight:600">Карта трасс</span>
+      <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8;letter-spacing:.1em">70/79 ОТКРЫТО</span>
+    </div>
+    <div style="height:220px;border-radius:14px;border:1px solid #dfe9f1;background:repeating-linear-gradient(-45deg,#eef5fa 0 10px,#f8fbfd 10px 20px);display:grid;place-items:center">
+      <span style="font:400 11px 'IBM Plex Mono',monospace;color:#9db4c8;background:#fff;border:1px solid #dfe9f1;border-radius:99px;padding:7px 14px">схема курорта</span>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:12px;font-size:11.5px;font-weight:500;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:4px;background:#22994a;border-radius:2px"></span>18</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:4px;background:#3d8fdd;border-radius:2px"></span>24</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:4px;background:#c2452e;border-radius:2px"></span>19</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:4px;background:#132030;border-radius:2px"></span>9</span>
+    </div>
+  </div>
+  <div style="padding:22px 20px 0">
+    <div style="font:400 10px 'IBM Plex Mono',monospace;color:#6d7d8e;letter-spacing:.14em;margin-bottom:12px">СЕКТОРА · СЕЙЧАС</div>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:13.5px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:7px;height:7px;border-radius:50%;background:#22994a;animation:pbPulse 2.4s ease-in-out infinite"></span><span style="font-weight:500">Grands Montets</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">12/14 · −9°</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:7px;height:7px;border-radius:50%;background:#22994a;animation:pbPulse 2.4s ease-in-out .6s infinite"></span><span style="font-weight:500">Brévent-Flégère</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">18/19 · −6°</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:7px;height:7px;border-radius:50%;background:#b3742a;animation:pbPulse 2.4s ease-in-out 1.2s infinite"></span><span style="font-weight:500">Balme-Le Tour</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#b3742a">ветер · 9/13</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:7px;height:7px;border-radius:50%;background:#c2452e"></span><span style="font-weight:500;color:#6d7d8e">Aiguille du Midi</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#c2452e">закрыт</span></div>
+    </div>
+  </div>
+  <div style="padding:22px 20px 0">
+    <div style="font:400 10px 'IBM Plex Mono',monospace;color:#6d7d8e;letter-spacing:.14em;margin-bottom:12px">ОЧЕРЕДИ</div>
+    <div style="display:flex;flex-direction:column;gap:11px;font-size:13px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="color:#6d7d8e;width:88px">Plan Joran</span><div style="flex:1;height:5px;background:#eef3f8;border-radius:3px;overflow:hidden"><div style="width:15%;height:100%;background:#22994a"></div></div><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#22994a;width:44px;text-align:right">3 МИН</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span style="color:#6d7d8e;width:88px">Bochard</span><div style="flex:1;height:5px;background:#eef3f8;border-radius:3px;overflow:hidden"><div style="width:45%;height:100%;background:#b3742a"></div></div><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#b3742a;width:44px;text-align:right">12 МИН</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><span style="color:#6d7d8e;width:88px">Flégère</span><div style="flex:1;height:5px;background:#eef3f8;border-radius:3px;overflow:hidden"><div style="width:22%;height:100%;background:#22994a"></div></div><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#22994a;width:44px;text-align:right">5 МИН</span></div>
+    </div>
+  </div>
+  <div style="margin:22px 20px 0;padding:18px 20px;background:linear-gradient(180deg,#eef5fc,#f8fbfe);box-shadow:inset 0 0 0 1px #c9dcee;border-radius:14px">
+    <div style="display:flex;align-items:center;gap:7px;font:400 10px 'IBM Plex Mono',monospace;color:#35507e;letter-spacing:.14em;margin-bottom:10px"><span style="width:6px;height:6px;border-radius:50%;background:#3d8fdd;animation:pbPulse 2.4s ease-in-out infinite"></span>СНЕЖНАЯ ПОЧТА</div>
+    <p style="margin:0 0 14px;font-size:13.5px;line-height:1.5;text-wrap:pretty"><strong>Шамони в вашем списке.</strong> Напишем за 48 часов до снегопада.</p>
+    <div style="background:#35507e;color:#fff;border-radius:99px;padding:13px;text-align:center;font-size:13.5px;font-weight:600">Включить алерт</div>
+  </div>
+  <div style="display:flex;justify-content:space-around;padding:12px 8px 14px;margin-top:22px;border-top:1px solid #e8eef4">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9db4c8"><span style="font-size:16px">❄</span><span style="font-size:10px">Условия</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#35507e"><span style="font-size:16px">◭</span><span style="font-size:10px;font-weight:600">Курорты</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9db4c8"><span style="font-size:16px">⇄</span><span style="font-size:10px">Сравнение</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9db4c8"><span style="font-size:16px">✉</span><span style="font-size:10px">Алерты</span></div>
+  </div>
+</div></div>
+
+</div>
+<p class="dv-next">Дальше: «тёмная мобильная версия» · «мобильная страница алертов»</p>
+</section>
 <section class="dv-turn" id="t7">
 <div class="dv-thd"><a class="dv-tid" href="#t7">7</a><span class="dv-tname">Живой переключатель темы — солнце переходит справа (рассвет) налево (закат)</span></div>
 <div class="dv-opts">
 
 <div class="dv-opt" id="7a"><div class="dv-olabel"><a class="dv-oid" href="#7a">7a</a>Интерактивная главная — кликните ☀/☾ в шапке</div>
-<div class="dv-card" style="width:1180px;background:{{ cBg }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="7a Главная с темой">
+<div class="dv-card" style="width:1180px;background:{{ mFill }};font-family:Rubik,sans-serif;color:{{ cText }};transition:background-color .9s,color .9s" data-screen-label="7a Главная с темой">
   <div style="position:relative;height:520px;overflow:hidden">
     <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#28406a 20%,#35507e 34%,#56688f 47%,#7d8fb4 58%,#a99ca3 67%,#d9a988 74%,#e8c8ab 79%,#f3e2d3 84%,#faf1e8 91%,#ffffff 100%)"></div>
     <div style="position:absolute;inset:0;background:linear-gradient(in oklab 180deg,#0b1322 0%,#122036 26%,#1e3252 42%,#3a4066 55%,#6a4d6b 66%,#a05f60 74%,#d68a5e 81%,#f2b878 88%,#ffdba6 94%,#ffeed0 100%);opacity:{{ skyDark }};transition:opacity 1.8s ease-in-out"></div>
@@ -30,7 +324,7 @@
     <div style="position:absolute;left:76%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 16s linear 1s infinite"></div>
     <div style="position:absolute;left:92%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.7);animation:pbFall 14s linear 8s infinite"></div>
     <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff;z-index:2">
-      <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <span style="font-weight:600;font-size:16px;color:#fff">powderbox<span style="color:#ffd9b0">*</span></span>
       <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
         <span style="color:#fff;font-weight:600">Условия</span><span>Курорты</span><span>Сравнение</span><span>Алерты</span>
       </nav>
@@ -71,8 +365,8 @@
         </g>
       </g>
       </g>
-      <polygon points="-10,520 -10,462 190,398 380,424 620,268 840,420 990,388 1190,452 1190,520" fill="{{ mFill }}" style="transition:fill .9s ease-in-out"></polygon>
-      <polyline points="-10,462 190,398 380,424 620,268 840,420 990,388 1190,452" fill="none" stroke="{{ rimStroke }}" stroke-width="2" opacity=".85" style="transition:stroke .9s ease-in-out"></polyline>
+      <polygon points="-10,520 -10,462 190,398 380,424 620,268 840,420 990,388 1190,452 1190,520" fill="{{ mFill }}" style="transition:fill .9s"></polygon>
+      <polyline points="-10,462 190,398 380,424 620,268 840,420 990,388 1190,452" fill="none" stroke="{{ rimStroke }}" stroke-width="2" opacity=".85" style="transition:stroke .9s"></polyline>
       <circle cx="620" cy="268" r="5" fill="#fff"></circle><circle cx="620" cy="268" r="11" fill="none" stroke="#fff" stroke-width="1.5" opacity=".5" style="animation:pbPulse 2.6s ease-in-out infinite;transform-origin:620px 268px"></circle>
       <circle cx="497" cy="348" r="5" fill="#fff"></circle><circle cx="497" cy="348" r="11" fill="none" stroke="#fff" stroke-width="1.5" opacity=".5" style="animation:pbPulse 2.6s ease-in-out .9s infinite;transform-origin:497px 348px"></circle>
       <circle cx="240" cy="412" r="5" fill="#e0a763"></circle><circle cx="240" cy="412" r="11" fill="none" stroke="#e0a763" stroke-width="1.5" opacity=".6" style="animation:pbPulse 2.6s ease-in-out 1.7s infinite;transform-origin:240px 412px"></circle>
@@ -121,7 +415,7 @@
         <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:600;width:80px">Церматт</span><span style="color:{{ cSnow }};font-weight:600;transition:color .9s">+34 см</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cLabel }};transition:color .9s">8.8 ПТ</span></div>
       </div>
     </div>
-    <div style="padding:26px 36px;background:{{ cMailBg }};box-shadow:inset 0 0 0 1px {{ cMailBorder }};transition:background-color .9s,box-shadow .9s">
+    <div style="padding:26px 36px;background:{{ cMailBg }};box-shadow:inset 0 0 0 1px {{ cMailBorder }},0 6px 20px rgba(19,32,48,.10);transition:background-color .9s,box-shadow .9s">
       <div style="display:flex;align-items:center;gap:7px;font:400 10.5px 'IBM Plex Mono',monospace;color:{{ cMailLabel }};letter-spacing:.14em;margin-bottom:12px;transition:color .9s"><span style="width:6px;height:6px;border-radius:50%;background:{{ cSnow }};animation:pbPulse 2.4s ease-in-out infinite;transition:background-color .9s"></span>СНЕЖНАЯ ПОЧТА</div>
       <p style="margin:0 0 16px;font-size:14px;line-height:1.5;text-wrap:pretty"><strong>«Через два дня в Нисеко выпадет 30 см».</strong> Письмо приходит раньше шторма.</p>
       <div style="display:flex;gap:10px;align-items:center">
@@ -161,7 +455,7 @@
   </div>
   <footer style="background:{{ cFooterBg }};color:#fff;padding:30px 36px;display:flex;align-items:flex-start;gap:60px;transition:background-color .9s">
     <div>
-      <div style="font-weight:600;font-size:15px;margin-bottom:8px">powderbox<span style="color:#ffd9b0">*</span></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="width:30px;height:30px;border-radius:9px;background:#ffd9b0;color:#1b2a4a;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;letter-spacing:-.03em">pb*</span></div>
       <p style="margin:0;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.6;max-width:34ch">Погода по высотам, лучший день для катания и снежные алерты — по 2 400 курортам мира.</p>
     </div>
     <div style="display:flex;gap:44px;font-size:13px">
@@ -175,295 +469,10 @@
   </footer>
 </div></div>
 </div>
-<p class="dv-next">Клик по ☀/☾ — солнце уезжает влево, небо и весь интерфейс перетекают в тёмную тему (1.8 с). Статичные референсы тем — <a class="dv-oid" href="#5a">5a</a> и <a class="dv-oid" href="#6a">6a</a>.</p>
+<p class="dv-next">Клик по ☀/☾ — солнце уезжает влево, небо и весь интерфейс перетекают в тёмную тему (1.8 с). Обе темы живут в одном экране.</p>
 </section>
-<section class="dv-turn" id="t6">
-<div class="dv-thd"><a class="dv-tid" href="#t6">6</a><span class="dv-tname">Тёмная версия — закат, солнце ушло влево</span></div>
-<div class="dv-opts">
 
-<div class="dv-opt" id="6a"><div class="dv-olabel"><a class="dv-oid" href="#6a">6a</a>Главная, тёмная тема — вечер в горах, закат за левым гребнем</div>
-<div class="dv-card" style="width:1180px;background:#0f1828;font-family:Rubik,sans-serif;color:#e8eef7" data-screen-label="6a Главная тёмная">
-  <div style="position:relative;height:520px;overflow:hidden;background:linear-gradient(in oklab 180deg,#0b1322 0%,#122036 26%,#1e3252 42%,#3a4066 55%,#6a4d6b 66%,#a05f60 74%,#d68a5e 81%,#f2b878 88%,#ffdba6 94%,#ffeed0 100%)">
-    <div style="position:absolute;left:14%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.8);animation:pbFall 12s linear infinite"></div>
-    <div style="position:absolute;left:38%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 15s linear 3s infinite"></div>
-    <div style="position:absolute;left:57%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.8);animation:pbFall 13s linear 6s infinite"></div>
-    <div style="position:absolute;left:76%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 16s linear 1s infinite"></div>
-    <div style="position:absolute;left:92%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.7);animation:pbFall 14s linear 8s infinite"></div>
-    <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff;z-index:1">
-      <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
-      <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
-        <span style="color:#fff;font-weight:600">Условия</span><span>Курорты</span><span>Сравнение</span><span>Алерты</span>
-      </nav>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
-        <span style="font-size:13px;color:rgba(255,255,255,.65);border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:2px">⌕&nbsp; поиск</span>
-        <span style="font-size:13px;font-weight:600;color:#fff">Войти</span>
-      </div>
-    </header>
-    <svg viewBox="0 0 1180 520" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none">
-      <defs>
-        <radialGradient id="pbGlow6" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffd9a8" stop-opacity=".9"></stop><stop offset="45%" stop-color="#e89a66" stop-opacity=".45"></stop><stop offset="100%" stop-color="#e89a66" stop-opacity="0"></stop></radialGradient>
-        <radialGradient id="pbSun6" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff6e6"></stop><stop offset="62%" stop-color="#ffdfae"></stop><stop offset="100%" stop-color="#ffc987" stop-opacity="0"></stop></radialGradient>
-      </defs>
-      <circle cx="285" cy="120" r="1.4" fill="#fff" opacity=".7"></circle>
-      <circle cx="450" cy="70" r="1.1" fill="#fff" opacity=".55"></circle>
-      <circle cx="700" cy="105" r="1.4" fill="#fff" opacity=".65"></circle>
-      <circle cx="905" cy="60" r="1.1" fill="#fff" opacity=".55"></circle>
-      <circle cx="1080" cy="130" r="1.4" fill="#fff" opacity=".6"></circle>
-      <circle cx="160" cy="55" r="1.1" fill="#fff" opacity=".5"></circle>
-      <circle cx="560" cy="160" r="1.1" fill="#fff" opacity=".45"></circle>
-      <circle cx="990" cy="200" r="1.2" fill="#fff" opacity=".45"></circle>
-      <ellipse cx="300" cy="410" rx="340" ry="150" fill="url(#pbGlow6)" opacity=".55"></ellipse>
-      <ellipse cx="300" cy="410" rx="150" ry="82" fill="url(#pbGlow6)" opacity=".8"></ellipse>
-      <circle cx="300" cy="412" r="34" fill="url(#pbSun6)"></circle>
-      <polygon points="-10,520 -10,462 190,398 380,424 620,268 840,420 990,388 1190,452 1190,520" fill="#182742"></polygon>
-      <polyline points="-10,462 190,398 380,424 620,268 840,420 990,388 1190,452" fill="none" stroke="#ffcf9e" stroke-width="2" opacity=".75"></polyline>
-      <circle cx="620" cy="268" r="5" fill="#fff"></circle><circle cx="620" cy="268" r="11" fill="none" stroke="#fff" stroke-width="1.5" opacity=".5" style="animation:pbPulse 2.6s ease-in-out infinite;transform-origin:620px 268px"></circle>
-      <circle cx="497" cy="348" r="5" fill="#fff"></circle><circle cx="497" cy="348" r="11" fill="none" stroke="#fff" stroke-width="1.5" opacity=".5" style="animation:pbPulse 2.6s ease-in-out .9s infinite;transform-origin:497px 348px"></circle>
-      <circle cx="240" cy="412" r="5" fill="#ffd9b0"></circle><circle cx="240" cy="412" r="11" fill="none" stroke="#ffd9b0" stroke-width="1.5" opacity=".6" style="animation:pbPulse 2.6s ease-in-out 1.7s infinite;transform-origin:240px 412px"></circle>
-    </svg>
-    <div style="position:absolute;left:36px;top:88px;color:#fff">
-      <div style="font:400 11px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.14em;margin-bottom:12px">ФРАНЦИЯ · ОБНОВЛЕНО 17:40</div>
-      <h1 style="margin:0 0 12px;font-size:42px;font-weight:300;letter-spacing:-.03em;line-height:1.06">Шамони<br><span style="font-weight:600">Монблан</span></h1>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,.75)"><span style="width:6px;height:6px;border-radius:50%;background:#6fe09a;animation:pbPulse 2.4s ease-in-out infinite"></span>вечернее катание · 6 подъёмников до 21:00</div>
-    </div>
-    <div style="position:absolute;right:36px;top:96px;width:240px;color:#fff;text-align:right">
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.12em">ВЕРШИНА — 3 842 М</div>
-      <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:12px;margin-top:2px"><span style="font-size:32px;font-weight:600">−14°</span><span style="font-size:17px;font-weight:600;color:#a8d4ff">+32 см</span></div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#ffb3a0;margin-top:2px">⚠ ПОРЫВЫ 58 КМ/Ч</div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.12em;margin-top:26px">СЕРЕДИНА — 2 600 М</div>
-      <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:12px;margin-top:2px"><span style="font-size:32px;font-weight:600">−9°</span><span style="font-size:17px;font-weight:600;color:#a8d4ff">+21 см</span></div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);margin-top:2px">ШТИЛЬ · СУХОЙ ПУХЛЯК</div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.12em;margin-top:26px">НИЗ СКЛОНА — 1 035 М</div>
-      <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:12px;margin-top:2px"><span style="font-size:32px;font-weight:600">−2°</span><span style="font-size:17px;font-weight:600;color:#ffd9b0">снег</span></div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);margin-top:2px">ГРАНИЦА СНЕГА У ПОДНОЖИЯ</div>
-    </div>
-    <div style="position:absolute;left:36px;bottom:30px;display:flex;align-items:center;gap:22px;background:rgba(8,14,26,.72);border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:99px;padding:12px 26px;backdrop-filter:blur(6px)">
-      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ЛУЧШИЙ ДЕНЬ</span>
-      <span style="font-size:19px;font-weight:600">Четверг</span>
-      <span style="font-size:14px;color:#6fe09a;font-weight:600">9.2 /10</span>
-      <span style="font-size:12px;color:rgba(255,255,255,.65)">53 см уляжется в ночь на чт · ветер стихнет · ясное небо</span>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,.08)">
-    <div style="padding:26px 36px;border-right:1px solid rgba(255,255,255,.08)">
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#7d8ea6;letter-spacing:.14em;margin-bottom:14px">ИНДЕКС КАТАНИЯ · 7 ДНЕЙ</div>
-      <div style="display:flex;align-items:flex-end;gap:9px;height:76px">
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#24344e;border-radius:3px;height:41%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#5f7188;text-align:center">ПН</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#24344e;border-radius:3px;height:58%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#5f7188;text-align:center">ВТ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#3a5578;border-radius:3px;height:74%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#5f7188;text-align:center">СР</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#3fc06a;border-radius:3px;height:92%"></div><div style="font:600 9.5px 'IBM Plex Mono',monospace;color:#3fc06a;text-align:center">ЧТ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#3a5578;border-radius:3px;height:81%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#5f7188;text-align:center">ПТ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#24344e;border-radius:3px;height:63%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#5f7188;text-align:center">СБ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#24344e;border-radius:3px;height:59%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#5f7188;text-align:center">ВС</div></div>
-      </div>
-    </div>
-    <div style="padding:26px 36px;border-right:1px solid rgba(255,255,255,.08)">
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#7d8ea6;letter-spacing:.14em;margin-bottom:14px">СНЕГОПАДЫ · 5 ДНЕЙ</div>
-      <div style="display:flex;flex-direction:column;gap:11px;font-size:13.5px">
-        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:500;width:80px">Нисеко</span><span style="color:#6fb1ff;font-weight:600">+78 см</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#3fc06a">9.6 СЕГОДНЯ</span></div>
-        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:500;width:80px">Санкт-Антон</span><span style="color:#6fb1ff;font-weight:600">+41 см</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#7d8ea6">8.4 ЧТ</span></div>
-        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:500;width:80px">Церматт</span><span style="color:#6fb1ff;font-weight:600">+34 см</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#7d8ea6">8.8 ПТ</span></div>
-      </div>
-    </div>
-    <div style="padding:26px 36px;background:linear-gradient(180deg,#16263f,#12203a);box-shadow:inset 0 0 0 1px #2c4368">
-      <div style="display:flex;align-items:center;gap:7px;font:400 10.5px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.14em;margin-bottom:12px"><span style="width:6px;height:6px;border-radius:50%;background:#6fb1ff;animation:pbPulse 2.4s ease-in-out infinite"></span>СНЕЖНАЯ ПОЧТА</div>
-      <p style="margin:0 0 16px;font-size:14px;line-height:1.5;text-wrap:pretty;color:#e8eef7"><strong>«Через два дня в Нисеко выпадет 30 см».</strong> Письмо приходит раньше шторма.</p>
-      <div style="display:flex;gap:10px;align-items:center">
-        <span style="flex:1;font-size:13px;color:#5f7188;border-bottom:1px solid #2c4368;padding-bottom:8px">you@email.com</span>
-        <span style="font-size:12.5px;font-weight:600;color:#0b1322;background:#ffd9b0;border-radius:99px;padding:8px 16px;white-space:nowrap">Подписаться →</span>
-      </div>
-    </div>
-  </div>
-  <div style="padding:26px 36px;border-top:1px solid rgba(255,255,255,.08)">
-    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
-      <h3 style="margin:0;font-size:16px;font-weight:600">Мои курорты</h3>
-      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#5f7188;letter-spacing:.1em">4 В СПИСКЕ</span>
-      <span style="margin-left:auto;font-size:13px;font-weight:500;color:#8fb4dd">Сравнить все →</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
-      <div style="border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px 18px">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Нисеко</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#5f7188">ЯПОНИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#6fb1ff;margin:8px 0 2px">+78 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#3fc06a">ЛУЧШИЙ ДЕНЬ · СЕГОДНЯ 9.6</div>
-      </div>
-      <div style="border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:16px 18px;background:#16233c">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Шамони</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#5f7188">ФРАНЦИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#6fb1ff;margin:8px 0 2px">+53 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#3fc06a">ЛУЧШИЙ ДЕНЬ · ЧТ 9.2</div>
-      </div>
-      <div style="border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px 18px">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Церматт</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#5f7188">ШВЕЙЦАРИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#6fb1ff;margin:8px 0 2px">+34 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#7d8ea6">ЛУЧШИЙ ДЕНЬ · ПТ 8.8</div>
-      </div>
-      <div style="border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px 18px">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Санкт-Антон</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#5f7188">АВСТРИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#6fb1ff;margin:8px 0 2px">+41 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#7d8ea6">ЛУЧШИЙ ДЕНЬ · ЧТ 8.4</div>
-      </div>
-    </div>
-  </div>
-  <footer style="background:#0b1322;color:#fff;padding:30px 36px;display:flex;align-items:flex-start;gap:60px;border-top:1px solid rgba(255,255,255,.08)">
-    <div>
-      <div style="font-weight:600;font-size:15px;margin-bottom:8px">powderbox<span style="color:#ffd9b0">*</span></div>
-      <p style="margin:0;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.6;max-width:34ch">Погода по высотам, лучший день для катания и снежные алерты — по 2 400 курортам мира.</p>
-    </div>
-    <div style="display:flex;gap:44px;font-size:13px">
-      <div style="display:flex;flex-direction:column;gap:9px"><span style="font:400 10px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ПРОДУКТ</span><span style="color:rgba(255,255,255,.75)">Условия</span><span style="color:rgba(255,255,255,.75)">Курорты</span><span style="color:rgba(255,255,255,.75)">Сравнение</span><span style="color:rgba(255,255,255,.75)">Алерты</span></div>
-      <div style="display:flex;flex-direction:column;gap:9px"><span style="font:400 10px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ДАННЫЕ</span><span style="color:rgba(255,255,255,.75)">Источники прогнозов</span><span style="color:rgba(255,255,255,.75)">Как считается индекс</span><span style="color:rgba(255,255,255,.75)">API</span></div>
-    </div>
-    <div style="margin-left:auto;text-align:right">
-      <div style="font:400 10px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.45);letter-spacing:.1em">ОБНОВЛЕНИЕ КАЖДЫЕ 3 ЧАСА</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:8px">© 2026 powderbox</div>
-    </div>
-  </footer>
-</div></div>
-</div>
-<p class="dv-next">Дальше: «переключатель светлая/тёмная в шапке» · «тёмные версии внутренних страниц»</p>
-</section>
-<section class="dv-turn" id="t5">
-<div class="dv-thd"><a class="dv-tid" href="#t5">5</a><span class="dv-tname">PowderBox — главная страница</span></div>
-<div class="dv-opts">
 
-<div class="dv-opt" id="5a"><div class="dv-olabel"><a class="dv-oid" href="#5a">5a</a>Главная страница целиком — дашборд + мои курорты + подвал</div>
-<div class="dv-card" style="width:1180px;background:#fff;font-family:Rubik,sans-serif;color:#132030" data-screen-label="5a Главная">
-  <div style="position:relative;height:520px;overflow:hidden;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#28406a 20%,#35507e 34%,#56688f 47%,#7d8fb4 58%,#a99ca3 67%,#d9a988 74%,#e8c8ab 79%,#f3e2d3 84%,#faf1e8 91%,#ffffff 100%)">
-    <div style="position:absolute;left:14%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.8);animation:pbFall 12s linear infinite"></div>
-    <div style="position:absolute;left:38%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 15s linear 3s infinite"></div>
-    <div style="position:absolute;left:57%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.8);animation:pbFall 13s linear 6s infinite"></div>
-    <div style="position:absolute;left:76%;top:0;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.6);animation:pbFall 16s linear 1s infinite"></div>
-    <div style="position:absolute;left:92%;top:0;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.7);animation:pbFall 14s linear 8s infinite"></div>
-    <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff">
-      <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
-      <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
-        <span style="color:#fff;font-weight:600">Условия</span><span>Курорты</span><span>Сравнение</span><span>Алерты</span>
-      </nav>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
-        <span style="font-size:13px;color:rgba(255,255,255,.65);border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:2px">⌕&nbsp; поиск</span>
-        <span style="font-size:13px;font-weight:600;color:#fff">Войти</span>
-      </div>
-    </header>
-    <svg viewBox="0 0 1180 520" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none">
-      <defs>
-        <radialGradient id="pbGlow5" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffe8cc" stop-opacity=".9"></stop><stop offset="45%" stop-color="#f4c9a0" stop-opacity=".45"></stop><stop offset="100%" stop-color="#f4c9a0" stop-opacity="0"></stop></radialGradient>
-        <radialGradient id="pbSun5" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffaf2"></stop><stop offset="62%" stop-color="#ffedd2"></stop><stop offset="100%" stop-color="#ffdda8" stop-opacity="0"></stop></radialGradient>
-      </defs>
-      <circle cx="285" cy="120" r="1.4" fill="#fff" opacity=".55"></circle>
-      <circle cx="450" cy="70" r="1.1" fill="#fff" opacity=".4"></circle>
-      <circle cx="700" cy="105" r="1.4" fill="#fff" opacity=".5"></circle>
-      <circle cx="905" cy="60" r="1.1" fill="#fff" opacity=".4"></circle>
-      <circle cx="1080" cy="130" r="1.4" fill="#fff" opacity=".5"></circle>
-      <circle cx="160" cy="55" r="1.1" fill="#fff" opacity=".35"></circle>
-      <ellipse cx="880" cy="400" rx="340" ry="150" fill="url(#pbGlow5)" opacity=".55"></ellipse>
-      <ellipse cx="880" cy="400" rx="150" ry="82" fill="url(#pbGlow5)" opacity=".8"></ellipse>
-      <circle cx="880" cy="402" r="34" fill="url(#pbSun5)"></circle>
-      <polygon points="-10,520 -10,462 190,398 380,424 620,268 840,420 990,388 1190,452 1190,520" fill="#eef3f9"></polygon>
-      <polyline points="-10,462 190,398 380,424 620,268 840,420 990,388 1190,452" fill="none" stroke="#ffffff" stroke-width="2" opacity=".9"></polyline>
-      <circle cx="620" cy="268" r="5" fill="#fff"></circle><circle cx="620" cy="268" r="11" fill="none" stroke="#fff" stroke-width="1.5" opacity=".5" style="animation:pbPulse 2.6s ease-in-out infinite;transform-origin:620px 268px"></circle>
-      <circle cx="497" cy="348" r="5" fill="#fff"></circle><circle cx="497" cy="348" r="11" fill="none" stroke="#fff" stroke-width="1.5" opacity=".5" style="animation:pbPulse 2.6s ease-in-out .9s infinite;transform-origin:497px 348px"></circle>
-      <circle cx="240" cy="412" r="5" fill="#e0a763"></circle><circle cx="240" cy="412" r="11" fill="none" stroke="#e0a763" stroke-width="1.5" opacity=".6" style="animation:pbPulse 2.6s ease-in-out 1.7s infinite;transform-origin:240px 412px"></circle>
-    </svg>
-    <div style="position:absolute;left:36px;top:88px;color:#fff">
-      <div style="font:400 11px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.14em;margin-bottom:12px">ФРАНЦИЯ · ОБНОВЛЕНО 07:12</div>
-      <h1 style="margin:0 0 12px;font-size:42px;font-weight:300;letter-spacing:-.03em;line-height:1.06">Шамони<br><span style="font-weight:600">Монблан</span></h1>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,.75)"><span style="width:6px;height:6px;border-radius:50%;background:#6fe09a;animation:pbPulse 2.4s ease-in-out infinite"></span>работает 41 из 47 подъёмников</div>
-    </div>
-    <div style="position:absolute;right:36px;top:96px;width:240px;color:#fff;text-align:right">
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.12em">ВЕРШИНА — 3 842 М</div>
-      <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:12px;margin-top:2px"><span style="font-size:32px;font-weight:600">−11°</span><span style="font-size:17px;font-weight:600;color:#a8d4ff">+32 см</span></div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#ffb3a0;margin-top:2px">⚠ ПОРЫВЫ 58 КМ/Ч</div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.12em;margin-top:26px">СЕРЕДИНА — 2 600 М</div>
-      <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:12px;margin-top:2px"><span style="font-size:32px;font-weight:600">−6°</span><span style="font-size:17px;font-weight:600;color:#a8d4ff">+21 см</span></div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);margin-top:2px">ШТИЛЬ · СУХОЙ ПУХЛЯК</div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);letter-spacing:.12em;margin-top:26px">НИЗ СКЛОНА — 1 035 М</div>
-      <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:12px;margin-top:2px"><span style="font-size:32px;font-weight:600">+1°</span><span style="font-size:17px;font-weight:600;color:#ffd9b0">дождь</span></div>
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.55);margin-top:2px">ГРАНИЦА СНЕГА 1 400 М</div>
-    </div>
-    <div style="position:absolute;left:36px;bottom:30px;display:flex;align-items:center;gap:22px;background:rgba(19,32,48,.85);color:#fff;border-radius:99px;padding:12px 26px;backdrop-filter:blur(6px)">
-      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ЛУЧШИЙ ДЕНЬ</span>
-      <span style="font-size:19px;font-weight:600">Четверг</span>
-      <span style="font-size:14px;color:#6fe09a;font-weight:600">9.2 /10</span>
-      <span style="font-size:12px;color:rgba(255,255,255,.65)">53 см уляжется в ночь на чт · ветер стихнет · ясное небо</span>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:0;border-top:1px solid #e8eef4">
-    <div style="padding:26px 36px;border-right:1px solid #e8eef4">
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e;letter-spacing:.14em;margin-bottom:14px">ИНДЕКС КАТАНИЯ · 7 ДНЕЙ</div>
-      <div style="display:flex;align-items:flex-end;gap:9px;height:76px">
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#dfe9f1;border-radius:3px;height:41%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8;text-align:center">ПН</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#dfe9f1;border-radius:3px;height:58%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8;text-align:center">ВТ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#b9cfe2;border-radius:3px;height:74%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8;text-align:center">СР</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#22994a;border-radius:3px;height:92%"></div><div style="font:600 9.5px 'IBM Plex Mono',monospace;color:#22994a;text-align:center">ЧТ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#b9cfe2;border-radius:3px;height:81%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8;text-align:center">ПТ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#dfe9f1;border-radius:3px;height:63%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8;text-align:center">СБ</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px"><div style="background:#dfe9f1;border-radius:3px;height:59%"></div><div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#9db4c8;text-align:center">ВС</div></div>
-      </div>
-    </div>
-    <div style="padding:26px 36px;border-right:1px solid #e8eef4">
-      <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e;letter-spacing:.14em;margin-bottom:14px">СНЕГОПАДЫ · 5 ДНЕЙ</div>
-      <div style="display:flex;flex-direction:column;gap:11px;font-size:13.5px">
-        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:600;width:80px">Нисеко</span><span style="color:#35507e;font-weight:600">+78 см</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#22994a">9.6 СЕГОДНЯ</span></div>
-        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:600;width:80px">Санкт-Антон</span><span style="color:#35507e;font-weight:600">+41 см</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">8.4 ЧТ</span></div>
-        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:600;width:80px">Церматт</span><span style="color:#35507e;font-weight:600">+34 см</span><span style="margin-left:auto;font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">8.8 ПТ</span></div>
-      </div>
-    </div>
-    <div style="padding:26px 36px;background:linear-gradient(180deg,#eef5fc,#f8fbfe);box-shadow:inset 0 0 0 1px #c9dcee">
-      <div style="display:flex;align-items:center;gap:7px;font:400 10.5px 'IBM Plex Mono',monospace;color:#35507e;letter-spacing:.14em;margin-bottom:12px"><span style="width:6px;height:6px;border-radius:50%;background:#3d8fdd;animation:pbPulse 2.4s ease-in-out infinite"></span>СНЕЖНАЯ ПОЧТА</div>
-      <p style="margin:0 0 16px;font-size:14px;line-height:1.5;text-wrap:pretty"><strong>«Через два дня в Нисеко выпадет 30 см».</strong> Письмо приходит раньше шторма.</p>
-      <div style="display:flex;gap:10px;align-items:center">
-        <span style="flex:1;font-size:13px;color:#9db4c8;border-bottom:1px solid #b9cfe2;padding-bottom:8px">you@email.com</span>
-        <span style="font-size:12.5px;font-weight:600;color:#fff;background:#35507e;border-radius:99px;padding:8px 16px;white-space:nowrap">Подписаться →</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="padding:26px 36px;border-top:1px solid #e8eef4">
-    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
-      <h3 style="margin:0;font-size:16px;font-weight:600">Мои курорты</h3>
-      <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#9db4c8;letter-spacing:.1em">4 В СПИСКЕ</span>
-      <span style="margin-left:auto;font-size:13px;font-weight:500;color:#35507e">Сравнить все →</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
-      <div style="border:1px solid #dfe9f1;border-radius:12px;padding:16px 18px">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Нисеко</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#9db4c8">ЯПОНИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#3d8fdd;margin:8px 0 2px">+78 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#22994a">ЛУЧШИЙ ДЕНЬ · СЕГОДНЯ 9.6</div>
-      </div>
-      <div style="border:1px solid #dfe9f1;border-radius:12px;padding:16px 18px;background:#f8fbfd">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Шамони</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#9db4c8">ФРАНЦИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#3d8fdd;margin:8px 0 2px">+53 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#22994a">ЛУЧШИЙ ДЕНЬ · ЧТ 9.2</div>
-      </div>
-      <div style="border:1px solid #dfe9f1;border-radius:12px;padding:16px 18px">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Церматт</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#9db4c8">ШВЕЙЦАРИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#3d8fdd;margin:8px 0 2px">+34 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">ЛУЧШИЙ ДЕНЬ · ПТ 8.8</div>
-      </div>
-      <div style="border:1px solid #dfe9f1;border-radius:12px;padding:16px 18px">
-        <div style="display:flex;align-items:baseline"><span style="font-size:15px;font-weight:600">Санкт-Антон</span><span style="margin-left:auto;font:400 10px 'IBM Plex Mono',monospace;color:#9db4c8">АВСТРИЯ</span></div>
-        <div style="font-size:22px;font-weight:600;color:#3d8fdd;margin:8px 0 2px">+41 см</div>
-        <div style="font:400 10.5px 'IBM Plex Mono',monospace;color:#6d7d8e">ЛУЧШИЙ ДЕНЬ · ЧТ 8.4</div>
-      </div>
-    </div>
-  </div>
-  <footer style="background:#1b2a4a;color:#fff;padding:30px 36px;display:flex;align-items:flex-start;gap:60px">
-    <div>
-      <div style="font-weight:600;font-size:15px;margin-bottom:8px">powderbox<span style="color:#ffd9b0">*</span></div>
-      <p style="margin:0;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.6;max-width:34ch">Погода по высотам, лучший день для катания и снежные алерты — по 2 400 курортам мира.</p>
-    </div>
-    <div style="display:flex;gap:44px;font-size:13px">
-      <div style="display:flex;flex-direction:column;gap:9px"><span style="font:400 10px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ПРОДУКТ</span><span style="color:rgba(255,255,255,.75)">Условия</span><span style="color:rgba(255,255,255,.75)">Курорты</span><span style="color:rgba(255,255,255,.75)">Сравнение</span><span style="color:rgba(255,255,255,.75)">Алерты</span></div>
-      <div style="display:flex;flex-direction:column;gap:9px"><span style="font:400 10px 'IBM Plex Mono',monospace;color:#8fb4dd;letter-spacing:.12em">ДАННЫЕ</span><span style="color:rgba(255,255,255,.75)">Источники прогнозов</span><span style="color:rgba(255,255,255,.75)">Как считается индекс</span><span style="color:rgba(255,255,255,.75)">API</span></div>
-    </div>
-    <div style="margin-left:auto;text-align:right">
-      <div style="font:400 10px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.45);letter-spacing:.1em">ОБНОВЛЕНИЕ КАЖДЫЕ 3 ЧАСА</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:8px">© 2026 powderbox</div>
-    </div>
-  </footer>
-</div></div>
-</div>
-<p class="dv-next">Дальше: «страница алертов» · «каталог курортов» · «поправить что-то на главной»</p>
-</section>
 <section class="dv-turn" id="t4">
 <div class="dv-thd"><a class="dv-tid" href="#t4">4</a><span class="dv-tname">Внутренние страницы</span></div>
 <div class="dv-opts">
@@ -473,7 +482,7 @@
 <div class="dv-card" style="width:1180px;background:#fff;font-family:Rubik,sans-serif;color:#132030" data-screen-label="4a Сравнение">
   <div style="position:relative;overflow:hidden;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#35507e 55%,#56688f 100%)">
     <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff">
-      <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <span style="font-weight:600;font-size:16px;color:#fff">powderbox<span style="color:#ffd9b0">*</span></span>
       <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
         <span>Условия</span><span>Курорты</span><span style="color:#fff;font-weight:600">Сравнение</span><span>Алерты</span>
       </nav>
@@ -561,7 +570,7 @@
 <div class="dv-card" style="width:1180px;background:#fff;font-family:Rubik,sans-serif;color:#132030" data-screen-label="4b Курорт Шамони">
   <div style="position:relative;overflow:hidden;background:linear-gradient(in oklab 180deg,#1b2a4a 0%,#35507e 55%,#56688f 100%)">
     <header style="position:relative;display:flex;align-items:center;gap:32px;padding:20px 36px;color:#fff">
-      <span style="font-weight:600;font-size:16px">powderbox<span style="color:#ffd9b0">*</span></span>
+      <span style="font-weight:600;font-size:16px;color:#fff">powderbox<span style="color:#ffd9b0">*</span></span>
       <nav style="display:flex;gap:26px;font-size:13px;color:rgba(255,255,255,.65)">
         <span>Условия</span><span style="color:#fff;font-weight:600">Курорты</span><span>Сравнение</span><span>Алерты</span>
       </nav>
@@ -664,11 +673,17 @@ class Component extends DCLogic {
       cLabel: d ? '#7d8ea6' : '#6d7d8e', cDayLbl: d ? '#5f7188' : '#9db4c8',
       cBarBase: d ? '#24344e' : '#dfe9f1', cBarMid: d ? '#3a5578' : '#b9cfe2',
       cGreen: d ? '#3fc06a' : '#22994a', cSnow: d ? '#6fb1ff' : '#3d8fdd',
-      cMailBg: d ? '#16263f' : '#eef5fc', cMailBorder: d ? '#2c4368' : '#c9dcee',
+      cMailBg: d ? '#1d3050' : '#ffffff', cMailBorder: d ? '#3a5a8c' : '#a8c6e4',
       cMailLabel: d ? '#8fb4dd' : '#35507e',
       cBtnBg: d ? '#ffd9b0' : '#35507e', cBtnColor: d ? '#0b1322' : '#ffffff',
-      cCardBorder: d ? 'rgba(255,255,255,.1)' : '#dfe9f1', cCardActive: d ? '#16233c' : '#f8fbfd',
+      cCardBorder: d ? 'rgba(255,255,255,.1)' : '#dfe9f1',
+      cCardActive: d ? '#16233c' : 'rgba(255,255,255,.72)',
       cFooterBg: d ? '#0b1322' : '#1b2a4a',
+      sunPosM: d ? 'translate(-196px,12px)' : 'translate(0px,0px)',
+      sunAnimM: this.state.toggled ? `${d ? 'pbSunSetM' : 'pbSunRiseM'} 1.8s linear both` : 'none',
+      cPinBg: d ? 'rgba(255,255,255,.12)' : '#132030', cPinFg: d ? '#e8eef7' : '#ffffff',
+      cWarn: d ? '#ff9d8b' : '#c2452e', cRain: d ? '#ffd9b0' : '#b3742a',
+      cBestBg: d ? '#16233c' : '#132030', cTabBg: d ? 'rgba(255,255,255,.04)' : '#ffffff',
     };
   }
 }

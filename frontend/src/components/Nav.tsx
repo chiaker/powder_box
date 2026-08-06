@@ -25,15 +25,19 @@ export default function Nav() {
         powderbox<span className="brand-star">*</span>
       </Link>
 
-      <button
-        type="button"
-        className="nav-burger"
-        onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
-        aria-expanded={open}
-      >
-        {open ? '✕' : '☰'}
-      </button>
+      {/* На мобильном переключатель темы виден в шапке, а не внутри бургер-меню */}
+      <div className="nav-mobile-actions">
+        <ThemeToggle />
+        <button
+          type="button"
+          className="nav-burger"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
+          aria-expanded={open}
+        >
+          {open ? '✕' : '☰'}
+        </button>
+      </div>
 
       <div className={`nav-menu ${open ? 'open' : ''}`}>
         <div className="nav-links">

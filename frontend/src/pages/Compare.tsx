@@ -198,6 +198,69 @@ export default function Compare() {
           </div>
         ) : (
           <>
+            {/* Мобильный вариант (дизайн 9b): карточка на курорт вместо таблицы */}
+            <div className="pb-cmp-cards">
+              {chosen.map((r) => {
+                const x = extras[r.id] ?? {}
+                const cm = snow48(r)
+                const b = bestOf(r)
+                const wind = x.top?.windSpeed
+                const total = totalTrails(r)
+                return (
+                  <div key={r.id} className={`pb-cmp-card ${r.id === homeId ? 'home' : ''}`}>
+                    <div className="pb-cmp-card-head">
+                      <Link to={`/resorts/${r.id}`} className="pb-cmp-name">
+                        {r.name}
+                      </Link>
+                      {x.maxAltitude != null && (
+                        <span className="pb-cmp-sub">{x.maxAltitude.toLocaleString('ru-RU')} М</span>
+                      )}
+                      {cm != null && cm === maxSnow && maxSnow > 0 ? (
+                        <span className="pb-cmp-max">МАКС</span>
+                      ) : r.id === homeId ? (
+                        <span className="pb-cmp-mine">МОЙ КУРОРТ</span>
+                      ) : null}
+                      <button type="button" className="pb-cmp-x" onClick={() => removeResort(r.id)} title="Убрать">
+                        ✕
+                      </button>
+                    </div>
+                    <div className="pb-cmp-card-main">
+                      <span className="pb-cmp-snow-val">{cm != null ? `+${cm} см` : '—'}</span>
+                      {x.top && x.bottom && (
+                        <span className="pb-cmp-card-temps">
+                          {Math.round(x.top.temperature)}° / {Math.round(x.bottom.temperature)}°
+                        </span>
+                      )}
+                    </div>
+                    <div className="pb-cmp-bar">
+                      <div
+                        className="pb-cmp-bar-fill"
+                        style={{ width: `${maxSnow && cm != null ? Math.round((cm / maxSnow) * 100) : 0}%` }}
+                      />
+                    </div>
+                    <div className="pb-cmp-card-foot">
+                      {b && (
+                        <span className={`pb-cmp-bestpill ${b.score === maxScore && maxScore > 0 ? 'top' : ''}`}>
+                          <span className="pb-cmp-bestday">{b.day}</span>
+                          <span className="pb-cmp-bestscore">{b.score}</span>
+                        </span>
+                      )}
+                      {wind != null && wind >= 15 ? (
+                        <span className="pb-cmp-note danger">⚠ ВЕТЕР {Math.round(wind)} М/С</span>
+                      ) : (
+                        total != null && (
+                          <span className="pb-cmp-card-trails">
+                            <span className="pulse-dot pulse-dot-cmp" />
+                            {total} трасс
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
             {/* Шапка колонок */}
             <div className="pb-cmp-row pb-cmp-head-row" style={gridStyle}>
               <div className="pb-cmp-label" />

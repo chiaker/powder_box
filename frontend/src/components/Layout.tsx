@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Nav from './Nav'
 import Footer from './Footer'
+import BottomTabs from './BottomTabs'
 
 /** Маршруты, рисующие собственный hero/градиент — nav ложится поверх */
 const heroRoute = (p: string) => p === '/' || p === '/compare' || /^\/resorts\/[^/]+$/.test(p)
@@ -23,6 +24,7 @@ export default function Layout() {
       <main className={overlay ? 'main main-full' : 'main'}>
         <Outlet />
       </main>
+      <BottomTabs />
       <Footer />
     </div>
   )

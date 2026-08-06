@@ -2,6 +2,8 @@
 @keyframes pbFall{0%{transform:translateY(-30px)}100%{transform:translateY(470px)}}
 @keyframes pbSunSet{0%{transform:translate(0,0)}10%{transform:translate(-58px,-83px)}20%{transform:translate(-116px,-148px)}30%{transform:translate(-174px,-193px)}40%{transform:translate(-232px,-220px)}50%{transform:translate(-290px,-228px)}60%{transform:translate(-348px,-217px)}70%{transform:translate(-406px,-188px)}80%{transform:translate(-464px,-139px)}90%{transform:translate(-522px,-72px)}100%{transform:translate(-580px,14px)}}
 @keyframes pbSunRise{0%{transform:translate(-580px,14px)}10%{transform:translate(-522px,-72px)}20%{transform:translate(-464px,-139px)}30%{transform:translate(-406px,-188px)}40%{transform:translate(-348px,-217px)}50%{transform:translate(-290px,-228px)}60%{transform:translate(-232px,-220px)}70%{transform:translate(-174px,-193px)}80%{transform:translate(-116px,-148px)}90%{transform:translate(-58px,-83px)}100%{transform:translate(0,0)}}
+@keyframes pbSunSetM{0%{transform:translate(0,0)}10%{transform:translate(-19.6px,-52.8px)}20%{transform:translate(-39.2px,-93.6px)}30%{transform:translate(-58.8px,-122.4px)}40%{transform:translate(-78.4px,-139.2px)}50%{transform:translate(-98px,-144px)}60%{transform:translate(-117.6px,-136.8px)}70%{transform:translate(-137.2px,-117.6px)}80%{transform:translate(-156.8px,-86.4px)}90%{transform:translate(-176.4px,-43.2px)}100%{transform:translate(-196px,12px)}}
+@keyframes pbSunRiseM{0%{transform:translate(-196px,12px)}10%{transform:translate(-176.4px,-43.2px)}20%{transform:translate(-156.8px,-86.4px)}30%{transform:translate(-137.2px,-117.6px)}40%{transform:translate(-117.6px,-136.8px)}50%{transform:translate(-98px,-144px)}60%{transform:translate(-78.4px,-139.2px)}70%{transform:translate(-58.8px,-122.4px)}80%{transform:translate(-39.2px,-93.6px)}90%{transform:translate(-19.6px,-52.8px)}100%{transform:translate(0,0)}}
 @keyframes pbPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
 
 :root {
@@ -9,8 +11,10 @@
   --text: #132030;
   --text-2: #6d7d8e;
   --text-3: #9db4c8;
-  /* поверхности */
-  --bg: #ffffff;
+  /* поверхности: фон страницы = заливка горы, hero стыкуется с контентом без шва */
+  --mtn: #eef3f9;
+  --bg: var(--mtn);
+  --surface-card: rgba(255, 255, 255, 0.72);
   --surface: #f8fbfd;
   --line: #e8eef4;
   --line-2: #dfe9f1;
@@ -29,17 +33,21 @@
   --warm: #ffd9b0;
   --warm-2: #e0a763;
   /* снежная почта */
-  --mail-bg1: #eef5fc;
-  --mail-bg2: #f8fbfe;
-  --mail-border: #c9dcee;
+  --mail-bg: #ffffff;
+  --mail-border: #a8c6e4;
   --mail-label: #35507e;
+  --mail-shadow: 0 6px 20px rgba(19, 32, 48, 0.1);
   /* кнопки */
   --btn-bg: #35507e;
   --btn-fg: #ffffff;
   /* подвал / ночь */
   --footer-bg: #1b2a4a;
+  /* плашка «лучший день», осадки, таб-панель */
+  --best-bg: #132030;
+  --rain: #b3742a;
+  --warn-hot: #c2452e;
+  --tab-bg: #ffffff;
   /* hero-сцена */
-  --mtn: #eef3f9;
   --rim: #ffffff;
   /* плашки поверх карт */
   --overlay-bg: rgba(255, 255, 255, 0.85);
@@ -53,6 +61,7 @@
   --font-mono: 'IBM Plex Mono', monospace;
   --dur-theme: 0.9s;
   --dur-sky: 1.8s;
+  --scene-cap: 1600px; /* предел ширины горы и солнца в hero */
   --hdr-grad: linear-gradient(180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
   --hdr-grad: linear-gradient(in oklab 180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
 }
@@ -61,7 +70,8 @@
   --text: #e8eef7;
   --text-2: #7d8ea6;
   --text-3: #5f7188;
-  --bg: #0f1828;
+  --mtn: #182742;
+  --surface-card: #16233c;
   --surface: #16233c;
   --line: rgba(255, 255, 255, 0.08);
   --line-2: rgba(255, 255, 255, 0.1);
@@ -72,14 +82,17 @@
   --pill-green: #163526;
   --accent: #6fb1ff;
   --green: #3fc06a;
-  --mail-bg1: #16263f;
-  --mail-bg2: #12203a;
-  --mail-border: #2c4368;
+  --mail-bg: #1d3050;
+  --mail-border: #3a5a8c;
   --mail-label: #8fb4dd;
+  --mail-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   --btn-bg: #ffd9b0;
   --btn-fg: #0b1322;
   --footer-bg: #0b1322;
-  --mtn: #182742;
+  --best-bg: #16233c;
+  --rain: #ffd9b0;
+  --warn-hot: #ff9d8b;
+  --tab-bg: rgba(255, 255, 255, 0.04);
   --rim: #ffcf9e;
   --overlay-bg: rgba(12, 18, 34, 0.8);
   --overlay-bg-solid: rgba(12, 18, 34, 0.92);
@@ -91,7 +104,7 @@
    ponytail: удалить в фазе 6 вместе с легаси-секциями CSS */
 :root, [data-theme='dark'] {
   --bg-dark: var(--bg);
-  --bg-card: var(--bg);
+  --bg-card: var(--surface-card);
   --bg-elevated: var(--surface);
   --accent-dim: var(--navy);
   --accent-glow: rgba(61, 143, 221, 0.15);
@@ -188,7 +201,6 @@ textarea {
 
 .main {
   flex: 1;
-  max-width: 1180px;
   margin: 0 auto;
   padding: 2rem 36px;
   width: 100%;
@@ -220,7 +232,6 @@ textarea {
   display: flex;
   align-items: center;
   gap: 32px;
-  max-width: 1180px;
   margin: 0 auto;
   padding: 20px 36px;
   width: 100%;
@@ -316,6 +327,13 @@ textarea {
   font-size: 1.5rem;
   line-height: 1;
   padding: 0.25rem 0.5rem;
+}
+
+/* Переключатель темы + бургер: на десктопе скрыты (тема живёт в .nav-auth) */
+.nav-mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 12px;
   margin-left: auto;
 }
 
@@ -338,6 +356,15 @@ textarea {
 
   .nav-burger {
     display: block;
+  }
+
+  .nav-mobile-actions {
+    display: flex;
+  }
+
+  /* Тема переключается прямо из шапки, дублировать её в меню незачем */
+  .nav-auth .theme-toggle {
+    display: none;
   }
 
   .nav-menu {
@@ -2443,7 +2470,7 @@ details.weather-card[open] > summary {
   align-items: center;
   justify-content: center;
   font-size: 2.6rem;
-  background: linear-gradient(135deg, var(--mail-bg1), var(--mail-bg2));
+  background: var(--mail-bg);
   border: 2px solid var(--mail-border);
 }
 
@@ -2482,7 +2509,6 @@ details.weather-card[open] > summary {
 }
 
 .pb-footer-inner {
-  max-width: 1180px;
   margin: 0 auto;
   padding: 30px 36px;
   display: flex;
@@ -2491,10 +2517,57 @@ details.weather-card[open] > summary {
   flex-wrap: wrap;
 }
 
-.pb-footer-brand {
+/* Знак pb* — квадрат 30px на тёплой плашке (logo/README.md) */
+.pb-footer-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--warm);
+  color: #1b2a4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
   font-weight: 600;
-  font-size: 15px;
+  letter-spacing: -0.03em;
   margin-bottom: 8px;
+}
+
+.pb-footer-mark .brand-star {
+  color: #1b2a4a;
+}
+
+/* ===== Нижняя таб-панель (мобильные экраны 9a–9c) ===== */
+.bottom-tabs {
+  display: none;
+  justify-content: space-around;
+  padding: 12px 8px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--tab-bg);
+  transition: border-color var(--dur-theme), background-color var(--dur-theme);
+}
+
+.bottom-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-3);
+  transition: color var(--dur-theme);
+}
+
+.bottom-tab:hover { color: var(--text-2); }
+
+.bottom-tab.active { color: var(--mail-label); }
+
+.bottom-tab-icon { font-size: 16px; line-height: 1; }
+
+.bottom-tab-label { font-size: 10px; }
+
+.bottom-tab.active .bottom-tab-label { font-weight: 600; }
+
+@media (max-width: 640px) {
+  .bottom-tabs { display: flex; }
 }
 
 .pb-footer-tagline {
@@ -2531,7 +2604,6 @@ details.weather-card[open] > summary {
 }
 
 .page-head-inner {
-  max-width: 1180px;
   margin: 0 auto;
   padding: 10px 36px 26px;
   display: flex;
@@ -2571,15 +2643,17 @@ details.weather-card[open] > summary {
 }
 
 .pb-wrap {
-  max-width: 1180px;
   margin: 0 auto;
 }
 
 .pb-hero-inner {
   position: relative;
   height: 100%;
-  max-width: 1180px;
   margin: 0 auto;
+}
+
+.pb-hero-block {
+  position: relative;
 }
 
 .pb-hero {
@@ -2615,12 +2689,73 @@ details.weather-card[open] > summary {
   z-index: 1;
 }
 
+/* Гора: ограничена по ширине, чтобы силуэт не расплющивался на широком экране */
 .pb-scene {
   position: absolute;
-  inset: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
+  max-width: var(--scene-cap);
   height: 100%;
+  z-index: 3;
+}
+
+.pb-scene-narrow { display: none; }
+
+/* Продолжение горы к краям экрана, когда сцена упёрлась в кап.
+   Лежит под сценой: в центре её закрывает силуэт, по краям видна ровной полосой */
+.pb-hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 63px; /* 520 − 457: высота края полигона */
+  background: var(--mtn);
+  border-top: 2px solid var(--rim);
+  z-index: 2;
+  transition: background-color var(--dur-theme), border-color var(--dur-theme);
+}
+
+/* Солнце: собственные пропорции, поэтому остаётся круглым при любой ширине */
+.pb-sun-layer {
+  position: absolute;
+  inset: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--scene-cap);
   z-index: 1;
+  pointer-events: none;
+}
+
+.pb-sun-move {
+  position: absolute;
+  inset: 0;
+  transform: translate(0, 0);
+}
+
+.pb-sun-move.is-dark {
+  transform: translate(-580px, 14px);
+}
+
+.pb-sun-move.is-animated {
+  animation: pbSunRise var(--dur-sky) linear both;
+}
+
+.pb-sun-move.is-animated.is-dark {
+  animation-name: pbSunSet;
+}
+
+.pb-sun-svg {
+  position: absolute;
+  left: 74.6%;
+  top: 77.3%;
+  width: 680px;
+  height: 300px;
+  margin-left: -340px;
+  margin-top: -150px;
 }
 
 .pb-stars {
@@ -2731,6 +2866,7 @@ details.weather-card[open] > summary {
   width: 240px;
   color: #fff;
   text-align: right;
+  z-index: 4;
 }
 
 .pb-alt-gap { margin-top: 26px; }
@@ -2771,10 +2907,13 @@ details.weather-card[open] > summary {
 
 .pb-alt-warn { color: #ffb3a0; }
 
+.pb-bestday-of { display: none; }
+
 .pb-bestday {
   position: absolute;
   left: 36px;
   bottom: 30px;
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 22px;
@@ -2909,8 +3048,8 @@ details.weather-card[open] > summary {
 /* Снежная почта */
 .snowmail-plate {
   padding: 26px 36px;
-  background: linear-gradient(180deg, var(--mail-bg1), var(--mail-bg2));
-  box-shadow: inset 0 0 0 1px var(--mail-border);
+  background: var(--mail-bg);
+  box-shadow: inset 0 0 0 1px var(--mail-border), var(--mail-shadow);
   transition: background-color var(--dur-theme), box-shadow var(--dur-theme);
 }
 
@@ -3069,18 +3208,165 @@ details.weather-card[open] > summary {
 .pb-resort-card-best.today { color: var(--green); }
 
 /* Адаптив главной */
-@media (max-width: 980px) {
-  .pb-hero-right { display: none; }
-  .pb-strip { grid-template-columns: 1fr; }
-  .pb-strip-col { border-right: none; border-bottom: 1px solid var(--line); }
+@media (max-width: 1100px) {
+  .pb-hero-right { width: 210px; }
+  .pb-strip { grid-template-columns: 1fr 1fr; }
+  .pb-strip-col:first-child { grid-column: 1 / -1; border-right: none; border-bottom: 1px solid var(--line); }
   .pb-myresorts-grid { grid-template-columns: repeat(2, 1fr); }
-  .pb-bestday { gap: 12px; padding: 10px 18px; }
   .pb-bestday-note { display: none; }
 }
 
-@media (max-width: 560px) {
-  .pb-myresorts-grid { grid-template-columns: 1fr; }
-  .pb-hero { height: 440px; }
+/* Мобильная главная — экран 9a */
+@media (max-width: 640px) {
+  :root { --scene-cap: none; }
+
+  .pb-hero { height: 420px; }
+  .pb-hero::after { display: none; }
+  .pb-scene-wide { display: none; }
+  .pb-scene-narrow { display: block; }
+  /* в мобильной сцене снежинок three, не five */
+  .pb-snow:nth-of-type(2),
+  .pb-snow:nth-of-type(4) { display: none; }
+
+  .pb-sun-svg {
+    left: 74.9%;
+    top: 80%;
+    width: 410px;
+    height: 200px;
+    margin-left: -205px;
+    margin-top: -100px;
+  }
+
+  .pb-sun-move.is-dark { transform: translate(-196px, 12px); }
+  .pb-sun-move.is-animated { animation-name: pbSunRiseM; }
+  .pb-sun-move.is-animated.is-dark { animation-name: pbSunSetM; }
+
+  .pb-hero-left { left: 20px; top: 74px; }
+  .pb-hero-kicker { font-size: 9.5px; margin-bottom: 8px; }
+  .pb-hero-title { font-size: 30px; line-height: 1.08; margin-bottom: 10px; }
+  .pb-hero-status { font-size: 11.5px; }
+
+  /* Высоты уходят из hero под него — карточками-строками */
+  .pb-hero-side { padding: 18px 20px 0; }
+
+  .pb-hero-right {
+    position: static;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    color: var(--text);
+    text-align: left;
+  }
+
+  .pb-alt-group {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border: 1px solid var(--line-2);
+    background: var(--surface-card);
+    border-radius: 14px;
+    padding: 12px 14px;
+    transition: border-color var(--dur-theme), background-color var(--dur-theme);
+  }
+
+  .pb-alt-gap { margin-top: 0; }
+
+  .pb-alt-label {
+    color: var(--text-3);
+    font-size: 9.5px;
+    width: 74px;
+    flex: none;
+    line-height: 1.35;
+  }
+
+  .pb-alt-value { margin-top: 0; gap: 10px; justify-content: flex-start; }
+  .pb-alt-temp { font-size: 22px; }
+  .pb-alt-snow { font-size: 15px; color: var(--accent); }
+  .pb-alt-rain { color: var(--rain); }
+
+  .pb-alt-note {
+    margin: 0 0 0 auto;
+    text-align: right;
+    color: var(--text-2);
+    font-size: 9.5px;
+    max-width: 88px;
+  }
+
+  .pb-alt-warn { color: var(--warn-hot); }
+
+  /* «Лучший день» — тёмная карточка под высотами */
+  .pb-bestday {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 18px 20px 0;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 16px;
+    background: var(--best-bg);
+    box-shadow: 0 8px 24px rgba(19, 32, 48, 0.22);
+    backdrop-filter: none;
+    max-width: none;
+  }
+
+  .pb-bestday-label { grid-column: 1; }
+  .pb-bestday-day { grid-column: 1; font-size: 18px; }
+
+  .pb-bestday-score {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    text-align: right;
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  .pb-bestday-of {
+    display: block;
+    font: 400 9.5px var(--font-mono);
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .pb-bestday-note {
+    display: block;
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  /* Секции: поля 20px, один столбец */
+  .pb-strip { grid-template-columns: 1fr; border-top: none; }
+  .pb-strip-col { padding: 22px 20px 0; border-right: none; border-bottom: none; }
+  .pb-strip-col:first-child { border-bottom: none; }
+  .ski-chart { height: 64px; gap: 7px; }
+  .pb-myresorts { padding: 22px 20px 0; border-top: none; }
+  .pb-myresorts-grid { grid-template-columns: 1fr; gap: 9px; }
+
+  .pb-resort-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface-card);
+  }
+
+  .pb-resort-card-top { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .pb-resort-card-name { font-size: 14px; }
+  .pb-resort-card-meta { margin-left: 0; font-size: 9.5px; }
+  .pb-resort-card-snow { margin: 0 0 0 auto; font-size: 18px; text-align: right; }
+  .pb-resort-card-best { font-size: 9.5px; text-align: right; }
+
+  .snowmail-plate {
+    margin: 22px 20px 0;
+    padding: 18px 20px;
+    border-radius: 14px;
+  }
+
+  .snowmail-form { flex-direction: column; align-items: stretch; gap: 12px; }
+  .snowmail-form .btn { padding: 13px; text-align: center; font-size: 13.5px; font-weight: 600; }
 }
 
 /* ===== PowderBox: сравнение курортов (4a) ===== */
@@ -3089,9 +3375,8 @@ details.weather-card[open] > summary {
   transition: background-color var(--dur-theme);
 }
 
-/* Контейнер контента внутренних страниц по сетке дизайна */
+/* Контейнер контента внутренних страниц */
 .pb-page {
-  max-width: 1180px;
   margin: 0 auto;
 }
 
@@ -3114,7 +3399,7 @@ details.weather-card[open] > summary {
 
 .pb-cmp-add option {
   color: var(--text);
-  background: var(--bg);
+  background: var(--surface-card);
 }
 
 .pb-cmp-row {
@@ -3491,7 +3776,7 @@ details.weather-card[open] > summary {
   border-radius: var(--radius);
   border: 1px solid var(--line-2);
   overflow: hidden;
-  background: repeating-linear-gradient(-45deg, var(--surface) 0 10px, var(--bg) 10px 20px);
+  background: repeating-linear-gradient(-45deg, var(--surface) 0 10px, var(--surface-card) 10px 20px);
   display: grid;
   place-items: center;
   transition: border-color var(--dur-theme);
@@ -3511,7 +3796,7 @@ details.weather-card[open] > summary {
 .pb-rd-mapbox-static span {
   font: 400 12px var(--font-mono);
   color: var(--text-3);
-  background: var(--bg);
+  background: var(--surface-card);
   border: 1px solid var(--line-2);
   border-radius: var(--radius-pill);
   padding: 8px 18px;
@@ -3757,7 +4042,7 @@ h2 {
 .weather-card,
 .altitude-weather-card,
 .admin-form {
-  background: var(--bg);
+  background: var(--surface-card);
   border: 1px solid var(--line-2);
   border-radius: var(--radius);
   transition: border-color 0.2s, box-shadow 0.2s, background-color var(--dur-theme);
@@ -3788,7 +4073,7 @@ h2 {
 input,
 select,
 textarea {
-  background: var(--bg);
+  background: var(--surface-card);
   color: var(--text);
   border: 1px solid var(--line-2);
   border-radius: 8px;
@@ -3959,4 +4244,184 @@ label {
   .pb-sun {
     transition: none !important;
   }
+}
+
+/* ===== Мобильные внутренние страницы (экраны 9b, 9c) ===== */
+.pb-cmp-cards { display: none; }
+
+@media (max-width: 640px) {
+  /* Сравнение: карточки вместо таблицы */
+  .pb-cmp-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 20px 0;
+  }
+
+  .pb-cmp-row,
+  .pb-cmp-head-row {
+    display: none !important;
+  }
+
+  .pb-cmp-card {
+    border: 1px solid var(--line-2);
+    border-radius: 14px;
+    padding: 14px 16px;
+    background: var(--surface-card);
+    transition: border-color var(--dur-theme), background-color var(--dur-theme);
+  }
+
+  .pb-cmp-card.home {
+    border-color: var(--mail-border);
+  }
+
+  .pb-cmp-card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .pb-cmp-card-head .pb-cmp-sub {
+    margin-top: 0;
+  }
+
+  .pb-cmp-mine {
+    margin-left: auto;
+    font: 400 9.5px var(--font-mono);
+    color: var(--mail-label);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .pb-cmp-card-head .pb-cmp-max {
+    margin-left: auto;
+  }
+
+  .pb-cmp-card-head .pb-cmp-x {
+    margin-left: 8px;
+  }
+
+  .pb-cmp-card-main {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .pb-cmp-card-temps {
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+
+  .pb-cmp-card .pb-cmp-bar {
+    margin-top: 9px;
+  }
+
+  .pb-cmp-card-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .pb-cmp-card-trails {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+
+  .pb-cmp-card-foot .pb-cmp-note {
+    margin-left: auto;
+  }
+
+  .snowmail-strip {
+    flex-wrap: wrap;
+    padding: 16px 20px;
+  }
+
+  .snowmail-strip-btn {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+
+  /* Страница курорта: плитки высот, карта 220px */
+  .page-head-inner {
+    padding: 10px 20px 20px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .page-head-title { font-size: 23px; }
+
+  .pb-rd-metrics {
+    margin-left: 0;
+    width: 100%;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .pb-rd-metric {
+    flex: 1;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .pb-rd-metric-label { font-size: 9px; }
+  .pb-rd-metric-value { font-size: 17px; margin-top: 3px; }
+  .pb-rd-snow, .pb-rd-rain { display: block; font-size: 12.5px; }
+
+  /* «Лучший день» в шапке курорта — отдельной строкой под плитками */
+  .pb-rd-best {
+    flex-basis: 100%;
+    border-left: none;
+    padding-left: 0;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  .pb-rd-main { padding: 18px 20px 0; }
+  .pb-rd-mapbox .map3d-canvas,
+  .pb-rd-mapbox-static { height: 220px; }
+  .pb-rd-block { padding: 22px 20px; }
+  .pb-section { padding: 22px 20px; }
+  .pb-rd-legend { margin-left: 0; gap: 12px; font-size: 11.5px; }
+
+  .pb-rd-side .snowmail-plate { margin: 0; }
+
+  /* Общие поля страниц */
+  .main { padding: 1.25rem 20px; }
+  .nav { padding: 16px 20px; }
+  .pb-footer-inner { padding: 24px 20px; gap: 24px; }
+}
+
+/* Смена курорта в ротации: тот же кроссфейд, что у контента hero */
+.pb-hero-side {
+  animation: pbHeroFade 0.45s ease;
+}
+
+/* Солнце на средних экранах — соразмерно сцене */
+@media (min-width: 641px) and (max-width: 1000px) {
+  .pb-sun-svg {
+    width: 520px;
+    height: 230px;
+    margin-left: -260px;
+    margin-top: -115px;
+  }
+}
+
+/* Длинные абзацы не растягиваются в строку на весь монитор */
+.snowmail-text,
+.pb-rd-desc,
+.section-hint {
+  max-width: 68ch;
 }
