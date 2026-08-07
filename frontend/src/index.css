@@ -134,6 +134,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -223,21 +224,32 @@ textarea {
   margin: 0 auto;
 }
 
-.page::before {
+/* Подложка шапки — на уровне каркаса, во всю ширину и без 100vw */
+.layout::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 50%;
-  width: 100vw;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   height: 68px;
   background: linear-gradient(180deg, #1b2a4a 0%, #2c4570 100%);
   background: linear-gradient(in oklab 180deg, #1b2a4a 0%, #2c4570 100%);
 }
 
-[data-theme='dark'] .page::before {
+[data-theme='dark'] .layout::before {
   background: linear-gradient(180deg, #0b1322 0%, #16273f 100%);
   background: linear-gradient(in oklab 180deg, #0b1322 0%, #16273f 100%);
+}
+
+/* Страницы с собственным градиентом рисуют его поверх подложки */
+.pb-home,
+.pb-resorts,
+.pb-lessons,
+.pb-profile,
+.pb-compare,
+.pb-resort {
+  position: relative;
+  z-index: 1;
 }
 
 .layout > .nav {
@@ -456,10 +468,6 @@ textarea {
 }
 
 @media (max-width: 480px) {
-  .main {
-    padding: 1.25rem 1rem;
-  }
-
   .hero {
     padding: 2.5rem 1.25rem;
   }
@@ -4402,7 +4410,6 @@ label {
   .pb-rd-side .snowmail-plate { margin: 0; }
 
   /* Общие поля страниц */
-  .main { padding: 1.25rem 20px; }
   .nav { padding: 16px 20px; }
   .pb-footer-inner { padding: 24px 20px; gap: 24px; }
 }
@@ -5862,4 +5869,54 @@ details.weather-card > summary h2,
 /* 2D-карта в тёмной теме: инверсия тайлов вместо отдельного тёмного стиля */
 [data-theme='dark'] .leaflet-tile-pane {
   filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.95);
+}
+
+/* ===== Оптимизация смены темы =====
+   Плавно перетекают только крупные поверхности (фон страницы, небо, гора,
+   шапка, подвал). Мелкие и многочисленные элементы перекрашиваются быстро:
+   сотни параллельных 0.9s-переходов роняли кадры на страницах со списками. */
+.pb-rcard,
+.pb-rrow,
+.pb-lesson,
+.pb-alert-card,
+.pb-fav-card,
+.pb-resort-card,
+.pb-cmp-cell,
+.pb-cmp-row,
+.pb-cmp-card,
+.pb-alt-group,
+.pb-rd-list-row,
+.pb-rd-block,
+.pb-level-card,
+.trail-pill,
+.pb-filter,
+.ski-chart-bar,
+.ski-chart-day,
+.pb-snowlist-cm,
+.pb-snowlist-score,
+.pb-rcard-meta,
+.pb-cmp-label,
+.pb-cmp-sub,
+.mono-label,
+.stat-tile,
+.review-card,
+.altitude-weather-card,
+.weather-card,
+details.weather-card,
+input,
+select,
+textarea,
+button,
+.btn {
+  transition-duration: 0.2s;
+}
+
+/* Плашки и точки-индикаторы вообще не нуждаются в переходе */
+.pulse-dot,
+.pb-status-dot,
+.pb-level-dot,
+.pb-filter-dot,
+.trail-pills,
+.pb-leg {
+  transition: none;
 }

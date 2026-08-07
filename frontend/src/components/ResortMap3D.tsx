@@ -204,11 +204,22 @@ function formatLen(m: number): string {
   return m < 1000 ? `${Math.round(m)} м` : `${(m / 1000).toFixed(1)} км`
 }
 
+/** Фон под цвет страницы, рельеф — контрастнее фона в обе стороны */
+function terrainColors(dark: boolean) {
+  return dark
+    ? { bg: '#182742', low: '#2b3b58', high: '#c2d2e6' }
+    : { bg: '#e7eef7', low: '#9fb4cc', high: '#3f5675' }
+}
+
 export default function ResortMap3D({ resortId, points, variant = 'points' }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
-  // Сцена перестраивается при смене темы: фон и градиент рельефа зависят от неё
+  // Смена темы не пересобирает сцену: меняются только фон и цвета рельефа
   const dark = useTheme().theme === 'dark'
+  const darkRef = useRef(dark)
+  darkRef.current = dark
+  const sceneRef = useRef<THREE.Scene>()
+  const terrainRef = useRef<{ colors: THREE.BufferAttribute; norm: Float32Array }>()
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [trailsLoaded, setTrailsLoaded] = useState(true)
   const [filters, setFilters] = useState<Set<FilterKind>>(new Set())
@@ -240,6 +251,7 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
     let frameId = 0
     const cleanups: (() => void)[] = []
     const scene = new THREE.Scene()
+    sceneRef.current = scene
 
     const bbox = computeBbox(points)
     const cLat = (bbox.s + bbox.n) / 2
@@ -256,7 +268,7 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
       const elevation = await buildElevationSampler(bbox)
       if (disposed) return
 
-      scene.background = new THREE.Color(dark ? '#0c1222' : '#e7eef7')
+      scene.background = new THREE.Color(terrainColors(darkRef.current).bg)
 
       // --- Облако точек рельефа ---
       const positions = new Float32Array(GRID * GRID * 3)
@@ -274,10 +286,10 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
           if (e > maxE) maxE = e
         }
       }
-      // На тёмном фоне рельеф светлеет кверху, на светлом — темнеет,
-      // иначе вершины сливаются с фоном
-      const low = new THREE.Color(dark ? '#33415e' : '#9fb4cc')
-      const high = new THREE.Color(dark ? '#cbd5e1' : '#3f5675')
+      const palette = terrainColors(darkRef.current)
+      const low = new THREE.Color(palette.low)
+      const high = new THREE.Color(palette.high)
+      const norm = new Float32Array(GRID * GRID)
       for (let j = 0; j < GRID; j++) {
         for (let i = 0; i < GRID; i++) {
           const idx = j * GRID + i
@@ -287,7 +299,8 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
           positions[idx * 3] = metersX(lo)
           positions[idx * 3 + 1] = (e - minE) * Z_EXAGGERATION
           positions[idx * 3 + 2] = metersZ(la)
-          const c = low.clone().lerp(high, (e - minE) / Math.max(1, maxE - minE))
+          norm[idx] = (e - minE) / Math.max(1, maxE - minE)
+          const c = low.clone().lerp(high, norm[idx])
           colors[idx * 3] = c.r
           colors[idx * 3 + 1] = c.g
           colors[idx * 3 + 2] = c.b
@@ -295,7 +308,9 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
       }
       const geo = new THREE.BufferGeometry()
       geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+      const colorAttr = new THREE.BufferAttribute(colors, 3)
+      geo.setAttribute('color', colorAttr)
+      terrainRef.current = { colors: colorAttr, norm }
       const extentX = (bbox.e - bbox.w) * 111320 * Math.cos((cLat * Math.PI) / 180)
       const extentZ = (bbox.n - bbox.s) * 110540
       const extent = Math.max(extentX, extentZ)
@@ -594,7 +609,24 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pointsKey, resortId, variant, dark])
+  }, [pointsKey, resortId, variant])
+
+  // Перекраска по теме: только буфер цветов и фон, без перестроения сцены
+  useEffect(() => {
+    const scene = sceneRef.current
+    const terrain = terrainRef.current
+    if (!scene || !terrain) return
+    const palette = terrainColors(dark)
+    scene.background = new THREE.Color(palette.bg)
+    const low = new THREE.Color(palette.low)
+    const high = new THREE.Color(palette.high)
+    const c = new THREE.Color()
+    for (let i = 0; i < terrain.norm.length; i++) {
+      c.copy(low).lerp(high, terrain.norm[i])
+      terrain.colors.setXYZ(i, c.r, c.g, c.b)
+    }
+    terrain.colors.needsUpdate = true
+  }, [dark, status])
 
   if (status === 'error') {
     return <div className="empty-state"><p>Не удалось загрузить данные рельефа. Попробуйте позже.</p></div>

@@ -18,8 +18,8 @@ import TrailPills from '../components/TrailPills'
 type SortKey = 'snow' | 'rating' | 'track_length_km' | 'elevation_drop_m'
 type FilterKey = 'snow20' | 'hard' | 'drop1000' | 'freeride4' | 'favorites'
 
-/** Погоду тянем только для первых карточек — на каждый курорт два запроса */
-const WEATHER_LIMIT = 12
+/** Погоду тянем только для карточек вверху — на каждый курорт два запроса */
+const WEATHER_LIMIT = 8
 const CARDS = 6
 
 type Wx = { top?: AltitudePointWeather; bottom?: AltitudePointWeather; days: AltitudeDailyEntry[] }

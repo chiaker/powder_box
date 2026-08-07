@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api, Track, UserStats } from '../api/client';
-import { MapContainer, TileLayer, Polyline, Tooltip } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import PageHead from '../components/PageHead';
+
+// leaflet тянется только если у пользователя есть записанные треки
+const TrackMap = lazy(() => import('../components/TrackMap'));
 
 export default function Stats() {
   const { token } = useAuth();
@@ -90,26 +91,9 @@ export default function Stats() {
 
                 {track.points && track.points.length > 0 && (
                   <div className="pb-rd-mapbox" style={{ height: 260, marginTop: 12 }}>
-                    <MapContainer
-                      bounds={track.points.map(p => [p.lat, p.lng]) as [number, number][]}
-                      style={{ height: '100%', width: '100%' }}
-                      scrollWheelZoom={false}
-                    >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      />
-                      <Polyline
-                        positions={track.points.map(p => [p.lat, p.lng])}
-                        color="#3d8fdd"
-                        weight={4}
-                        opacity={0.85}
-                      >
-                        <Tooltip sticky>
-                          Длина: {track.distance.toFixed(2)} км
-                        </Tooltip>
-                      </Polyline>
-                    </MapContainer>
+                    <Suspense fallback={<div className="loading">Загрузка карты...</div>}>
+                      <TrackMap points={track.points} distance={track.distance} />
+                    </Suspense>
                   </div>
                 )}
               </article>
