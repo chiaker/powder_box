@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { api, imageUrl, IMG_PLACEHOLDER, type Hotel, type Resort } from '../api/client'
+import PageHead from '../components/PageHead'
 
 export default function HotelDetail() {
   const { id } = useParams<{ id: string }>()
@@ -74,55 +75,57 @@ export default function HotelDetail() {
   )
 
   return (
-    <div className="page">
-      <Link to="/hotels" className="back-link">← Назад к отелям</Link>
+    <div className="pb-resorts">
+      <PageHead
+        kicker={resort ? resort.name : 'отель'}
+        title={hotel.name}
+        right={
+          <div className="pb-rd-metrics">
+            {hotel.rating != null && (
+              <div className="pb-rd-metric">
+                <div className="pb-rd-metric-label">РЕЙТИНГ</div>
+                <div className="pb-rd-metric-value">★ {hotel.rating.toFixed(1)}</div>
+              </div>
+            )}
+            {hotel.price_from != null && (
+              <div className="pb-rd-metric">
+                <div className="pb-rd-metric-label">ЦЕНА ЗА НОЧЬ</div>
+                <div className="pb-rd-metric-value">от {hotel.price_from} {hotel.currency || '₽'}</div>
+              </div>
+            )}
+            {hotel.booking_url && (
+              <a href={hotel.booking_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                Забронировать
+              </a>
+            )}
+          </div>
+        }
+      />
 
-      <div className="hotel-detail-hero">
-        <img
-          src={imageUrl(mainImage) || IMG_PLACEHOLDER}
-          onError={(e) => { (e.target as HTMLImageElement).src = IMG_PLACEHOLDER }}
-          alt={hotel.name}
-          className="hotel-detail-image hotel-photo-clickable"
-          onClick={() => mainImage && openLightbox(0)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && mainImage && openLightbox(0)}
-        />
-        <header className="page-header hotel-detail-header">
-          <h1>{hotel.name}</h1>
-          {hotel.rating != null && (
-            <span className="hotel-rating">★ {hotel.rating.toFixed(1)}</span>
-          )}
-          {resort && (
-            <Link to={`/resorts/${hotel.resort_id}`} className="hotel-resort-link">
-              {resort.name}
-            </Link>
-          )}
-          {hotel.price_from != null && (
-            <div className="hotel-price-block">
-              <p className="hotel-detail-price">
-                от {hotel.price_from} {hotel.currency || '₽'} за ночь
-              </p>
-              <span className="hotel-price-disclaimer">Цены могут отличаться</span>
-            </div>
-          )}
-          {hotel.booking_url && (
-            <a href={hotel.booking_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary hotel-book-btn">
-              Забронировать
-            </a>
-          )}
-        </header>
+      <div className="pb-page">
+      <div className="pb-rd-main">
+        <Link to="/hotels" className="back-link">← Назад к отелям</Link>
+        {mainImage && (
+          <div className="pb-hotel-photo" onClick={() => openLightbox(0)} role="button" tabIndex={0}
+               onKeyDown={(e) => e.key === 'Enter' && openLightbox(0)}>
+            <img
+              src={imageUrl(mainImage) || IMG_PLACEHOLDER}
+              onError={(e) => { (e.target as HTMLImageElement).src = IMG_PLACEHOLDER }}
+              alt={hotel.name}
+            />
+          </div>
+        )}
       </div>
 
       {hotel.description && (
-        <section className="weather-card">
+        <section className="pb-section">
           <h2>Описание</h2>
           <p className="hotel-detail-description">{hotel.description}</p>
         </section>
       )}
 
       {galleryUrls.length > 0 && (
-        <section className="weather-card">
+        <section className="pb-section">
           <h2>Фотографии</h2>
           <div className="hotel-gallery">
             {galleryUrls.map((url, i) => {
@@ -147,7 +150,7 @@ export default function HotelDetail() {
       )}
 
       {roomUrls.length > 0 && (
-        <section className="weather-card">
+        <section className="pb-section">
           <h2>Фото номеров</h2>
           <div className="hotel-gallery hotel-room-gallery">
             {roomUrls.map((url, i) => {
@@ -194,6 +197,7 @@ export default function HotelDetail() {
           )}
         </div>
       )}
+    </div>
     </div>
   )
 }

@@ -24,20 +24,20 @@ export default function ConfirmEmail() {
   }, [token])
 
   return (
-    <div className="page auth-page">
-      <div className="auth-card">
+    <div className="page pb-confirm">
+      <div className="pb-confirm-card">
         <h1>Подтверждение email</h1>
-        {status === 'pending' && <p className="auth-subtitle">Подтверждаем...</p>}
+        {status === 'pending' && <p className="pb-auth-sub">Подтверждаем...</p>}
         {status === 'success' && (
           <>
-            <p className="auth-subtitle">Email подтверждён! Теперь вам доступны снежные алерты и уведомления.</p>
+            <p className="pb-auth-sub">Email подтверждён! Теперь вам доступны снежные алерты и уведомления.</p>
             <Link to="/profile" className="btn btn-primary btn-block">Перейти в профиль</Link>
           </>
         )}
         {status === 'error' && (
           <>
             <div className="form-message error">{error}</div>
-            <p className="auth-footer">
+            <p className="pb-auth-foot">
               Запросить новое письмо можно в <Link to="/profile">профиле</Link>
             </p>
           </>

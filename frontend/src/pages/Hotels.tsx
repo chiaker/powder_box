@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api, imageUrl, IMG_PLACEHOLDER, type Hotel, type Resort } from '../api/client'
+import { api, imageUrl, type Hotel, type Resort } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import PageHead from '../components/PageHead'
 
 type SortMode = '' | 'price_asc' | 'price_desc' | 'rating'
 
@@ -16,23 +17,18 @@ export default function Hotels() {
   const { user, token } = useAuth()
 
   useEffect(() => {
-    Promise.all([
-      api.get<Hotel[]>('/hotels'),
-      api.get<Resort[]>('/resorts'),
-    ])
+    Promise.all([api.get<Hotel[]>('/hotels'), api.get<Resort[]>('/resorts')])
       .then(([h, r]) => {
         setHotels(h)
         setResorts(r)
       })
-      .catch((e) => {
-        setError(e instanceof Error ? e.message : 'Ошибка загрузки')
-      })
+      .catch((e) => setError(e instanceof Error ? e.message : 'Ошибка загрузки'))
       .finally(() => setLoading(false))
   }, [])
 
   const favIds = useMemo(
     () => new Set((user?.favorite_resorts ?? []).map((id) => Number(id)).filter((n) => !Number.isNaN(n))),
-    [user?.favorite_resorts]
+    [user?.favorite_resorts],
   )
 
   const visibleHotels = useMemo(() => {
@@ -55,77 +51,97 @@ export default function Hotels() {
     resorts.find((r) => r.id === resortId)?.name ?? '—'
 
   if (loading) return <div className="page"><div className="loading">Загрузка отелей...</div></div>
-  if (error) return (
-    <div className="page">
-      <div className="error-state">
-        <p>{error}</p>
-      </div>
-    </div>
-  )
+  if (error) return <div className="page"><div className="error-state"><p>{error}</p></div></div>
 
   return (
-    <div className="page">
-      <header className="page-header">
-        <h1>Отели</h1>
-        <p>Отели рядом с горнолыжными курортами</p>
-      </header>
-
-      <div className="filter-bar">
-        <label>
-          Курорт
-          <select value={resortFilter} onChange={(e) => setResortFilter(e.target.value ? Number(e.target.value) : '')}>
-            <option value="">Все курорты</option>
-            {resorts.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Сортировка
-          <select value={sortMode} onChange={(e) => setSortMode(e.target.value as SortMode)}>
+    <div className="pb-resorts">
+      <PageHead
+        kicker={`${hotels.length} отелей рядом с курортами`}
+        title="Отели"
+        right={
+          <select
+            className="pb-cmp-add"
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as SortMode)}
+          >
             <option value="">Без сортировки</option>
             <option value="price_asc">Сначала дешевле</option>
             <option value="price_desc">Сначала дороже</option>
             <option value="rating">По рейтингу</option>
           </select>
-        </label>
-        {token && (
-          <label className="filter-check">
-            <input type="checkbox" checked={favOnly} onChange={(e) => setFavOnly(e.target.checked)} />
-            Только мои курорты
-          </label>
-        )}
-      </div>
+        }
+      />
 
-      <div className="hotel-grid">
+      <div className="pb-page">
+        <div className="pb-filterbar">
+          <span className="mono-label">КУРОРТ</span>
+          <button
+            type="button"
+            className={`pb-filter ${resortFilter === '' ? 'active' : ''}`}
+            onClick={() => setResortFilter('')}
+          >
+            Все
+          </button>
+          {resorts.slice(0, 6).map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              className={`pb-filter ${resortFilter === r.id ? 'active' : ''}`}
+              onClick={() => setResortFilter(resortFilter === r.id ? '' : r.id)}
+            >
+              {r.name}
+            </button>
+          ))}
+          {token && (
+            <button
+              type="button"
+              className={`pb-filter ${favOnly ? 'active' : ''}`}
+              onClick={() => setFavOnly((v) => !v)}
+            >
+              Только мои курорты
+            </button>
+          )}
+          <span className="pb-filter-count">
+            Найдено <strong>{visibleHotels.length}</strong> отелей
+          </span>
+        </div>
+
         {visibleHotels.length === 0 ? (
-          <div className="empty-state">
-            <p>{hotels.length === 0 ? 'Отелей пока нет.' : 'Ничего не найдено — попробуйте изменить фильтры.'}</p>
+          <div className="pb-page-pad">
+            <div className="empty-state">
+              <p>{hotels.length === 0 ? 'Отелей пока нет.' : 'Ничего не найдено — попробуйте изменить фильтры.'}</p>
+            </div>
           </div>
         ) : (
-          visibleHotels.map((h) => (
-            <Link key={h.id} to={`/hotels/${h.id}`} className="hotel-card hotel-card-link">
-              <img
-                src={imageUrl(h.image_url) || IMG_PLACEHOLDER}
-                onError={(e) => { (e.target as HTMLImageElement).src = IMG_PLACEHOLDER }}
-                alt={h.name}
-                className="hotel-card-image"
-              />
-              <div className="hotel-card-body">
-                <h3 className="hotel-card-title">{h.name}</h3>
-                {h.rating != null && (
-                  <span className="hotel-rating">★ {h.rating.toFixed(1)}</span>
-                )}
-                {h.resort_id && (
-                  <span className="hotel-resort-name">{getResortName(h.resort_id)}</span>
-                )}
-                {h.price_from != null && (
-                  <p className="hotel-price-hint">от {h.price_from} {h.currency || '₽'}/ночь</p>
-                )}
-                {h.description && <p className="hotel-card-desc">{h.description}</p>}
+          <div className="pb-resorts-grid">
+            {visibleHotels.map((h) => (
+              <div key={h.id} className="pb-rcard">
+                <Link to={`/hotels/${h.id}`} className="pb-rcard-photo">
+                  {h.image_url ? (
+                    <img src={imageUrl(h.image_url)} alt={h.name} loading="lazy" />
+                  ) : (
+                    <span className="pb-rcard-photo-empty">ФОТО ОТЕЛЯ</span>
+                  )}
+                  {h.price_from != null && (
+                    <span className="pb-rcard-snowbadge">ОТ {h.price_from} {h.currency || '₽'}</span>
+                  )}
+                </Link>
+                <div className="pb-rcard-body">
+                  <div className="pb-rcard-head">
+                    <Link to={`/hotels/${h.id}`} className="pb-rcard-name">{h.name}</Link>
+                    {h.rating != null && <span className="pb-rcard-rating">★ {h.rating.toFixed(1)}</span>}
+                  </div>
+                  {h.resort_id != null && (
+                    <div className="pb-rcard-meta">{getResortName(h.resort_id).toUpperCase()}</div>
+                  )}
+                  {h.description && <p className="pb-rcard-desc">{h.description}</p>}
+                  <div className="pb-rcard-foot">
+                    <Link to={`/hotels/${h.id}`} className="pb-rcard-compare">Подробнее →</Link>
+                  </div>
+                </div>
               </div>
-            </Link>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </div>

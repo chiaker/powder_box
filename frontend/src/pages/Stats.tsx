@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { api, Track, UserStats } from '../api/client';
 import { MapContainer, TileLayer, Polyline, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import PageHead from '../components/PageHead';
 
 export default function Stats() {
   const { token } = useAuth();
@@ -47,11 +48,9 @@ export default function Stats() {
     : [];
 
   return (
-    <div className="page">
-      <header className="page-header">
-        <h1>Статистика катания</h1>
-        <p>Сводка по вашим записанным трекам.</p>
-      </header>
+    <div className="pb-resorts">
+      <PageHead kicker={`${tracks.length} заездов записано`} title="Статистика катания" />
+      <div className="pb-page pb-page-pad">
 
       {tiles.length > 0 && (
         <div className="stats-grid">
@@ -118,6 +117,7 @@ export default function Stats() {
           </div>
         )}
       </section>
+      </div>
     </div>
   );
 }

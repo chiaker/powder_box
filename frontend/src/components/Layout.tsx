@@ -4,9 +4,6 @@ import Nav from './Nav'
 import Footer from './Footer'
 import BottomTabs from './BottomTabs'
 
-/** Маршруты, рисующие собственный hero/градиент — nav ложится поверх */
-const heroRoute = (p: string) => p === '/' || p === '/compare' || /^\/resorts\/[^/]+$/.test(p)
-
 export default function Layout() {
   const { pathname } = useLocation()
 
@@ -16,17 +13,17 @@ export default function Layout() {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [pathname])
 
-  const overlay = heroRoute(pathname)
-
   // Вход и регистрация — полноэкранный сплит со своей шапкой (дизайн 12a/12b)
   if (pathname === '/login' || pathname === '/register') {
     return <Outlet />
   }
 
+  // Шапка всегда лежит поверх градиента страницы (hero или PageHead) —
+  // отдельной полосы под ней нет, иначе между ними появляется разрыв
   return (
     <div className="layout">
-      {overlay ? <Nav /> : <div className="top-band"><Nav /></div>}
-      <main className={overlay ? 'main main-full' : 'main'}>
+      <Nav />
+      <main className="main main-full">
         <Outlet />
       </main>
       <BottomTabs />

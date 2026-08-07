@@ -67,7 +67,6 @@
   --font-mono: 'IBM Plex Mono', monospace;
   --dur-theme: 0.9s;
   --dur-sky: 1.8s;
-  --scene-cap: 1600px; /* предел ширины горы и солнца в hero */
   --hdr-grad: linear-gradient(180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
   --hdr-grad: linear-gradient(in oklab 180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
 }
@@ -211,15 +210,34 @@ textarea {
 
 .main {
   flex: 1;
-  margin: 0 auto;
-  padding: 2rem 36px;
   width: 100%;
+  padding: 0;
 }
 
-/* Страницы с собственным hero: контент во всю ширину, nav ложится поверх */
-.main-full {
-  max-width: none;
-  padding: 0;
+/* Страницы без градиентного хедера отступают под шапку и подкладывают
+   под неё градиент — иначе белые ссылки шапки висят на светлом фоне */
+.page {
+  position: relative;
+  padding: 88px 36px 36px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  height: 68px;
+  background: linear-gradient(180deg, #1b2a4a 0%, #2c4570 100%);
+  background: linear-gradient(in oklab 180deg, #1b2a4a 0%, #2c4570 100%);
+}
+
+[data-theme='dark'] .page::before {
+  background: linear-gradient(180deg, #0b1322 0%, #16273f 100%);
+  background: linear-gradient(in oklab 180deg, #0b1322 0%, #16273f 100%);
 }
 
 .layout > .nav {
@@ -230,11 +248,7 @@ textarea {
   z-index: 1000;
 }
 
-/* Градиентная полоса шапки для страниц без hero */
-.top-band {
-  background: linear-gradient(180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
-  background: linear-gradient(in oklab 180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
-}
+/* Шапка лежит поверх градиента страницы, отдельной полосы нет */
 
 /* Nav (дизайн: белая шапка поверх градиента/hero) */
 .nav {
@@ -2605,12 +2619,30 @@ details.weather-card[open] > summary {
   margin-top: 8px;
 }
 
-/* ===== PowderBox: компактный градиентный хедер (4a/4b) ===== */
+/* ===== PowderBox: компактный градиентный хедер (4a/4b/10a/11a/11b) ===== */
 .page-head {
-  background: linear-gradient(180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
-  background: linear-gradient(in oklab 180deg, #1b2a4a 0%, #35507e 55%, #56688f 100%);
+  position: relative;
+  background: linear-gradient(180deg, #1b2a4a 0%, #35507e 65%, #56688f 100%);
+  background: linear-gradient(in oklab 180deg, #1b2a4a 0%, #35507e 65%, #56688f 100%);
   color: #fff;
   padding-top: 68px; /* высота absolute-nav: 20px + 28px + 20px */
+  overflow: hidden;
+}
+
+/* Закатный слой — проявляется вместе с темой, как небо на главной */
+.page-head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0b1322 0%, #1e3252 60%, #6a4d6b 100%);
+  background: linear-gradient(in oklab 180deg, #0b1322 0%, #1e3252 60%, #6a4d6b 100%);
+  opacity: var(--sky-dark-op);
+  transition: opacity var(--dur-sky) ease-in-out;
+}
+
+.page-head-inner {
+  position: relative;
+  z-index: 1;
 }
 
 .page-head-inner {
@@ -2699,33 +2731,19 @@ details.weather-card[open] > summary {
   z-index: 1;
 }
 
-/* Гора: ограничена по ширине, чтобы силуэт не расплющивался на широком экране */
-.pb-scene {
+/* Хост сцены — по нему ResizeObserver меряет ширину для viewBox */
+.pb-scene-host {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: var(--scene-cap);
-  height: 100%;
-  z-index: 3;
+  inset: 0;
 }
 
-.pb-scene-narrow { display: none; }
-
-/* Продолжение горы к краям экрана, когда сцена упёрлась в кап.
-   Лежит под сценой: в центре её закрывает силуэт, по краям видна ровной полосой */
-.pb-hero::after {
-  content: '';
+/* Гора: viewBox равен пиксельному размеру, поэтому склоны не растягиваются */
+.pb-scene {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 63px; /* 520 − 457: высота края полигона */
-  background: var(--mtn);
-  border-top: 2px solid var(--rim);
-  z-index: 2;
-  transition: background-color var(--dur-theme), border-color var(--dur-theme);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
 }
 
 /* Солнце: собственные пропорции, поэтому остаётся круглым при любой ширине */
@@ -2735,7 +2753,7 @@ details.weather-card[open] > summary {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: var(--scene-cap);
+  max-width: 1180px;
   z-index: 1;
   pointer-events: none;
 }
@@ -3228,13 +3246,8 @@ details.weather-card[open] > summary {
 
 /* Мобильная главная — экран 9a */
 @media (max-width: 640px) {
-  :root { --scene-cap: none; }
-
   .pb-hero { height: 420px; }
-  .pb-hero::after { display: none; }
-  .pb-scene-wide { display: none; }
-  .pb-scene-narrow { display: block; }
-  /* в мобильной сцене снежинок three, не five */
+  /* в мобильной сцене три снежинки, а не пять */
   .pb-snow:nth-of-type(2),
   .pb-snow:nth-of-type(4) { display: none; }
 
@@ -5585,4 +5598,259 @@ label {
 
 .pb-profile-strip .pb-strip-col:last-child {
   border-right: none;
+}
+
+/* ===== Общие виджеты в языке нового дизайна ===== */
+
+/* Поля страниц без собственной сетки */
+.pb-page-pad {
+  padding: 26px 36px 30px;
+}
+
+/* Метка высоты: на десктопе одной строкой, на мобильном — в две (дизайн 9a) */
+.pb-alt-name + .pb-alt-alt::before {
+  content: ' — ';
+}
+
+/* Сворачиваемые секции и карточки погоды — тот же язык, что у остальных блоков */
+details.weather-card,
+.weather-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+details.weather-card > summary h2,
+.weather-card h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.altitude-weather-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.altitude-weather-header strong { font-size: 14.5px; font-weight: 600; }
+
+.altitude-weather-header span,
+.weather-label {
+  font: 400 10.5px var(--font-mono);
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+}
+
+.weather-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.hourly-item,
+.daily-item {
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
+.review-card,
+.account-card,
+.skipass-price-box {
+  background: var(--surface-card);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.review-header strong { font-weight: 600; font-size: 14px; }
+
+.review-date {
+  font: 400 10.5px var(--font-mono);
+  color: var(--text-3);
+}
+
+.rating-stars .star-filled { color: var(--warm-2); }
+.rating-stars .star-empty { color: var(--line-2); }
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--line-2);
+  padding: 0 2px;
+}
+
+.star-btn.active { color: var(--warm-2); }
+
+.skipass-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.skipass-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font: 400 10px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.skipass-controls input,
+.skipass-controls select {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--mail-border);
+  border-radius: 0;
+  padding: 0 0 9px;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text);
+}
+
+.skipass-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.skipass-price-box strong {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+/* Карточки отелей */
+.pb-rcard-desc {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pb-hotel-photo {
+  margin-top: 14px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  cursor: zoom-in;
+  max-height: 420px;
+}
+
+.pb-hotel-photo img {
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.hotel-gallery img,
+.hotel-rooms img {
+  border-radius: var(--radius);
+  border: 1px solid var(--line-2);
+}
+
+.hotel-card,
+.hotel-card-link {
+  background: var(--surface-card);
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+}
+
+/* Подтверждение почты */
+.pb-confirm {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+}
+
+.pb-confirm-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  padding: 30px 34px;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+}
+
+.pb-confirm-card h1 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+/* Админка в новом языке */
+.admin-layout { background: var(--bg); }
+
+.admin-table {
+  background: var(--surface-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.admin-form {
+  padding: 20px 22px;
+}
+
+/* ===== Мобильная версия: доводка под 9a ===== */
+@media (max-width: 640px) {
+  .pb-page-pad { padding: 20px; }
+
+  .nav-brand { font-size: 15px; }
+
+  /* Метка высоты в две строки, как в макете */
+  .pb-alt-label {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+  }
+
+  .pb-alt-name + .pb-alt-alt::before { content: none; }
+
+  .pb-alt-note { max-width: 84px; line-height: 1.3; }
+
+  .page-head { padding-top: 62px; }
+
+  .page-head-inner {
+    padding: 6px 20px 20px;
+    gap: 12px;
+  }
+
+  .page-head-title { font-size: 23px; }
+
+  .page-head-right {
+    margin-left: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .pb-rd-metrics { width: 100%; }
+
+  .weather-card,
+  details.weather-card { padding: 16px 18px; }
+
+  .skipass-controls { gap: 14px; }
+
+  .pb-hotel-photo { max-height: 220px; }
+  .pb-hotel-photo img { max-height: 220px; }
+
+  .pb-footer-inner { flex-direction: column; gap: 18px; }
+  .pb-footer-right { margin-left: 0; text-align: left; }
+
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }

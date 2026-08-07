@@ -140,7 +140,8 @@ export default function Home() {
     return (
       <div key={p.point_id} className={idx > 0 ? 'pb-alt-group pb-alt-gap' : 'pb-alt-group'}>
         <div className="pb-alt-label">
-          {p.point_name.toUpperCase()} — {p.altitude_m.toLocaleString('ru-RU')} М
+          <span className="pb-alt-name">{p.point_name.toUpperCase()}</span>
+          <span className="pb-alt-alt">{p.altitude_m.toLocaleString('ru-RU')} М</span>
         </div>
         <div className="pb-alt-value">
           <span className="pb-alt-temp">{Math.round(p.temperature)}°</span>
