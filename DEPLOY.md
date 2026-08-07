@@ -25,7 +25,8 @@ Internet  →  HestiaCP nginx (80, HTTP)  →  127.0.0.1:3000  (frontend, ста
 | `frontend/Dockerfile.prod` | Multi-stage сборка SPA (Vite build → nginx alpine) |
 | `frontend/nginx.conf` | Внутренний nginx фронт-контейнера: статика + SPA fallback |
 | `deploy/hestia/powderbox.tpl` / `.stpl` | nginx-шаблоны HestiaCP. `.tpl` используется (HTTP), `.stpl` требуется для регистрации имени шаблона панелью, даже если SSL для домена выключен |
-| `.github/workflows/deploy.yml` | GitHub Actions: matrix-тесты по всем сервисам → SSH-деплой (только на push в main) |
+| `docker-compose.ghcr.yml` | Prod-оверрайд: образы берутся из ghcr.io, сборка на сервере отключена (`build: !reset null`) |
+| `.github/workflows/deploy.yml` | GitHub Actions: matrix-тесты → сборка образов и публикация в ghcr.io → SSH-деплой (только на push в main) |
 
 ## Один раз: настройка сервера
 
@@ -171,15 +172,24 @@ push в main (или ручной workflow_dispatch)
 test (matrix x11 сервисов — pytest в параллель)
    │  все зелёные?
    ▼
+build (matrix x12 образов: 11 сервисов + frontend)
+   │  docker build → push в ghcr.io/<repo>/<image>:<sha> и :latest
+   ▼
 deploy
    │  ssh powderbox@SERVER_IP
    ▼
 cd $APP_DIR
 git fetch && git reset --hard origin/main
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --remove-orphans
+docker login ghcr.io          # GITHUB_TOKEN текущего запуска
+TAG=<sha> docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ghcr.yml pull
+                          ... up -d --remove-orphans
 curl /health (retry до 30x)
 docker image prune -f
 ```
+
+Образы собираются в CI, а не на сервере: у прод-машины бывают проблемы с
+доступом к PyPI/npm, из-за которых `pip install` отваливался по таймауту.
+Сервер теперь только скачивает готовые образы.
 
 На `pull_request → main` отрабатывает только этап `test` — деплой не идёт,
 но красные тесты сразу видно в чек-листе PR-а.

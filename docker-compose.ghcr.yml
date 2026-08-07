@@ -1,0 +1,61 @@
+# Прод-деплой из готовых образов GitHub Container Registry.
+#
+# Образы собираются в CI (там есть доступ к PyPI/npm) и публикуются в ghcr.io,
+# сервер их только тянет — сборка на проде больше не выполняется.
+#
+# Запуск:
+#   TAG=<sha> docker compose \
+#     -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ghcr.yml \
+#     pull && ... up -d
+#
+# `build: !reset null` убирает секцию сборки из базового файла (Compose 2.24+),
+# иначе compose пытался бы собрать образ локально при отсутствии его в кэше.
+
+services:
+  frontend:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/frontend:${TAG:-latest}
+
+  api-gateway:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/api-gateway:${TAG:-latest}
+
+  auth-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/auth-service:${TAG:-latest}
+
+  user-profile-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/user-profile-service:${TAG:-latest}
+
+  resort-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/resort-service:${TAG:-latest}
+
+  weather-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/weather-service:${TAG:-latest}
+
+  hotel-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/hotel-service:${TAG:-latest}
+
+  skipass-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/skipass-service:${TAG:-latest}
+
+  lesson-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/lesson-service:${TAG:-latest}
+
+  activity-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/activity-service:${TAG:-latest}
+
+  stats-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/stats-service:${TAG:-latest}
+
+  notification-service:
+    build: !reset null
+    image: ${REGISTRY:-ghcr.io/chiaker/powder_box}/notification-service:${TAG:-latest}

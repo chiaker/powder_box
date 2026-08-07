@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -55,9 +59,60 @@ jobs:
         working-directory: ${{ matrix.service }}
         run: pytest -v --tb=short
 
+  build:
+    name: Build ${{ matrix.image }}
+    needs: [test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # Образы нужны только для деплоя; PR-ы ограничиваются тестами.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - api-gateway
+          - auth-service
+          - user-profile-service
+          - resort-service
+          - hotel-service
+          - weather-service
+          - skipass-service
+          - lesson-service
+          - activity-service
+          - stats-service
+          - notification-service
+          - frontend
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # У фронтенда прод-сборка в статику лежит в отдельном Dockerfile
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.image }}
+          file: ./${{ matrix.image }}/${{ matrix.image == 'frontend' && 'Dockerfile.prod' || 'Dockerfile' }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/${{ matrix.image }}:latest
+          # Связывает пакет с репозиторием — иначе GITHUB_TOKEN не получит к нему доступ
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
   deploy:
     name: Deploy to production
-    needs: [test]
+    needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # Деплой только при push в main; PR-ы только тестируются.
@@ -72,21 +127,29 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           command_timeout: 20m
+          # TAG подставляется в docker-compose.ghcr.yml, токен нужен для pull из GHCR
+          envs: TAG,REGISTRY,GHCR_USER,GHCR_TOKEN
           script: |
             set -euo pipefail
 
             APP_DIR="${{ secrets.APP_DIR }}"
             cd "$APP_DIR"
 
+            COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ghcr.yml"
+            export TAG REGISTRY
+
             echo "==> git pull"
             git fetch --all --prune
             git reset --hard origin/main
 
-            echo "==> docker compose up --build"
-            docker compose \
-              -f docker-compose.yml \
-              -f docker-compose.prod.yml \
-              up -d --build --remove-orphans
+            echo "==> login to ghcr.io"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+            echo "==> pull images $REGISTRY:$TAG"
+            $COMPOSE pull
+
+            echo "==> docker compose up (без сборки — образы уже готовы)"
+            $COMPOSE up -d --remove-orphans
 
             echo "==> waiting for api-gateway to become healthy"
             for i in $(seq 1 30); do
@@ -96,14 +159,20 @@ jobs:
               fi
               if [ "$i" = "30" ]; then
                 echo "api-gateway did NOT come up — see logs:"
-                docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=200 api-gateway
+                $COMPOSE logs --tail=200 api-gateway
                 exit 1
               fi
               sleep 2
             done
 
-            echo "==> docker image prune"
+            echo "==> cleanup"
+            docker logout ghcr.io || true
             docker image prune -f
 
             echo "==> deploy complete"
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+            $COMPOSE ps
+        env:
+          TAG: ${{ github.sha }}
+          REGISTRY: ghcr.io/${{ github.repository }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
