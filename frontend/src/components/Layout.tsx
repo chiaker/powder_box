@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Nav from './Nav'
 import Footer from './Footer'
-import BottomTabs from './BottomTabs'
 
 export default function Layout() {
   const { pathname } = useLocation()
@@ -26,7 +25,6 @@ export default function Layout() {
       <main className="main main-full">
         <Outlet />
       </main>
-      <BottomTabs />
       <Footer />
     </div>
   )

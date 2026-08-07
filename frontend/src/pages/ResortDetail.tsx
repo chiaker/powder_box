@@ -633,7 +633,9 @@ export default function ResortDetail() {
           )}
         </section>
 
-        {/* Скипассы */}
+        {/* Скипассы: показываем только там, где админ завёл тарифы —
+            иначе раздел висел бы пустым на каждом курорте */}
+        {skipassTariffs.some((t) => t.is_active) && (
         <section className="pb-section">
           <div className="pb-section-head"><h3>Скипассы</h3></div>
           <div className="skipass-controls">
@@ -710,6 +712,7 @@ export default function ResortDetail() {
             </div>
           )}
         </section>
+        )}
 
         {hotels.length > 0 && (
           <section className="pb-section">

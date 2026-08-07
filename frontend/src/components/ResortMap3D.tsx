@@ -5,6 +5,7 @@ import { Line2 } from 'three/examples/jsm/lines/Line2.js'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 import { api, type Resort, type AltitudePoint } from '../api/client'
+import { useTheme } from '../context/ThemeContext'
 
 /**
  * Точечная 3D-модель горы: рельеф — облако точек из открытых DEM-тайлов
@@ -206,6 +207,8 @@ function formatLen(m: number): string {
 export default function ResortMap3D({ resortId, points, variant = 'points' }: Props) {
   const mountRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
+  // Сцена перестраивается при смене темы: фон и градиент рельефа зависят от неё
+  const dark = useTheme().theme === 'dark'
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [trailsLoaded, setTrailsLoaded] = useState(true)
   const [filters, setFilters] = useState<Set<FilterKind>>(new Set())
@@ -253,7 +256,7 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
       const elevation = await buildElevationSampler(bbox)
       if (disposed) return
 
-      scene.background = new THREE.Color('#0c1222')
+      scene.background = new THREE.Color(dark ? '#0c1222' : '#e7eef7')
 
       // --- Облако точек рельефа ---
       const positions = new Float32Array(GRID * GRID * 3)
@@ -271,9 +274,10 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
           if (e > maxE) maxE = e
         }
       }
-      // Верх — светло-серый, не белый: на белом терялись чёрные трассы
-      const low = new THREE.Color('#33415e')
-      const high = new THREE.Color('#cbd5e1')
+      // На тёмном фоне рельеф светлеет кверху, на светлом — темнеет,
+      // иначе вершины сливаются с фоном
+      const low = new THREE.Color(dark ? '#33415e' : '#9fb4cc')
+      const high = new THREE.Color(dark ? '#cbd5e1' : '#3f5675')
       for (let j = 0; j < GRID; j++) {
         for (let i = 0; i < GRID; i++) {
           const idx = j * GRID + i
@@ -590,7 +594,7 @@ export default function ResortMap3D({ resortId, points, variant = 'points' }: Pr
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pointsKey, resortId, variant])
+  }, [pointsKey, resortId, variant, dark])
 
   if (status === 'error') {
     return <div className="empty-state"><p>Не удалось загрузить данные рельефа. Попробуйте позже.</p></div>

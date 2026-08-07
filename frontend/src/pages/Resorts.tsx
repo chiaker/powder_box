@@ -237,14 +237,15 @@ export default function Resorts() {
                 const fav = favoriteIds.has(String(r.id))
                 return (
                   <div key={r.id} className="pb-rcard">
-                    <Link to={`/resorts/${r.id}`} className="pb-rcard-photo">
+                    <Link to={`/resorts/${r.id}`} className="pb-rcard-hit" aria-label={r.name} />
+                    <div className="pb-rcard-photo">
                       {r.image_url ? (
                         <img src={imageUrl(r.image_url)} alt={r.name} loading="lazy" />
                       ) : (
                         <span className="pb-rcard-photo-empty">ФОТО КУРОРТА</span>
                       )}
                       {cm != null && cm > 0 && <span className="pb-rcard-snowbadge">+{cm} СМ ЗА 48 Ч</span>}
-                    </Link>
+                    </div>
                     <button
                       type="button"
                       className={`pb-rcard-fav ${fav ? 'active' : ''}`}
@@ -255,7 +256,7 @@ export default function Resorts() {
                     </button>
                     <div className="pb-rcard-body">
                       <div className="pb-rcard-head">
-                        <Link to={`/resorts/${r.id}`} className="pb-rcard-name">{r.name}</Link>
+                        <span className="pb-rcard-name">{r.name}</span>
                         {r.rating != null && <span className="pb-rcard-rating">★ {r.rating.toFixed(1)}</span>}
                       </div>
                       <div className="pb-rcard-meta">{meta(r) || 'НЕТ ДАННЫХ О ТРАССАХ'}</div>

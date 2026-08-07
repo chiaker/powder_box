@@ -116,7 +116,8 @@ export default function Hotels() {
           <div className="pb-resorts-grid">
             {visibleHotels.map((h) => (
               <div key={h.id} className="pb-rcard">
-                <Link to={`/hotels/${h.id}`} className="pb-rcard-photo">
+                <Link to={`/hotels/${h.id}`} className="pb-rcard-hit" aria-label={h.name} />
+                <div className="pb-rcard-photo">
                   {h.image_url ? (
                     <img src={imageUrl(h.image_url)} alt={h.name} loading="lazy" />
                   ) : (
@@ -125,10 +126,10 @@ export default function Hotels() {
                   {h.price_from != null && (
                     <span className="pb-rcard-snowbadge">ОТ {h.price_from} {h.currency || '₽'}</span>
                   )}
-                </Link>
+                </div>
                 <div className="pb-rcard-body">
                   <div className="pb-rcard-head">
-                    <Link to={`/hotels/${h.id}`} className="pb-rcard-name">{h.name}</Link>
+                    <span className="pb-rcard-name">{h.name}</span>
                     {h.rating != null && <span className="pb-rcard-rating">★ {h.rating.toFixed(1)}</span>}
                   </div>
                   {h.resort_id != null && (
@@ -136,7 +137,7 @@ export default function Hotels() {
                   )}
                   {h.description && <p className="pb-rcard-desc">{h.description}</p>}
                   <div className="pb-rcard-foot">
-                    <Link to={`/hotels/${h.id}`} className="pb-rcard-compare">Подробнее →</Link>
+                    <span className="pb-rcard-compare">Подробнее →</span>
                   </div>
                 </div>
               </div>
